@@ -1,0 +1,13 @@
+{
+  "name": "FAKEAPI",
+  "version": "1.0.0",
+  "description": "RESTful API server for random fake data.",
+  "main": "index.php",
+  "scripts": {
+    "start": "php -S localhost:9090 -t ./"
+  },
+  "author": "Rogerio Taques",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {}
+}
