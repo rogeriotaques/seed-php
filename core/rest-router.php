@@ -327,13 +327,31 @@ class RestRouter {
    * Standardise the response.
    */
   public static function response ( $code, $response = [], $extra = [] ) {
+    $_variable_names = [
+      'return_status' => 'status',
+      'return_data'   => 'data'
+    ];
+
+    if (isset($_GET['_router_status']) && is_string($_GET['_router_status'])) {
+      $_variable_names['return_status'] = $_GET['_router_status'];
+    }
+
+    if (isset($_GET['_router_data']) && is_string($_GET['_router_data'])) {
+      $_variable_names['return_data'] = $_GET['_router_data'];
+    }
+
     // retrieve http status code 
     $status = self::getHTTPStatus($code);
-    $result = array_merge($extra, ['status' => $status['code'], 'data' => $response]);
+    $result = array_merge($extra, [
+      $_variable_names['return_status'] => $status['code'], 
+      $_variable_names['return_data'] => $response
+    ]);
 
     // if it's an error merge with error data 
     if ($code >= 400) {
-      $result = array_merge($extra, ['error' => $status['code'], 'message' => $status['message'], 'responseJSON' => $response]);
+      unset($result[ $_variable_names['return_data'] ]);
+      $result = array_merge($result, $response);
+      // $result = array_merge($extra, ['error' => $status['code'], 'message' => $status['message'], 'responseJSON' => $response]);
     }
 
     // convert result into string

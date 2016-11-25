@@ -10,9 +10,9 @@
  | @see http://github.com/rogeriotaques/rmysql
  * -------------------------------------------------------- */
 
-namespace BATS\Libraries;
+namespace Libraries;
 
-defined('BATS_ENV') or die('Direct script access is not allowed!');
+defined('ENV') or die('Direct script access is not allowed!');
 
 class RMySQL {
 
@@ -162,7 +162,7 @@ class RMySQL {
       throw new \Exception($error['error'], $error['errno']);
     }
 
-    if (preg_match('/^select/i', $query) > 0) {
+    if (preg_match('/^(\t|\r|\n|\s){0,}(select)/i', $query) > 0) {
       if ($res) {
         while( $row = $res->fetch_assoc() ) {
           $result[] = $row;

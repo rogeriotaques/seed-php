@@ -15,7 +15,7 @@ use Controllers\Master;
 class Resources extends Master {
 
   /**
-   * @api {get} /<resources> Get "resources" 
+   * @api {get} /<resources>?structure=<data> Get "resources" 
    * 
    * @apiName getResources
    * @apiGroup Resources
@@ -28,12 +28,22 @@ class Resources extends Master {
    *    Specially for this method, since it is a extremely flexible method, you need to 
    *    tell the API what kind of data structure you are waiting for. <br ><br >
    *
-   * @apiParam {integer} structure The structure data: <code>type:label:length:limit[,type:label:length:limit[,...]]</code>
+   * @apiParam {integer} structure The structure data: <code>type:label[:length[:min_length[:extra]]][,type:label[:length[:min_length[:extra]]][,...]]</code>
    *
-   * @apiParam (structure) {string="name","first_name","last_name","date","datetime","email","url","addr","int","dec","percent","string"} type The data type should be returned
+   * @apiParam (structure) {string="name","first_name","last_name","date","datetime","email","url","addr","int","dec","percent","string","avatar","image"} type The data type should be returned
    * @apiParam (structure) {string} label The label that should be applied to returned data field
-   * @apiParam (structure) {integer} [length] The length of returned value. It's only used for <code>string</code>,<code>int</code>,<code>dec</code> and <code>percent</code>. Result will be random up to the length given. When <code>string</code> it defines how many words the sentence will have
-   * @apiParam (structure) {integer} [min_length] The minimum length of returned value. It's only used for <code>string</code>,<code>int</code>,<code>dec</code> and <code>percent</code>. When <code>string</code> it defines how many words the sentence will have
+   * @apiParam (structure) {variant} [length] 
+   *  The length of returned value. Can be an <code>integer</code> or <code>string</code>.<br><br>
+   *  It's used for types: <code>string</code>,<code>int</code>,<code>dec</code>, <code>percent</code>, <code>avatar</code> and <code>image</code>. <br ><br > 
+   *  Result will be random up to the length given. When type is <code>string</code> it defines how many words the sentence will have.<br ><br >
+   *  Whenever type is <code>avatar</code> or <code>image</code> this can be the image gender (<code>M</code> or <code>F</code>) or image width (e.g: 600). 
+   * @apiParam (structure) {variant} [min_length] 
+   *  The minimum length of returned value. Can be an <code>integer</code> or <code>string</code>.<br><br>
+   *  It's used for types: <code>int</code>,<code>dec</code>, <code>percent</code>, <code>avatar</code> and <code>image</code>. <br ><br >
+   *  Whenever type is <code>avatar</code> or <code>image</code> this can be the image gender (<code>M</code> or <code>F</code>) or image height (e.g: 600).
+   * @apiParam (structure) {string} [extra] 
+   *  When type is <code>avatar</code> and count and min_length are been passed, this can be given.  
+   *  It represents the image gender (<code>M</code> or <code>F</code>).
    *
    * @apiExample {curl} Example:
    *  curl -X GET http://fakeapi.abtz.co/something?structure=name:name,date:birthday,string:something-else:3 or

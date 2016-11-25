@@ -17,6 +17,8 @@ defined('ENV') or die('Direct script access is not allowed!');
 
 $cfg = [];
 
+$cfg['version'] = '1.1.0';
+
 /* --------------------------------------------------------
  | Current server base URL 
  * -------------------------------------------------------- */

@@ -183,15 +183,15 @@ class Users extends Master {
   } // index_delete
 
   private function getUser ($i, $id = false) {
-    $gender = ['m','f'];
     $data = $name = $this->getRandName();
 
-    $data['gender'] = $gender[rand(0,1)]; 
     $data['birthday'] = $this->getRandDate(); 
     $data['email'] = $this->getRandEmail( implode('.', $name) ); 
     $data['username'] = strtolower(implode('.', $name)); 
     $data['password'] = 'a100eed4'; 
     $data['address'] = $this->getRandAddr(); 
+    $data['media'] = $this->getRandMedia('avatar', $data['gender']);  
+
     $data['id'] = ( !$id ? $i + 1 : $id ); 
 
     return $data;

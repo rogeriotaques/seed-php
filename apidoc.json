@@ -1,10 +1,14 @@
 {
   "name": "FAKE API",
   "version": "1.0.0",
-  "description": "RESTful API server for random fake data.<br ><br >Use this as a tool to generate random (fake) data and consume it as a temporary RESTful API while developing web or mobile applications without need to use the real RESTful API from production, or even fake data using local JSON files and other.",
+  "description": "RESTful API server for random fake data.",
   "url" : "https://fakeapi.abtz.co",
+  "header": {
+    "title": "About",
+    "filename": "./apidoc.header.md"
+  },
   "footer": {
-    "title": "Support",
+    "title": "Advanced",
     "filename": "./apidoc.footer.md"
   },
   "order": [

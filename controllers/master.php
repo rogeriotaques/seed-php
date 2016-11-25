@@ -20,7 +20,7 @@ use Libraries\RMySQL;
 
 class Master {
 
-  const MAX_RESULTS = 500; 
+  const MAX_RESULTS = 250; 
 
   protected $_names;
   protected $_surnames;
@@ -28,6 +28,10 @@ class Master {
   protected $_results = 25;
   protected $_tlds = ['.com', '.co', '.org', '.in', '.com.br', '.net', '.me'];
   protected $_structure = false;
+  protected $_images = [
+    'M' => ['1074', '1062', '1005', '883', '804', '453'], 
+    'F' => ['1027', '1011', '1010', '996', '978', '836']
+  ]; 
 
   function __construct () {
     global $router;
@@ -54,13 +58,14 @@ class Master {
       }
 
       $this->_structure = array_map(function ($el) {
-        list($type, $label, $count, $min_length) = explode(':', $el);
+        list($type, $label, $count, $min_length, $extra) = explode(':', $el);
 
         return (object) [
           'type' => $type,
           'label' => $label ? $label : $type,
           'count' => $count ? $count : 1,
-          'min_length' => $min_length ? $min_length : 1
+          'min_length' => $min_length ? $min_length : 1,
+          'extra' => $extra ? $extra : null
         ];
       }, explode(',', $structure));
     }
@@ -90,11 +95,51 @@ class Master {
     ];
   } // load
 
+  protected function getRandMedia ($type = 'profile', $gender = 'M', $width = 600, $height = 600) {
+    $gender  = strtoupper($gender);
+    $source = 'https://unsplash.it/{width}/{height}?image={id}';
+
+    if (!isset($this->_images[$gender])) {
+      $gender = 'M';
+    }
+
+    if (!$width) {
+      $width = 600;
+    }
+
+    if (!$height) {
+      $height = $width;
+    }
+
+    switch ($type) {
+      case 'image':
+        $image  = rand(0, 1084);
+        return [
+          'image' => str_replace(['{width}', '{height}', '{id}'], [$width, $height, $image], $source),
+          'thumb' => str_replace(['{width}', '{height}', '{id}'], ['100', '100', $image], $source)
+        ];
+        break;
+      default: // avatar 
+        $image  = $this->_images[$gender][rand(0, count($this->_images[$gender]) - 1)];
+        return [
+          'image' => str_replace(['{width}', '{height}', '{id}'], [$width, $height, $image], $source),
+          'thumb' => str_replace(['{width}', '{height}', '{id}'], ['100', '100', $image], $source)
+        ];
+    }
+  } // getRandMedia
+
   protected function getRandName ( $concat = false ) {
+    $name = $this->_names->data[rand(0, $this->_names->count - 1)];
+    list($name, $gender) = explode(',', $name);
+
     $data = [
-      'first_name' => $this->_names->data[rand(0, $this->_names->count - 1)],
+      'first_name' => $name,
       'last_name' => $this->_surnames->data[rand(0, $this->_surnames->count - 1)]
     ];
+
+    if (!$concat) {
+      $data['gender'] = $gender;
+    }
 
     return $concat !== false ? implode($concat, $data) : $data;
   } // getName
@@ -227,8 +272,29 @@ class Master {
             $list[$i][$item->label] = $this->getRandNum($item->count, ($item->min_length > 2 ? $item->min_length : 2), true, true); 
             break;
 
+          case 'avatar': 
+          case 'image':
+            $g = ( !is_numeric($item->count)
+              ? $item->count
+              : (!is_numeric($item->min_length)
+                ? $item->min_length
+                : ($item->extra
+                  ? $item->extra
+                  : 'M'
+                )
+              )
+            );
+
+            $w = (is_numeric($item->count) && $item->count > 1 ? $item->count : null);
+            $h = (is_numeric($item->min_length) && $item->min_length > 1 ? $item->min_length : null);
+
+            // var_dump($item, $g, $w, $h);
+
+            $list[$i][$item->label] = $this->getRandMedia($item->type, $g, $w, $h); 
+            break;
+
           default: // string
-            $list[$i][$item->label] = $this->getRandString( ($count ? $count : 1) ); 
+            $list[$i][$item->label] = $this->getRandString( ($itme->count ? $itme->count : 1) ); 
         }
         
       } 
@@ -274,9 +340,11 @@ class Master {
     $db->disconnect();
     
     return $router::response(200, [
+      'api_version' => $cfg['version'],
       'names' => $this->_names->count,
       'surnames' => $this->_surnames->count,
       'words' => $this->_words->count,
+      'images' => ( count($this->_images['M']) + count($this->_images['F']) ),
       'random_names' => ($this->_names->count * $this->_surnames->count),
       'queries' => $total_queries,
       'queries_per_day' => $queries_per_day,
