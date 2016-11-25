@@ -185,6 +185,8 @@ class Users extends Master {
   private function getUser ($i, $id = false) {
     $data = $name = $this->getRandName();
 
+    unset($name['gender']);
+
     $data['birthday'] = $this->getRandDate(); 
     $data['email'] = $this->getRandEmail( implode('.', $name) ); 
     $data['username'] = strtolower(implode('.', $name)); 

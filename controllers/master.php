@@ -137,7 +137,7 @@ class Master {
       'last_name' => $this->_surnames->data[rand(0, $this->_surnames->count - 1)]
     ];
 
-    if (!$concat) {
+    if ($concat === false) {
       $data['gender'] = $gender;
     }
 
