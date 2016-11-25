@@ -1,18 +1,18 @@
 <?php 
 
  /* --------------------------------------------------------
- | Seed PHP - MySQL Wrapper
+ | Seed PHP - MySQLi Wrapper
  |
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1
+ | @version 0.2
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  | @see http://github.com/rogeriotaques/rmysql
  * -------------------------------------------------------- */
 
-namespace Libraries;
+namespace BATS\Libraries;
 
-defined('ENV') or die('Direct script access is not allowed!');
+defined('BATS_ENV') or die('Direct script access is not allowed!');
 
 class RMySQL {
 
@@ -52,6 +52,10 @@ class RMySQL {
   } // __construct
 
   private function _escape ( $str = '' ) {
+    if (!is_object( $this->_resource )) {
+      return $str;
+    } 
+
     return (
         is_null($str)
           ? 'NULL'
@@ -135,12 +139,19 @@ class RMySQL {
   } // connect
 
   public function disconnect () {
+    if (!is_object($this->_resource)) {
+      return $this;
+    }
+
     $this->_resource->close();
     $this->_resource = null;
     return $this;
   } // disconnect
 
   public function exec ( $query = '' ) {
+    if (!is_object($this->_resource)) {
+      throw new \Exception('RMySQL: Resource is missing!');
+    }
 
     $res = $this->_resource->query( $query );
     $result = [];
@@ -151,8 +162,7 @@ class RMySQL {
       throw new \Exception($error['error'], $error['errno']);
     }
 
-    // fixes a problem when query is a select but starts with a breakline
-    if (preg_match('/^(\t|\n|\r|\s){0,}(select)/i', $query) > 0) {
+    if (preg_match('/^select/i', $query) > 0) {
       if ($res) {
         while( $row = $res->fetch_assoc() ) {
           $result[] = $row;
