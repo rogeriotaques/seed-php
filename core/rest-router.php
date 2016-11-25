@@ -15,6 +15,8 @@ namespace Core;
 
 defined('ENV') or die('Direct script access is not allowed!');
 
+use Libraries\Logger;
+
 class RestRouter {
 
   // request headers
@@ -91,10 +93,10 @@ class RestRouter {
   const _HTTP_VERSION_NOT_SUPPORTED = 505;
 
   function __construct () {
-    // initialize the logger
-    // $this->logger = new Logger();
+    global $routes, $cfg;
 
-    global $routes;
+    // initialize the logger
+    $this->logger = new Logger( $cfg['logger'][ENV] );
 
     $this->routes = $routes;
     $routes = null;
@@ -221,12 +223,23 @@ class RestRouter {
   */ 
   private function call () {
 
-    // $this->logger
-    //   ->endpoint( getenv('REQUEST_URI') )
-    //   ->resource( "{$this->method}: {$this->verb}" )
-    //   ->requestIP( self::getClientIP() )
-    //   ->requestHeader($this->headers)
-    //   ->requestData($this->args);
+    // is it an OPTIONS request?
+    // it's used to confirm if app accept CORS calls
+    if ($this->method === 'OPTIONS') {
+      return self::response(200); // do accept it
+    }
+
+    $this->logger
+      ->endpoint( getenv('REQUEST_URI') )
+      ->resource( "{$this->method}: {$this->verb}" )
+      ->requestIP( self::getClientIP() )
+      ->requestHeader( $this->headers );
+      
+    switch ($this->method) {
+      case 'GET': $this->logger->requestData( $this->args ); break;
+      case 'PUT': $this->logger->requestData( self::put() ); break;
+      case 'POST': $this->logger->requestData( self::post() ); break;
+    }
 
     // define the class name and namespace
     $class = 'Controllers\\' . $this->resource;
@@ -259,26 +272,24 @@ class RestRouter {
 
       // not given the right number of required arguments?
       if ($call_args_required_count > count($call_args)) {
-        // $this->logger->responseCode(400)->log();
-        self::response(400); // bad request
-        exit;
+        $this->logger->responseCode(400)->log();
+        return self::response(400); // bad request
       }
 
       // call it 
       $class = new $class;
       $response = call_user_func_array([$class, $func], $call_args);
 
-      // $this->logger
-      //   ->responseCode( $response['code'] )
-      //   ->responseData( $response['result'] )
-      //   ->log();
+      $this->logger
+        ->responseCode( $response['code'] )
+        ->responseData( $response['result'] )
+        ->log();
 
     } catch (\ReflectionException $e) {
 
       if ( $this->_using_special_route ) {
-        // $this->logger->responseCode(501)->log();
-        self::response(501); // not implemented
-        exit;
+        $this->logger->responseCode(501)->log();
+        return self::response(501); // not implemented
       }
 
       // before return an error, first, try to match any special route
@@ -304,9 +315,8 @@ class RestRouter {
         $this->run($match, $this->_callback);
 
       } else {
-        // $this->logger->responseCode(501)->log();
-        self::response(501); // not implemented
-        exit;
+        $this->logger->responseCode(501)->log();
+        return self::response(501); // not implemented
       }
 
     }
@@ -364,6 +374,42 @@ class RestRouter {
 
     return ( isset($_POST[$key]) ? $_POST[$key] : false );
   } // post
+
+  /**
+   * Retrieve a get value. If key is not given, retrieve a list of gotten values.
+   */
+  public static function get ( $key = null ) {
+    if ($key === null) {
+      return $_GET;
+    }
+
+    return ( isset($_GET[$key]) ? $_GET[$key] : false );
+  } // get
+
+  /**
+   * Retrieve a put value. If key is not given, retrieve a list of put values.
+   */
+  public static function put ( $key = null ) {
+    parse_str(file_get_contents("php://input"), $PUT);
+
+    if ($key === null) {
+      return $PUT;
+    }
+
+    return ( isset($PUT[$key]) ? $PUT[$key] : false );
+  } // put
+
+  /**
+   * Retrieve a received data value according to request method. 
+   * If key is not given, retrieve a list of put values.
+   */
+  public static function data ( $method = 'GET', $key = null ) {
+    switch (strtoupper($method)) {
+      case 'PUT': return self::put($key);
+      case 'POST': return self::post($key);
+      case 'GET': return self::get($key);
+    }
+  } // data
 
   /**
    * Retrieve the right http text string according to given code.

@@ -141,6 +141,7 @@ class RMySQL {
   } // disconnect
 
   public function exec ( $query = '' ) {
+
     $res = $this->_resource->query( $query );
     $result = [];
 
@@ -150,7 +151,8 @@ class RMySQL {
       throw new \Exception($error['error'], $error['errno']);
     }
 
-    if (preg_match('/^select/i', $query) > 0) {
+    // fixes a problem when query is a select but starts with a breakline
+    if (preg_match('/^(\t|\n|\r|\s){0,}(select)/i', $query) > 0) {
       if ($res) {
         while( $row = $res->fetch_assoc() ) {
           $result[] = $row;

@@ -18,4 +18,5 @@
 
 $routes = []; // PLEASE DO NOT REMOVE THIS LINE 
 
+$routes['figures'] = 'master/figures';
 $routes['(\w+)(/.*){0,1}'] = 'resources$2';

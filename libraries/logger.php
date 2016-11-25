@@ -18,10 +18,11 @@ use Libraries\RMySQL;
 class Logger {
   private $_db;
   private $_data = [];
+  private $_config;
 
-  function __construct () {
-    global $cfg;
-    $this->_db = new RMySQL($cfg['logger']);
+  function __construct ( $cfg = [] ) {
+    $this->_config = $cfg;
+    $this->_db = new RMySQL($this->_config);
   } // __construct
 
   public function endpoint ( $str = '' ) {
@@ -60,11 +61,10 @@ class Logger {
   } // responseCode
 
   public function log () {
-    global $cfg;
     $res = false;
 
     try {
-      $res = $this->_db->insert($cfg['logger']['table'], $this->_data);
+      $res = $this->_db->insert($this->_config['table'], $this->_data);
     } catch (\Exception $e) {
       // result is already set to false ... 
     }

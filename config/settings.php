@@ -39,11 +39,21 @@ $cfg['endpoints'] = [];
  | Logger
  * -------------------------------------------------------- */
 
- $cfg['logger'] = [
-   'host' => 'localhost',
-   'port' => '3306',
-   'user' => 'root',
-   'pass' => '',
-   'base' => 'fakeapi',
-   'table' => 'log_usage'
- ];
+$cfg['logger'] = [
+  'development' => [
+    'host' => 'localhost',
+    'port' => '3306',
+    'user' => 'root',
+    'pass' => '',
+    'base' => 'fakeapi',
+    'table' => 'log_usage'
+  ],
+  'production' => [
+    'host' => 'localhost',
+    'port' => '3306',
+    'user' => 'abtz',
+    'pass' => 'abt11235',
+    'base' => 'fakeapi',
+    'table' => 'log_usage'
+  ]
+];

@@ -69,6 +69,7 @@ class Users extends Master {
     }
 
     $user = $this->getUser(0, $post['id']);
+    $user = array_merge($user, $post);
     $user['registration_date'] = date('Y-m-d H:i:s');
 
     return $router::response(201, $user);
@@ -79,14 +80,14 @@ class Users extends Master {
 
     global $cfg, $router;
 
-    $post = $router::post();
+    $data = $router::put();
 
     if (!$id) {
       return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
     $user = $this->getUser(0, $id);
-    $user = array_merge($user, $post);
+    $user = array_merge($user, $data);
     $user['update_date'] = date('Y-m-d H:i:s');
 
     return $router::response(200, $user);

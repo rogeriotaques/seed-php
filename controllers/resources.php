@@ -49,6 +49,8 @@ class Resources extends Master {
 
     global $cfg, $router;
 
+    $post = $router::post();
+
     if (!$post || !isset($post['id'])) {
       return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
@@ -67,9 +69,10 @@ class Resources extends Master {
       return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
-    $post['update_date'] = date('Y-m-d H:i:s');
+    $data = $router::put();
+    $data['update_date'] = date('Y-m-d H:i:s');
 
-    return $router::response(200, $post);
+    return $router::response(200, $data);
 
   } // index_put
 

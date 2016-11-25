@@ -16,6 +16,8 @@ namespace Controllers;
 
 defined('ENV') or die('Direct script access is not allowed!');
 
+use Libraries\RMySQL;
+
 class Master {
 
   const MAX_RESULTS = 500; 
@@ -234,5 +236,53 @@ class Master {
 
     return $router::response(200, $list);
   }
+
+  public function figures_get () {
+    global $router, $cfg;
+
+    $db = new RMySQL( $cfg['logger'][ENV] );
+    $db->connect();
+
+    // retrieve total served queries
+    $res = $db->exec('select count(*) as total from log_usage');
+    $res = array_shift($res);
+    $total_queries = $res['total'];
+
+    // retrieve total served queries per day
+    $res = $db->exec('
+      select avg(total) as counter from (
+        select count(*) as total from log_usage group by unix_timestamp(`timestamp`) div 86400
+      ) as A
+    ');
+    $res = array_shift($res);
+    $queries_per_day = intval($res['counter']);
+
+    // retrieve total served queries per second
+    $res = $db->exec('
+      select avg(total) as average from (
+        select count(*) as total from log_usage group by unix_timestamp(`timestamp`) div 1
+      ) as A
+    ');
+    $res = array_shift($res);
+    $queries_per_sec = intval($res['counter']);
+
+    // retrieve total served queries today
+    $res = $db->exec('select count(*) as total from log_usage where date_format(`timestamp`, \'%Y-%m-%d\') = \'' . date('Y-m-d'). '\'');
+    $res = array_shift($res);
+    $queries_today = $res['total'];
+    
+    $db->disconnect();
+    
+    return $router::response(200, [
+      'names' => $this->_names->count,
+      'surnames' => $this->_surnames->count,
+      'words' => $this->_words->count,
+      'random_names' => ($this->_names->count * $this->_surnames->count),
+      'queries' => $total_queries,
+      'queries_per_day' => $queries_per_day,
+      'queries_per_second' => $queries_per_sec,
+      'queries_today' => $queries_today
+    ]);
+  } // figures_get
 
 } // class
