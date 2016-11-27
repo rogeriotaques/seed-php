@@ -36,9 +36,6 @@ class Users extends Master {
    *  {"status":400,"data":[{"message": "Bad request"}]}
    */
   public function index_get ( $id = false ) {
-
-    global $cfg, $router;
-
     if ($this->_structure !== false) {
       return $this->generalResource( $id );
     }
@@ -49,7 +46,7 @@ class Users extends Master {
       $this->_results = 1;
 
       if ( intval($id) === -1 ) {
-        return $router::response(404);
+        return $this->request->response(404);
       }
     }
 
@@ -57,8 +54,7 @@ class Users extends Master {
       $list[$i] = $this->getUser($i, $id);
     }
 
-    return $router::response(200, $list);
-
+    return $this->request->response(200, $list);
   } // index_get
 
   /**
@@ -88,21 +84,17 @@ class Users extends Master {
    *  {"error":400,"message":"Bad Request","responseJSON":{"error":"missing_key","error_message":"ID is missing."}}
    */
   public function index_post () {
-
-    global $cfg, $router;
-
-    $post = $router::post();
+    $post = $router->post();
 
     if (!$post || !isset($post['id'])) {
-      return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
+      return $this->request->response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
     $user = $this->getUser(0, $post['id']);
     $user = array_merge($user, $post);
     $user['registration_date'] = date('Y-m-d H:i:s');
 
-    return $router::response(201, $user);
-
+    return $this->request->response(201, $user);
   } // index_post
 
   /**
@@ -132,21 +124,17 @@ class Users extends Master {
    *  {"error":400,"message":"Bad Request","responseJSON":{"error":"missing_key","error_message":"ID is missing."}}
    */
   public function index_put ( $id = false ) {
-
-    global $cfg, $router;
-
-    $data = $router::put();
+    $data = $this->request->put();
 
     if (!$id) {
-      return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
+      return $this->request->response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
     $user = $this->getUser(0, $id);
     $user = array_merge($user, $data);
     $user['update_date'] = date('Y-m-d H:i:s');
 
-    return $router::response(200, $user);
-
+    return $this->request->response(200, $user);
   } // index_put
 
   /**
@@ -171,15 +159,11 @@ class Users extends Master {
    *  {"error":400,"message":"Bad Request","responseJSON":{"error":"missing_key","error_message":"ID is missing."}}
    */
   public function index_delete ( $id = false ) {
-
-    global $cfg, $router;
-
     if (!$id) {
-      return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
+      return $this->request->response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
-    return $router::response(200, ['message' => 'Deleted']);
-
+    return $this->request->response(200, ['message' => 'Deleted']);
   } // index_delete
 
   private function getUser ($i, $id = false) {

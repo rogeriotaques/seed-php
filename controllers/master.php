@@ -1,31 +1,28 @@
 <?php 
 
  /* --------------------------------------------------------
-  | Seed PHP - Master Controller
-  |
-  | @author Rogerio Taques (rogerio.taques@gmail.com)
-  | @version 0.1
-  | @license MIT
-  | @see http://github.com/rogeriotaques/seed-php
-  | 
-  | Use this controller to implement methods that are common 
-  | to the API and/or can be extended by other controllers.
-  * -------------------------------------------------------- */
+ | PHP API KIT
+ | @author Rogerio Taques (rogerio.taques@gmail.com)
+ | @version 0.1
+ | @license MIT
+ | @see http://github.com/rogeriotaques/api-kit
+ * -------------------------------------------------------- */
 
 namespace Controllers;
 
 defined('ENV') or die('Direct script access is not allowed!');
 
-use Libraries\RMySQL;
+use Seed\Controller;
+use Models\Status;
 
-class Master {
+class Master extends Controller {
 
   const MAX_RESULTS = 250; 
 
   protected $_names;
   protected $_surnames;
   protected $_words;
-  protected $_results = 25;
+  protected $_results;
   protected $_tlds = ['.com', '.co', '.org', '.in', '.com.br', '.net', '.me'];
   protected $_structure = false;
   protected $_images = [
@@ -34,15 +31,16 @@ class Master {
   ]; 
 
   function __construct () {
-    global $router;
+    parent::__construct();
 
+    $this->_results = $this->config['database'][ENV]['max-records-per-page'];
     $this->_names = $this->load('names');
     $this->_surnames = $this->load('surnames');
     $this->_words = $this->load('words');
 
     if ( isset($_GET['results']) && is_numeric($_GET['results']) ) {
       if (intval($_GET['results']) > self::MAX_RESULTS) {
-        $router::response(400, ['error' => 'max_results', 'error_message' => 'Max results is ' . self::MAX_RESULTS . ' records.']);
+        $this->request->response(400, ['error' => 'max_results', 'error_message' => 'Max results is ' . self::MAX_RESULTS . ' records.']);
         exit;
       }
 
@@ -53,7 +51,7 @@ class Master {
       $structure = $_GET['structure'];
 
       if (strpos($structure, ':') === false) {
-        $router::response(400, ['error' => 'bad_data_structure', 'error_message' => 'Data structure is baddly formed. Should be type:label:count[,type:label:count[,...]]']);
+        $this->request->response(400, ['error' => 'bad_data_structure', 'error_message' => 'Data structure is baddly formed. Should be type:label:count[,type:label:count[,...]]']);
         exit;
       }
 
@@ -75,7 +73,7 @@ class Master {
     $data  = [];
     $lines = 0;
 
-    $file = "data/{$file}.txt";
+    $file = "assets/data/{$file}.txt";
 
     // open file handler
     $handle = fopen($file, "r");
@@ -208,13 +206,11 @@ class Master {
   } // getRandEmail
 
   protected function generalResource ( $id = false ) {
-    global $router;
-
     if ($id !== false) {
       $this->_results = 1;
 
       if ( intval($id) === -1 ) {
-        return $router::response(404);
+        return $this->request->response(404);
       }
     }
 
@@ -300,56 +296,23 @@ class Master {
       } 
     }
 
-    return $router::response(200, $list);
+    return $this->request->response(200, $list);
   }
 
-  public function figures_get () {
-    global $router, $cfg;
+  public function status_get () {
+    $status = new Status();
 
-    $db = new RMySQL( $cfg['logger'][ENV] );
-    $db->connect();
-
-    // retrieve total served queries
-    $res = $db->exec('select count(*) as total from log_usage');
-    $res = array_shift($res);
-    $total_queries = $res['total'];
-
-    // retrieve total served queries per day
-    $res = $db->exec('
-      select avg(total) as counter from (
-        select count(*) as total from log_usage group by unix_timestamp(`timestamp`) div 86400
-      ) as A
-    ');
-    $res = array_shift($res);
-    $queries_per_day = intval($res['counter']);
-
-    // retrieve total served queries per second
-    $res = $db->exec('
-      select avg(total) as average from (
-        select count(*) as total from log_usage group by unix_timestamp(`timestamp`) div 1
-      ) as A
-    ');
-    $res = array_shift($res);
-    $queries_per_sec = intval($res['counter']);
-
-    // retrieve total served queries today
-    $res = $db->exec('select count(*) as total from log_usage where date_format(`timestamp`, \'%Y-%m-%d\') = \'' . date('Y-m-d'). '\'');
-    $res = array_shift($res);
-    $queries_today = $res['total'];
-    
-    $db->disconnect();
-    
-    return $router::response(200, [
-      'api_version' => $cfg['version'],
+    return $this->request->response(200, [
+      'api_version' => $this->getVersion(),
       'names' => $this->_names->count,
       'surnames' => $this->_surnames->count,
       'words' => $this->_words->count,
       'images' => ( count($this->_images['M']) + count($this->_images['F']) ),
       'random_names' => ($this->_names->count * $this->_surnames->count),
-      'queries' => $total_queries,
-      'queries_per_day' => $queries_per_day,
-      'queries_per_second' => $queries_per_sec,
-      'queries_today' => $queries_today
+      'queries' => $status->getTotalQueries(),
+      'queries_per_day' => $status->getQueriesPerDay(),
+      'queries_per_second' => $status->getQueriesPerSec(),
+      'queries_today' => $status->getQueriesByDay( date('Y-m-d') )
     ]);
   } // figures_get
 

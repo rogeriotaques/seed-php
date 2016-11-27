@@ -1,26 +1,19 @@
 <?php 
 
  /* --------------------------------------------------------
- | Seed PHP - Settings File
- |
+ | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/seed-php
- | 
- | This file should be used to define all libraries and 
- | other resources settings files. You can also create 
- | specific files under 'config' folder for each lib.
+ | @see http://github.com/rogeriotaques/api-kit
  * -------------------------------------------------------- */
 
 defined('ENV') or die('Direct script access is not allowed!');
 
-$cfg = [];
-
-$cfg['version'] = '1.1.0';
+$cfg = []; // DO NOT REMOVE THIS LINE 
 
 /* --------------------------------------------------------
- | Current server base URL 
+ | Current server address  
  * -------------------------------------------------------- */
 $cfg['base-url'] = [
   'production'  => "{$_SERVER['HTTP_HOST']}/",
@@ -28,27 +21,34 @@ $cfg['base-url'] = [
 ];
 
 /* --------------------------------------------------------
- | Allowed headers 
+ | Allowed methods  
+ * -------------------------------------------------------- */
+$cfg['methods'] = [ 'get', 'post', 'put', 'delete', 'options', 'patch' ];
+
+/* --------------------------------------------------------
+ | Allowed headers keys 
  * -------------------------------------------------------- */
 $cfg['headers'] = [];
 
 /* --------------------------------------------------------
- | Endpoints for third party APIs. 
+ | Cache control  
  * -------------------------------------------------------- */
-$cfg['endpoints'] = [];
+$cfg['cache'] = true;
+$cfg['cache-max-age'] = 3600;
 
 /* --------------------------------------------------------
- | Logger
+ | Database
  * -------------------------------------------------------- */
-
-$cfg['logger'] = [
+$cfg['database'] = [
   'development' => [
     'host' => 'localhost',
     'port' => '3306',
     'user' => 'root',
     'pass' => '',
     'base' => 'fakeapi',
-    'table' => 'log_usage'
+    'table' => 'log_usage',
+    'max-records-per-page' => 20,
+    'charset' => 'utf8'
   ],
   'production' => [
     'host' => 'localhost',
@@ -56,6 +56,19 @@ $cfg['logger'] = [
     'user' => 'abtz',
     'pass' => 'abt11235',
     'base' => 'fakeapi',
-    'table' => 'log_usage'
+    'table' => 'log_usage',
+    'max-records-per-page' => 20,
+    'charset' => 'utf8'
   ]
 ];
+
+/* --------------------------------------------------------
+ | Usage log 
+ * -------------------------------------------------------- */
+$cfg['log'] = false;
+
+/* --------------------------------------------------------
+ | Other 
+ * -------------------------------------------------------- */
+$cfg['language'] = 'en';
+$cfg['charset']  = 'utf8';
