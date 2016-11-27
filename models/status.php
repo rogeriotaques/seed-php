@@ -42,7 +42,7 @@ class Status extends Model {
     return intval($res['counter']);
   } // getQueriesPerDay
 
-  public function getQueiresPerSecond () {
+  public function getQueriesPerSecond () {
     $this->db->connect();
 
     // retrieve total served queries per second
@@ -62,7 +62,7 @@ class Status extends Model {
     $this->db->connect();
 
     // retrieve total served queries today
-    $res = $db->exec("select count(*) as total from log_usage where date_format(`timestamp`, '%Y-%m-%d') = '{$date}' ");
+    $res = $this->db->exec("select count(*) as total from log_usage where date_format(`timestamp`, '%Y-%m-%d') = '{$date}' ");
     $res = array_shift($res);
     
     $this->db->disconnect();

@@ -1,11 +1,10 @@
  # --------------------------------------------------------
- # Seed PHP - Bootstrap
- #
+ # PHP API KIT
  # @author Rogerio Taques (rogerio.taques@gmail.com)
  # @version 0.1
  # @license MIT
- # @see http://github.com/rogeriotaques/seed-php
- # -------------------------------------------------------- 
+ # @see http://github.com/rogeriotaques/api-kit
+ # --------------------------------------------------------
 
 <IfModule mod_rewrite.c>
     RewriteEngine On

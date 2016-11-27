@@ -311,7 +311,7 @@ class Master extends Controller {
       'random_names' => ($this->_names->count * $this->_surnames->count),
       'queries' => $status->getTotalQueries(),
       'queries_per_day' => $status->getQueriesPerDay(),
-      'queries_per_second' => $status->getQueriesPerSec(),
+      'queries_per_second' => $status->getQueriesPerSecond(),
       'queries_today' => $status->getQueriesByDay( date('Y-m-d') )
     ]);
   } // figures_get
