@@ -1,16 +1,14 @@
 <?php 
 
  /* --------------------------------------------------------
- | Seed PHP - Curl Wrapper
- |
+ | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/seed-php
- | @see http://github.com/rogeriotaques/rcurl
+ | @see http://github.com/rogeriotaques/api-kit
  * -------------------------------------------------------- */
 
-namespace Libraries;
+namespace Seed\Libraries;
 
 defined('ENV') or die('Direct script access is not allowed!');
 

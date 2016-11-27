@@ -1,40 +1,37 @@
 <?php
+
  /* --------------------------------------------------------
- | Seed PHP
- |
+ | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/seed-php
+ | @see http://github.com/rogeriotaques/api-kit
  * -------------------------------------------------------- */
  
-namespace Root;
-use Core\RestRouter;
-
+// define the api timezone 
 date_default_timezone_set('Asia/Tokyo');
+
+// set error reporting 
 error_reporting(E_ALL & ~E_NOTICE);
 
+// let's define the environment 
+// it can be whatever you want. usually will be either 'development' or 'production'
 if (!defined('ENV')) {
   define('ENV', getenv('ENV') !== false ? getenv('ENV') : 'development');
 }
 
-// import setting file 
-if (file_exists('core/bootstrap.php') ) {
-  require_once('core/bootstrap.php');
-} else {
-  die("Bootstrap file was not found! <br >Aborted.");
+// import loader ...  
+if (!require_once('seed/loader.php')) {
+  die("Loader not found! Aborted.");
 }
 
-$router = new RestRouter();
-$call   = isset($_GET['uri']) ? $_GET['uri'] : '';
-$cache_max_age = 3600;
+use Seed\Router;
 
-// headers
-header("Access-Control-Allow-Origin: *");
-header('Content-language: en');
-header('Cache-Control: max-age=' . $cache_max_age);
-header('Expires: '.gmdate('D, d M Y H:i:s', time() + $cache_max_age ).' GMT');
+// retrieve requested URI 
+$uri  = isset($_GET['uri']) ? $_GET['uri'] : '';
 
-$router->run( $call, function () {
-  header('location: welcome/', true, 302);
-} );
+// initialise the router 
+$router = new Router( $uri );
+
+// let's rock ...
+$router->run( $uri );

@@ -56,16 +56,12 @@ class Resources extends Master {
    *  {"status":400,"data":[{"message": "Bad request"}]}
    */
   public function index_get ( $id = false ) {
-
-    global $cfg, $router;
-
     if ($this->_structure === false) {
-        $router::response(400, ['error' => 'bad_data_structure', 'error_message' => 'To use this method you should provide a data structure. Should be type:label:count[,type:label:count[,...]]']);
+        $this->request->response(400, ['error' => 'bad_data_structure', 'error_message' => 'To use this method you should provide a data structure. Should be type:label:count[,type:label:count[,...]]']);
         exit;
     }
     
     return $this->generalResource( $id );
-
   } // index_get
 
   /**
@@ -95,19 +91,15 @@ class Resources extends Master {
    *  {"error":400,"message":"Bad Request","responseJSON":{"error":"missing_key","error_message":"ID is missing."}}
    */
   public function index_post () {
-
-    global $cfg, $router;
-
-    $post = $router::post();
+    $post = $this->request->post();
 
     if (!$post || !isset($post['id'])) {
-      return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
+      return $this->request->response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
     $post['registration_date'] = date('Y-m-d H:i:s');
 
-    return $router::response(201, $post);
-
+    return $this->request->response(201, $post);
   } // index_post
 
   /**
@@ -137,18 +129,14 @@ class Resources extends Master {
    *  {"error":400,"message":"Bad Request","responseJSON":{"error":"missing_key","error_message":"ID is missing."}}
    */
   public function index_put ( $id = false ) {
-
-    global $cfg, $router;
-
     if (!$id) {
-      return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
+      return $this->request->response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
-    $data = $router::put();
+    $data = $router->put();
     $data['update_date'] = date('Y-m-d H:i:s');
 
-    return $router::response(200, $data);
-
+    return $this->request->response(200, $data);
   } // index_put
 
   /**
@@ -173,15 +161,11 @@ class Resources extends Master {
    *  {"error":400,"message":"Bad Request","responseJSON":{"error":"missing_key","error_message":"ID is missing."}}
    */
   public function index_delete ( $id = false ) {
-
-    global $cfg, $router;
-
     if (!$id) {
-      return $router::response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
+      return $this->request->response(400, ['error' => 'missing_key', 'error_message' => 'ID is missing.']);
     }
 
-    return $router::response(200, ['message' => 'Deleted']);
-
+    return $this->request->response(200, ['message' => 'Deleted']);
   } // index_delete
 
 } // class

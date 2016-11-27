@@ -1,16 +1,14 @@
 <?php 
 
  /* --------------------------------------------------------
- | Seed PHP - MySQLi Wrapper
- |
+ | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.2
+ | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/seed-php
- | @see http://github.com/rogeriotaques/rmysql
+ | @see http://github.com/rogeriotaques/api-kit
  * -------------------------------------------------------- */
 
-namespace Libraries;
+namespace Seed\Libraries;
 
 defined('ENV') or die('Direct script access is not allowed!');
 
@@ -43,6 +41,7 @@ class RMySQL {
       $this->setHost( $config['host'], $config['port'] ); 
       $this->setCredential( $config['user'], $config['pass'] ) or trigger_error('RMySQL: Config file missing "USER" or "PASS" setting.');
       $this->setDatabase( $config['base'] );
+      $this->setCharset( $config['charset'] ); 
       
       return $this->connect();
     }
