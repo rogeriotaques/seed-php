@@ -58,9 +58,7 @@ class Master extends Controller {
         exit;
       }
 
-      // echo "{$structure}<br> \n";
       $this->_structure = $this->breakStructureDown( $structure );
-      // echo "<pre>", var_dump($this->_structure), "</pre><br>\n";
     }
   }
 
@@ -201,49 +199,62 @@ class Master extends Controller {
   } // getRandEmail
 
   private function breakStructureDown ( $sttr ) {
-    $me = $this;
+    // echo print_r($sttr, true), "\n";
 
-    // is there sub-arrays?
-    if ( strpos($sttr, ':[') !== false ) {
-      $sttr = preg_replace('/(\:\[)([a-zA-Z0-9\:]+)(,)([a-zA-Z0-9\:]+)(\]\,{0,1})/', '$1$2;$4$5', $sttr);
-      $sttr = preg_replace('/(\]\,)/', '||,', $sttr);
-      $sttr = preg_replace('/(\:\[|\])/', '||', $sttr);
-    }
+    // let's break it by arrays
+    $sttr = explode('array:', $sttr);
 
-    return array_map(function ($el) use ($me) {
-      if (strpos($el, '||') !== false) {
-        $el = preg_replace('/(array:)(\w+)/', '$2..', $el);
-        $el = str_replace('||', '', $el);
-        $el = str_replace(';', ',', $el);
-        // echo "{$el}<br >\n";
-        return $me->breakStructureDown($el);
-      } 
-
-      if ( is_string($el) ) {
-        if (strpos($el, '..') !== false) {
-          $el = str_replace('..', ':', $el);
-          list($array_label, $type, $label, $count, $min_length, $extra) = explode(':', $el);
-        } else {
-          list($type, $label, $count, $min_length, $extra) = explode(':', $el);
-        }
-
-        return (object) [
-          'type' => $type,
-          'label' => $label ? $label : $type,
-          'count' => $count ? $count : 1,
-          'min_length' => $min_length ? $min_length : 1,
-          'extra' => $extra ? $extra : null,
-          'array_label' => $array_label ? $array_label : null
-        ];
+    // remap the item separators 
+    $sttr = array_map(function ($el) {
+      if (strpos($el, ':[') !== false) {
+        $el = str_replace([',', ':[', ']'], [';', '--', ''], $el);
+        $el = str_replace([':'], ['..'], $el);
+        return $el;
       }
 
-      return $el;
-      }, explode(',', $sttr)
-    );
+      return $el; 
+    }, $sttr);
+    
+    // echo print_r($sttr, true), "\n";
+
+    // rebuild with new separator for array type
+    $sttr =  implode('array|', $sttr);
+    $sttr = preg_replace('/(,array\|)(\w+)(\-\-)/', ',array:$2:', $sttr);
+
+    // echo print_r($sttr, true), "\n";
+
+    // has user only passed arrays as structure?
+    if (strpos($sttr, ',') === false) {
+      // fallback the first level array to normal markup
+      $sttr = preg_replace('/^(array\|)(\w+)(--)/', 'array:$2:', $sttr);
+    }
+    
+    return array_map(function ($el) {
+      list($type, $label, $count, $min_length, $extra) = explode(':', $el);
+
+      return (object) [
+        'type' => $type,
+        'label' => $label ? $label : $type,
+        'count' => $count ? $count : 1,
+        'min_length' => $min_length ? $min_length : 1,
+        'extra' => $extra ? $extra : null
+      ];
+    }, explode(',', $sttr));
   } // breakStructureDown
   
   private function createResource ( $item, $list ) {
     switch ($item->type) {
+      case 'array':
+        $array = $item->count;
+        $array = str_replace(['..',';','|','--'], [':',',',':',':['], $array);
+        $array = $this->breakStructureDown( $array );
+        $array = array_map(function ($el) {
+          return $this->createResource( $el, [] );
+        }, $array);
+
+        $list[$item->label] = $array;
+        break;
+
       case 'name':
         $list[$item->label] = $this->getRandName(' ');
         break;
@@ -318,7 +329,7 @@ class Master extends Controller {
     return $list;
   } // createResource
 
-  protected function getResource ( $id = false ) {
+  protected function getResource ( $id = false, $list = [] ) {
     if ($id !== false) {
       $this->_results = 1;
 
@@ -327,42 +338,37 @@ class Master extends Controller {
       }
     }
 
-    $list = [];
-
     for($i = 0; $i < $this->_results; $i++) {
       $list[$i] = [];
 
       foreach( $this->_structure as $item ) {
-
-        if (is_object($item)) {
-          // echo "Object: {$item->label}<br>\n";
-        }
-
         if (is_array($item)) {
-          // echo "It's an Array. <br>\n";
+          echo "It's an Array. ", print_r(array_shift($item), true), "\n";
+          // foreach ($item as $subkey => $subitem) {
+          //   echo "-- ", print_r($subitem), "\n";
+          // }
 
-          $sublist = [];
-          $sublist_label = '';
+          // $sublist = [];
+          // $sublist_label = '';
 
-          foreach ($item as $subitem) {
-            if (!is_null($subitem->array_label)) {
-              $sublist_label = $subitem->array_label;
-            }
-            // echo "{$sublist_label}[{$subitem->type}:{$subitem->label}]<br >\n";
-            $sublist = $this->createResource( $subitem, $sublist );
-          }
+          // foreach ($item as $subitem) {
+          //   if (!is_null($subitem->array_label)) {
+          //     $sublist_label = $subitem->array_label;
+          //   }
+          //   // echo "{$sublist_label}[{$subitem->type}:{$subitem->label}]<br >\n";
+          //   $sublist = $this->createResource( $subitem, $sublist );
+          // }
 
-          $list[$i][$sublist_label] = $sublist;
+          // $list[$i][$sublist_label] = (array) $sublist;
 
           continue;
         }
 
         $list[$i] = $this->createResource( $item, $list[$i] );
-        
       } 
     }
 
-    return $this->request->response(200, $list);
+    return $list;
   }
 
   public function status_get () {

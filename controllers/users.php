@@ -39,7 +39,8 @@ class Users extends Master {
    */
   public function index_get ( $id = false ) {
     if ($this->_structure !== false) {
-      return $this->getResource( $id );
+      $list = $this->getResource( $id );
+      return $this->request->response(200, $list);
     }
 
     $list = [];
