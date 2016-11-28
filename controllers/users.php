@@ -26,7 +26,9 @@ class Users extends Master {
    *    It's possible to return a custom number of records passing <code>?results=X</code>, where X is the required number.
    *
    * @apiExample {curl} Example:
-   *  curl -X GET http://fakeapi.abtz.co/users or
+   *  curl -X GET http://fakeapi.abtz.co/users
+   *
+   * @apiExample {curl} Example 1:
    *  curl -X GET http://fakeapi.abtz.co/users?results=50
    *
    * @apiSuccessExample JSON Success Response
@@ -37,7 +39,7 @@ class Users extends Master {
    */
   public function index_get ( $id = false ) {
     if ($this->_structure !== false) {
-      return $this->generalResource( $id );
+      return $this->getResource( $id );
     }
 
     $list = [];

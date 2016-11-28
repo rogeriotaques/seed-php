@@ -23,8 +23,8 @@ class Master extends Controller {
   protected $_surnames;
   protected $_words;
   protected $_results;
-  protected $_tlds = ['.com', '.co', '.org', '.in', '.com.br', '.net', '.me'];
   protected $_structure = false;
+  protected $_tlds = ['.com', '.co', '.org', '.in', '.com.br', '.net', '.me'];
   protected $_images = [
     'M' => ['1074', '1062', '1005', '883', '804', '453'], 
     'F' => ['1027', '1011', '1010', '996', '978', '836']
@@ -33,11 +33,13 @@ class Master extends Controller {
   function __construct () {
     parent::__construct();
 
+    // load our assets 
     $this->_results = $this->config['database'][ENV]['max-records-per-page'];
     $this->_names = $this->load('names');
     $this->_surnames = $this->load('surnames');
     $this->_words = $this->load('words');
 
+    // is result given?
     if ( isset($_GET['results']) && is_numeric($_GET['results']) ) {
       if (intval($_GET['results']) > self::MAX_RESULTS) {
         $this->request->response(400, ['error' => 'max_results', 'error_message' => 'Max results is ' . self::MAX_RESULTS . ' records.']);
@@ -47,6 +49,7 @@ class Master extends Controller {
       $this->_results = $_GET['results'];
     }
 
+    // is structure given?
     if ( isset($_GET['structure']) && is_string($_GET['structure']) ) {
       $structure = $_GET['structure'];
 
@@ -55,17 +58,9 @@ class Master extends Controller {
         exit;
       }
 
-      $this->_structure = array_map(function ($el) {
-        list($type, $label, $count, $min_length, $extra) = explode(':', $el);
-
-        return (object) [
-          'type' => $type,
-          'label' => $label ? $label : $type,
-          'count' => $count ? $count : 1,
-          'min_length' => $min_length ? $min_length : 1,
-          'extra' => $extra ? $extra : null
-        ];
-      }, explode(',', $structure));
+      // echo "{$structure}<br> \n";
+      $this->_structure = $this->breakStructureDown( $structure );
+      // echo "<pre>", var_dump($this->_structure), "</pre><br>\n";
     }
   }
 
@@ -205,7 +200,125 @@ class Master extends Controller {
     ];
   } // getRandEmail
 
-  protected function generalResource ( $id = false ) {
+  private function breakStructureDown ( $sttr ) {
+    $me = $this;
+
+    // is there sub-arrays?
+    if ( strpos($sttr, ':[') !== false ) {
+      $sttr = preg_replace('/(\:\[)([a-zA-Z0-9\:]+)(,)([a-zA-Z0-9\:]+)(\]\,{0,1})/', '$1$2;$4$5', $sttr);
+      $sttr = preg_replace('/(\]\,)/', '||,', $sttr);
+      $sttr = preg_replace('/(\:\[|\])/', '||', $sttr);
+    }
+
+    return array_map(function ($el) use ($me) {
+      if (strpos($el, '||') !== false) {
+        $el = preg_replace('/(array:)(\w+)/', '$2..', $el);
+        $el = str_replace('||', '', $el);
+        $el = str_replace(';', ',', $el);
+        // echo "{$el}<br >\n";
+        return $me->breakStructureDown($el);
+      } 
+
+      if ( is_string($el) ) {
+        if (strpos($el, '..') !== false) {
+          $el = str_replace('..', ':', $el);
+          list($array_label, $type, $label, $count, $min_length, $extra) = explode(':', $el);
+        } else {
+          list($type, $label, $count, $min_length, $extra) = explode(':', $el);
+        }
+
+        return (object) [
+          'type' => $type,
+          'label' => $label ? $label : $type,
+          'count' => $count ? $count : 1,
+          'min_length' => $min_length ? $min_length : 1,
+          'extra' => $extra ? $extra : null,
+          'array_label' => $array_label ? $array_label : null
+        ];
+      }
+
+      return $el;
+      }, explode(',', $sttr)
+    );
+  } // breakStructureDown
+  
+  private function createResource ( $item, $list ) {
+    switch ($item->type) {
+      case 'name':
+        $list[$item->label] = $this->getRandName(' ');
+        break;
+
+      case 'first_name':
+        $name = $this->getRandName();
+        $list[$item->label] = $name['first_name'];
+        break;
+
+      case 'last_name':
+        $name = $this->getRandName();
+        $list[$item->label] = $name['last_name'];
+        break;
+
+      case 'date':
+        $list[$item->label] = $this->getRandDate();
+        break;
+
+      case 'datetime':
+        $list[$item->label] = $this->getRandDate( true );
+        break;
+
+      case 'email': 
+        $list[$item->label] = $this->getRandEmail(); 
+        break;
+
+      case 'url': 
+        $list[$item->label] = $this->getRandURL(); 
+        break;
+
+      case 'addr': 
+        $list[$item->label] = $this->getRandAddr(); 
+        break;
+
+      case 'int': 
+        $list[$item->label] = $this->getRandNum($item->count, $item->min_length); 
+        break;
+
+      case 'dec': 
+        $list[$item->label] = $this->getRandNum($item->count, $item->min_length, true); 
+        break;
+
+      case 'percent': 
+        $list[$item->label] = $this->getRandNum($item->count, ($item->min_length > 2 ? $item->min_length : 2), true, true); 
+        break;
+
+      case 'avatar': 
+      case 'image':
+        $g = ( !is_numeric($item->count)
+          ? $item->count
+          : (!is_numeric($item->min_length)
+            ? $item->min_length
+            : ($item->extra
+              ? $item->extra
+              : 'M'
+            )
+          )
+        );
+
+        $w = (is_numeric($item->count) && $item->count > 1 ? $item->count : null);
+        $h = (is_numeric($item->min_length) && $item->min_length > 1 ? $item->min_length : null);
+
+        // var_dump($item, $g, $w, $h);
+
+        $list[$item->label] = $this->getRandMedia($item->type, $g, $w, $h); 
+        break;
+
+      default: // string
+        $list[$item->label] = $this->getRandString( $item->count ? $item->count : 1 ); 
+    }
+
+    return $list;
+  } // createResource
+
+  protected function getResource ( $id = false ) {
     if ($id !== false) {
       $this->_results = 1;
 
@@ -221,77 +334,30 @@ class Master extends Controller {
 
       foreach( $this->_structure as $item ) {
 
-        switch ($item->type) {
-          case 'name':
-            $list[$i][$item->label] = $this->getRandName(' ');
-            break;
-
-          case 'first_name':
-            $name = $this->getRandName();
-            $list[$i][$item->label] = $name['first_name'];
-            break;
-
-          case 'last_name':
-            $name = $this->getRandName();
-            $list[$i][$item->label] = $name['last_name'];
-            break;
-
-          case 'date':
-            $list[$i][$item->label] = $this->getRandDate();
-            break;
-
-          case 'datetime':
-            $list[$i][$item->label] = $this->getRandDate( true );
-            break;
-
-          case 'email': 
-            $list[$i][$item->label] = $this->getRandEmail(); 
-            break;
-
-          case 'url': 
-            $list[$i][$item->label] = $this->getRandURL(); 
-            break;
-
-          case 'addr': 
-            $list[$i][$item->label] = $this->getRandAddr(); 
-            break;
-
-          case 'int': 
-            $list[$i][$item->label] = $this->getRandNum($item->count, $item->min_length); 
-            break;
-
-          case 'dec': 
-            $list[$i][$item->label] = $this->getRandNum($item->count, $item->min_length, true); 
-            break;
-
-          case 'percent': 
-            $list[$i][$item->label] = $this->getRandNum($item->count, ($item->min_length > 2 ? $item->min_length : 2), true, true); 
-            break;
-
-          case 'avatar': 
-          case 'image':
-            $g = ( !is_numeric($item->count)
-              ? $item->count
-              : (!is_numeric($item->min_length)
-                ? $item->min_length
-                : ($item->extra
-                  ? $item->extra
-                  : 'M'
-                )
-              )
-            );
-
-            $w = (is_numeric($item->count) && $item->count > 1 ? $item->count : null);
-            $h = (is_numeric($item->min_length) && $item->min_length > 1 ? $item->min_length : null);
-
-            // var_dump($item, $g, $w, $h);
-
-            $list[$i][$item->label] = $this->getRandMedia($item->type, $g, $w, $h); 
-            break;
-
-          default: // string
-            $list[$i][$item->label] = $this->getRandString( ($itme->count ? $itme->count : 1) ); 
+        if (is_object($item)) {
+          // echo "Object: {$item->label}<br>\n";
         }
+
+        if (is_array($item)) {
+          // echo "It's an Array. <br>\n";
+
+          $sublist = [];
+          $sublist_label = '';
+
+          foreach ($item as $subitem) {
+            if (!is_null($subitem->array_label)) {
+              $sublist_label = $subitem->array_label;
+            }
+            // echo "{$sublist_label}[{$subitem->type}:{$subitem->label}]<br >\n";
+            $sublist = $this->createResource( $subitem, $sublist );
+          }
+
+          $list[$i][$sublist_label] = $sublist;
+
+          continue;
+        }
+
+        $list[$i] = $this->createResource( $item, $list[$i] );
         
       } 
     }

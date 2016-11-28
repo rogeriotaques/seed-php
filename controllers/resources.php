@@ -30,24 +30,34 @@ class Resources extends Master {
    *
    * @apiParam {integer} structure The structure data: <code>type:label[:length[:min_length[:extra]]][,type:label[:length[:min_length[:extra]]][,...]]</code>
    *
-   * @apiParam (structure) {string="name","first_name","last_name","date","datetime","email","url","addr","int","dec","percent","string","avatar","image"} type The data type should be returned
+   * @apiParam (structure) {string="name","first_name","last_name","date","datetime","email","url","addr","int","dec","percent","string","avatar","image","array"} type The data type should be returned
    * @apiParam (structure) {string} label The label that should be applied to returned data field
    * @apiParam (structure) {variant} [length] 
    *  The length of returned value. Can be an <code>integer</code> or <code>string</code>.<br><br>
-   *  It's used for types: <code>string</code>,<code>int</code>,<code>dec</code>, <code>percent</code>, <code>avatar</code> and <code>image</code>. <br ><br > 
-   *  Result will be random up to the length given. When type is <code>string</code> it defines how many words the sentence will have.<br ><br >
-   *  Whenever type is <code>avatar</code> or <code>image</code> this can be the image gender (<code>M</code> or <code>F</code>) or image width (e.g: 600). 
+   *  It's used for types: <code>string</code>,<code>int</code>,<code>dec</code>, <code>percent</code>, <code>avatar</code>, <code>image</code> and <code>array</code>. <br ><br > 
+   *  Result will be random up to the length given. <br><br>
+   *  When type is <code>string</code> it defines how many words the sentence will have.<br ><br >
+   *  When type is <code>avatar</code> or <code>image</code> this should be the image gender (<code>M</code> or <code>F</code>) or image width (e.g: 600).<br><br>
+   *  When type is <code>array</code> then, this should be the next level structure in an array like syntaxe. E.g: <code>array:myarray:[name:user_name,date:birthday]</code> <br>
    * @apiParam (structure) {variant} [min_length] 
    *  The minimum length of returned value. Can be an <code>integer</code> or <code>string</code>.<br><br>
    *  It's used for types: <code>int</code>,<code>dec</code>, <code>percent</code>, <code>avatar</code> and <code>image</code>. <br ><br >
-   *  Whenever type is <code>avatar</code> or <code>image</code> this can be the image gender (<code>M</code> or <code>F</code>) or image height (e.g: 600).
+   *  Whenever type is <code>avatar</code> or <code>image</code> this can be the image gender (<code>M</code> or <code>F</code>) or image height (e.g: 600).<br><br>
+   *  It's ignored when type is <code>array</code>.
    * @apiParam (structure) {string} [extra] 
    *  When type is <code>avatar</code> and count and min_length are been passed, this can be given.  
-   *  It represents the image gender (<code>M</code> or <code>F</code>).
+   *  It represents the image gender (<code>M</code> or <code>F</code>). <br><br>
+   *  It's ignored when type is <code>array</code>.
    *
    * @apiExample {curl} Example:
-   *  curl -X GET http://fakeapi.abtz.co/something?structure=name:name,date:birthday,string:something-else:3 or
+   *  curl -X GET http://fakeapi.abtz.co/something?structure=name:name,date:birthday,string:something-else:3
+   *
+   * @apiExample {curl} Example 1:
    *  curl -X GET http://fakeapi.abtz.co/something?structure=name:name,date:birthday,string:something-else:3&results=50
+   *
+   * @apiExample {curl} Example 2:
+   *  curl -X GET http://fakeapi.abtz.co/something
+   *  ?structure=name:name,date:birthday,array:other:[username:user,password:pwd,avatar:media]
    *
    * @apiSuccessExample JSON Success Response
    *  {"status":200,"data":[{"id":"1","first_name":"Allan"}]}
@@ -61,7 +71,7 @@ class Resources extends Master {
         exit;
     }
     
-    return $this->generalResource( $id );
+    return $this->getResource( $id );
   } // index_get
 
   /**
