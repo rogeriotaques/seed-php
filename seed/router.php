@@ -173,6 +173,30 @@ class Router extends Http {
   * Does the magic ...
   */ 
   private function execute () {
+    // let's allow CORS (the most essential thing for open APIs)
+    if ($this->config['cors'] === true) {
+      header("Access-Control-Allow-Origin: *");
+    }
+    
+    // define app language
+    header("Content-language: {$this->config['language']}");
+
+    // are there methods allowed?
+    if (count($this->config['methods']) > 0) {
+      header("Access-Control-Allow-Methods: " . implode(', ', $this->config['methods']));
+    }
+
+    // are there headers allowed?
+    if (count($this->config['headers']) > 0) {
+      header("Access-Control-Allow-Headers: " . implode(', ', $this->config['headers']));
+    }
+
+    // is cache allowed
+    if ($this->config['cache'] === true) {
+      header("Cache-Control: max-age={$this->config['cache-max-age']}");
+      header('Expires: '.gmdate('D, d M Y H:i:s', time() + $this->config['cache-max-age'] ).' GMT');
+    }
+
     // is it an OPTIONS request?
     // it's used to confirm if app accept CORS calls
     if ($this->method === 'OPTIONS') {
