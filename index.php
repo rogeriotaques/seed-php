@@ -11,6 +11,12 @@
 // define the api timezone 
 date_default_timezone_set('Asia/Tokyo');
 
+// is the system been updated?
+if (file_exists('.update.lock')) {
+  echo json_encode( ['status' => 503, 'message' => 'Service temporarely unavailable. Update in progress.'] );
+  exit;
+}
+
 // let's define the environment 
 // it can be whatever you want. usually will be either 'development' or 'production'
 if (!defined('ENV')) {
