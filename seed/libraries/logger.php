@@ -5,7 +5,7 @@
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/api-kit
+ | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
 
 namespace Seed\Libraries;
@@ -18,6 +18,7 @@ class Logger {
   private $_db;
   private $_data = [];
   private $_config;
+  private $_table = 'log_usage';
 
   function __construct ( $cfg = [] ) {
     $this->_config = $cfg;
@@ -63,7 +64,7 @@ class Logger {
     $res = false;
 
     try {
-      $res = $this->_db->insert($this->_config['table'], $this->_data);
+      $res = $this->_db->insert($this->_table, $this->_data);
     } catch (\Exception $e) {
       // result is already set to false ... 
     }

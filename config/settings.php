@@ -5,7 +5,7 @@
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/api-kit
+ | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
 
 defined('ENV') or die('Direct script access is not allowed!');
@@ -17,7 +17,7 @@ $cfg = []; // DO NOT REMOVE THIS LINE
  * -------------------------------------------------------- */
 $cfg['base-url'] = [
   'production'  => "{$_SERVER['HTTP_HOST']}/",
-  'development' => "localhost/fakeapi/"
+  'development' => "localhost/"
 ];
 
 /* --------------------------------------------------------
@@ -46,19 +46,15 @@ $cfg['database'] = [
     'port' => '3306',
     'user' => 'root',
     'pass' => '',
-    'base' => 'fakeapi',
-    'table' => 'log_usage',
-    'max-records-per-page' => 20,
+    'base' => 'php-api-kit',
     'charset' => 'utf8'
   ],
   'production' => [
     'host' => 'localhost',
     'port' => '3306',
-    'user' => 'abtz',
-    'pass' => 'abt11235',
-    'base' => 'fakeapi',
-    'table' => 'log_usage',
-    'max-records-per-page' => 20,
+    'user' => 'root',
+    'pass' => '',
+    'base' => 'php-api-kit',
     'charset' => 'utf8'
   ]
 ];
@@ -66,7 +62,7 @@ $cfg['database'] = [
 /* --------------------------------------------------------
  | Usage log 
  * -------------------------------------------------------- */
-$cfg['log'] = true;
+$cfg['log'] = false;
 
 /* --------------------------------------------------------
  | Other 

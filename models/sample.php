@@ -8,23 +8,23 @@
  | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
 
-namespace Controllers;
+namespace Models;
 
 defined('ENV') or die('Direct script access is not allowed!');
 
-use Seed\Controller;
+use Seed\Model;
 
-class Index extends Controller {
+class Sample extends Model {
 
-  function __construct () {
-    parent::__construct();
-  }
+  public function getSomething () {
+    $this->db->connect();
+    
+    $res = $this->db->exec('select 1 as total');
+    $res = array_shift($res);
 
-  public function index_get () {
-    header('location: welcome/', 302);
-  }
+    $this->db->disconnect();
 
-  public function welcome_get () {
-    return $this->request->response(200, ['message' => 'Welcome! Good job.']);
-  }
+    return $res['total'];
+  } // getSomething;
+
 } // class

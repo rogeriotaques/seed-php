@@ -5,7 +5,7 @@
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.1
  | @license MIT
- | @see http://github.com/rogeriotaques/api-kit
+ | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
  
 // define the api timezone 
