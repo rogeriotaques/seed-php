@@ -21,7 +21,7 @@ So, you can do it by passing some special parameters to the API via query string
 E.g:
 
 ```
-https://fakeapi.abtz.co/users?_router_status=statusCode&_router_data=results&...
+https://lyrebird.abtz.co/users?_router_status=statusCode&_router_data=results&...
 ```
 
 This will result in the following structure:

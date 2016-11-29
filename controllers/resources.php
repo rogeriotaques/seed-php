@@ -50,13 +50,13 @@ class Resources extends Master {
    *  It's ignored when type is <code>array</code>.
    *
    * @apiExample {curl} Example:
-   *  curl -X GET http://fakeapi.abtz.co/something?structure=name:name,date:birthday,string:something-else:3
+   *  curl -X GET http://lyrebird.abtz.co/something?structure=name:name,date:birthday,string:something-else:3
    *
    * @apiExample {curl} Example 1:
-   *  curl -X GET http://fakeapi.abtz.co/something?structure=name:name,date:birthday,string:something-else:3&results=50
+   *  curl -X GET http://lyrebird.abtz.co/something?structure=name:name,date:birthday,string:something-else:3&results=50
    *
    * @apiExample {curl} Example 2:
-   *  curl -X GET http://fakeapi.abtz.co/something
+   *  curl -X GET http://lyrebird.abtz.co/something
    *  ?structure=name:name,date:birthday,array:other:[username:user,password:pwd,avatar:media]
    *
    * @apiSuccessExample JSON Success Response
@@ -91,7 +91,7 @@ class Resources extends Master {
    *  curl -X POST \
    *    -H "Content-Type: application/x-www-form-urlencoded" \
    *    -d 'id=123&first_name=Jim&last_name=Cook' \
-   *    "https://fakeapi.abtz.co/something"
+   *    "https://lyrebird.abtz.co/something"
    *
    * @apiParam (POST) {integer} id A fake ID for given user
    * @apiParam (POST) {variant} [anything-else] You can pass anything you want.
@@ -129,7 +129,7 @@ class Resources extends Master {
    *  curl -X PUT \
    *    -H "Content-Type: application/x-www-form-urlencoded" \
    *    -d 'id=123&first_name=Jim&last_name=Cook' \
-   *    "https://fakeapi.abtz.co/something/234"
+   *    "https://lyrebird.abtz.co/something/234"
    *
    * @apiParam {integer} id A fake ID for given user
    * @apiParam (PUT) {variant} [anything-else] You can pass anything you want.
@@ -162,7 +162,7 @@ class Resources extends Master {
    *    Simulate a record exclusion.  
    *
    * @apiExample {curl} Example:
-   *  curl -X DELETE "https://fakeapi.abtz.co/something/234"
+   *  curl -X DELETE "https://lyrebird.abtz.co/something/234"
    *
    * @apiParam {integer} id A fake ID for given user
    *

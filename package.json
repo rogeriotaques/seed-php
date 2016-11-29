@@ -1,5 +1,5 @@
 {
-  "name": "FAKEAPI",
+  "name": "lyrebird-api-faker",
   "version": "1.0.0",
   "description": "RESTful API server for random fake data.",
   "main": "index.php",

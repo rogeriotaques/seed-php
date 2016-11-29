@@ -26,10 +26,10 @@ class Users extends Master {
    *    It's possible to return a custom number of records passing <code>?results=X</code>, where X is the required number.
    *
    * @apiExample {curl} Example:
-   *  curl -X GET http://fakeapi.abtz.co/users
+   *  curl -X GET http://lyrebird.abtz.co/users
    *
    * @apiExample {curl} Example 1:
-   *  curl -X GET http://fakeapi.abtz.co/users?results=50
+   *  curl -X GET http://lyrebird.abtz.co/users?results=50
    *
    * @apiSuccessExample JSON Success Response
    *  {"status":200,"data":[{"id":"1","first_name":"Allan"}]}
@@ -75,7 +75,7 @@ class Users extends Master {
    *  curl -X POST \
    *    -H "Content-Type: application/x-www-form-urlencoded" \
    *    -d 'id=123&first_name=Jim&last_name=Cook' \
-   *    "https://fakeapi.abtz.co/users"
+   *    "https://lyrebird.abtz.co/users"
    *
    * @apiParam (POST) {integer} id A fake ID for given user
    * @apiParam (POST) {variant} [anything-else] You can pass anything you want.
@@ -115,7 +115,7 @@ class Users extends Master {
    *  curl -X PUT \
    *    -H "Content-Type: application/x-www-form-urlencoded" \
    *    -d 'id=123&first_name=Jim&last_name=Cook' \
-   *    "https://fakeapi.abtz.co/users/234"
+   *    "https://lyrebird.abtz.co/users/234"
    *
    * @apiParam {integer} id A fake ID for given user
    * @apiParam (PUT) {variant} [anything-else] You can pass anything you want.
@@ -151,7 +151,7 @@ class Users extends Master {
    *    Simulate a record exclusion.  
    *
    * @apiExample {curl} Example:
-   *  curl -X DELETE "https://fakeapi.abtz.co/users/234"
+   *  curl -X DELETE "https://lyrebird.abtz.co/users/234"
    *
    * @apiParam {integer} id A fake ID for given user
    *

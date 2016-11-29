@@ -1,8 +1,8 @@
 {
-  "name": "FAKE API",
+  "name": "Lyrebird - API Faker",
   "version": "1.0.0",
   "description": "RESTful API server for random fake data.",
-  "url" : "https://fakeapi.abtz.co",
+  "url" : "https://lyrebird.abtz.co",
   "header": {
     "title": "About",
     "filename": "./apidoc.header.md"
