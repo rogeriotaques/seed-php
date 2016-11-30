@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1
+ | @version 0.2
  | @license MIT
  | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
@@ -304,5 +304,116 @@ class Router extends Http {
       }
     }
   } // execute
+
+  /**
+   * Standardise the response.
+   */
+  public function response ( $code, $response = [], $extra = [] ) {
+    $_variable_names = [
+      'return_status' => 'status',
+      'return_data'   => 'data'
+    ];
+
+    // enable the user to modify status property name from return object 
+    if (isset($_GET['_router_status']) && is_string($_GET['_router_status'])) {
+      $_variable_names['return_status'] = $_GET['_router_status'];
+    }
+
+    // enable user to modify data property name from return object
+    if (isset($_GET['_router_data']) && is_string($_GET['_router_data'])) {
+      $_variable_names['return_data'] = $_GET['_router_data'];
+    }
+
+    // identify the  http status code 
+    $status = self::getHTTPStatus($code);
+
+    // prepare the returning object 
+    $result = array_merge($extra, [
+      $_variable_names['return_status'] => $status['code'], 
+      $_variable_names['return_data'] => $response
+    ]);
+
+    // if it's an error merge with error data 
+    if ($code >= 400) {
+      unset($result[ $_variable_names['return_data'] ]);
+      $result = array_merge($result, $response, ['message' => $status['message']]);
+      // $result = array_merge($extra, ['error' => $status['code'], 'message' => $status['message'], 'responseJSON' => $response]);
+    }
+
+    // convert result into string
+    $result = json_encode($result);
+
+    // set proper headers 
+    header("{$status['protocol']} {$status['code']} {$status['message']}");
+    header('ETag: ' . md5( $result )); // this help on caching
+    
+    header("Content-Type: application/json");
+
+    // output the result content
+    echo $result;
+
+    // return 
+    return [
+      'code' => $code,
+      'result' => $result
+    ];
+  } // response
+
+  /**
+   * Retrieve a header. If key is not given, retrieve a list of headers.
+   */
+  public function getHeader ( $key = null ) {
+    if ($key === null) {
+      return $this->headers;
+    }
+    return ( isset($this->headers[$key]) ? $this->headers[$key] : false );
+  } // getHeader
+
+  /**
+   * Retrieve a post value. If key is not given, retrieve a list of posted values.
+   */
+  public function post ( $key = null ) {
+    if ($key === null) {
+      return $_POST;
+    }
+
+    return ( isset($_POST[$key]) ? $_POST[$key] : false );
+  } // post
+
+  /**
+   * Retrieve a get value. If key is not given, retrieve a list of gotten values.
+   */
+  public function get ( $key = null ) {
+    if ($key === null) {
+      return $_GET;
+    }
+
+    return ( isset($_GET[$key]) ? $_GET[$key] : false );
+  } // get
+
+  /**
+   * Retrieve a put value. If key is not given, retrieve a list of put values.
+   */
+  public function put ( $key = null ) {
+    parse_str(file_get_contents("php://input"), $PUT);
+
+    if ($key === null) {
+      return $PUT;
+    }
+
+    return ( isset($PUT[$key]) ? $PUT[$key] : false );
+  } // put
+
+  /**
+   * Retrieve a received data value according to request method. 
+   * If key is not given, retrieve a list of put values.
+   */
+  public function data ( $method = 'GET', $key = null ) {
+    switch (strtoupper($method)) {
+      case 'PUT': return $this->put($key);
+      case 'POST': return $this->post($key);
+      case 'GET': return $this->get($key);
+    }
+  } // data
 
 } // class 
