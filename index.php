@@ -53,7 +53,7 @@ use Seed\Router;
 $uri  = isset($_GET['uri']) ? $_GET['uri'] : '';
 
 // initialise the router 
-$router = new Router( $uri );
+$router = Router::getInstance( $uri );
 
 // let's rock ...
-$router->run( $uri );
+$router->run();
