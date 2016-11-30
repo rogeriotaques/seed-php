@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.2
+ | @version 0.3
  | @license MIT
  | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
@@ -131,7 +131,7 @@ class Http {
       * Return the client IP address.
       * @return {string}
       */
-    public static function  getClientIP () {
+    public static function getClientIP () {
       $ipaddress = '';
 
       if (getenv('HTTP_CLIENT_IP')) {

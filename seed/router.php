@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | PHP API KIT
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.2
+ | @version 0.3
  | @license MIT
  | @see http://github.com/rogeriotaques/php-api-kit
  * -------------------------------------------------------- */
@@ -16,7 +16,12 @@ use Seed\Nucleos;
 use Seed\Libraries\Logger;
 use Seed\Libraries\Http;
 
-class Router extends Http {
+/**
+ * Singleton
+ */
+class Router {
+  private static $instance;
+
   private $config;
 
   // request headers
@@ -27,22 +32,22 @@ class Router extends Http {
 
   // requested resource
   // it's the first part of uri (resource[/verb|/ID]/key/value)
-  protected $resource;
+  protected $resource = false;
 
   // requested verb
   // it's (usually) the second part of uri (resource[/verb|/ID]/key/value).
   // eventually, verb can be omitted and and ID given in its place.
-  protected $verb;
+  protected $verb = '';
 
   // arguments given in the uri.
   // it's the key/value part from (resource[/verb|/ID]/key/value)
   protected $args = [];
 
   // the logger class 
-  protected $logger;
+  protected $logger = false;
 
   // the original given URI
-  private $_uri;
+  private $_uri = '';
 
   // a flag that indicates whenever an special route was found and is been tried
   private $_using_special_route = false;
@@ -50,23 +55,33 @@ class Router extends Http {
   // special routes
   private $_routes = [];
 
-  function __construct ( $arg = '' ) {
-    if (@include('config/routes.php')) {
-      $this->routes = $routes;
-      unset($routes);
+  function __construct () {}
+
+  public static function getInstance ( $arg = '' ) {
+    if (is_null(self::$instance)) {
+      self::$instance = new Router();
+
+      if (@include('config/routes.php')) {
+        self::$instance->routes = $routes;
+        unset($routes);
+      }
+
+      $ncl = new Nucleos();
+      self::$instance->config = $ncl->getConfig();
+
+      // set the requested uri
+      if (!empty($arg)) {
+        self::$instance->_uri = $arg;
+      }
+
+      if (self::$instance->config['log'] === true) {
+        // initialize the logger
+        self::$instance->logger = new Logger( self::$instance->config['database'][ENV] );
+      }
     }
 
-    $ncl = new Nucleos();
-    $this->config = $ncl->getConfig();
-
-    // set the requested uri
-    $this->_uri = $arg;
-
-    if ($this->config['log'] === true) {
-      // initialize the logger
-      $this->logger = new Logger( $this->config['database'][ENV] );
-    }
-  }
+    return self::$instance;
+  } // getInstance
 
   /**
    * Transform a string in CamelCase.
@@ -97,7 +112,7 @@ class Router extends Http {
   /**
    * Starts the magic ...
    */
-  public function run() {
+  public function run () {
     // let's start working with the uri
     $arg = explode('/', $this->_uri);
 
@@ -112,7 +127,7 @@ class Router extends Http {
 
     // put all headers in lowercase
     foreach(getallheaders() as $k => $v) {
-      $this->headers[ strtolower($k) ] = $v;
+      $this->headers[ $k ] = $v;
     }
 
     // retrieve requested method 
@@ -200,7 +215,7 @@ class Router extends Http {
     // is it an OPTIONS request?
     // it's used to confirm if app accept CORS calls
     if ($this->method === 'OPTIONS') {
-      return $this->response(200); // do accept it
+      return $this->response(Http::_OK); // do accept it
     }
 
     // should we log it?
@@ -208,7 +223,7 @@ class Router extends Http {
       $this->logger
         ->endpoint( getenv('REQUEST_URI') )
         ->resource( "{$this->method}: {$this->verb}" )
-        ->requestIP( self::getClientIP() )
+        ->requestIP( Http::getClientIP() )
         ->requestHeader( $this->headers );
       
       switch ($this->method) {
@@ -248,9 +263,9 @@ class Router extends Http {
       // not given the right number of required arguments?
       if ($call_args_required_count > count($call_args)) {
         if ($this->config['log'] === true) {
-          $this->logger->responseCode(400)->log();
+          $this->logger->responseCode(Http::_BAD_REQUEST)->log();
         }
-        return $this->response(400); // bad request
+        return $this->response(Http::_BAD_REQUEST); // bad request
       }
 
       // call it 
@@ -267,10 +282,10 @@ class Router extends Http {
       
       if ( $this->_using_special_route ) {
         if ($this->config['log'] === true) {
-          $this->logger->responseCode(501)->log();
+          $this->logger->responseCode(Http::_NOT_IMPLEMENTED)->log();
         }
         die( $e->getMessage() );
-        return $this->response(501); // not implemented
+        return $this->response(Http::_NOT_IMPLEMENTED); // not implemented
       }
 
       // before return an error, first, try to match any special route
@@ -298,9 +313,9 @@ class Router extends Http {
         $this->run();
       } else {
         if ($this->config['log'] === true) {
-          $this->logger->responseCode(501)->log();
+          $this->logger->responseCode(Http::_NOT_IMPLEMENTED)->log();
         }
-        return $this->response(501); // not implemented
+        return $this->response(Http::_NOT_IMPLEMENTED); // not implemented
       }
     }
   } // execute
@@ -325,7 +340,7 @@ class Router extends Http {
     }
 
     // identify the  http status code 
-    $status = self::getHTTPStatus($code);
+    $status = Http::getHTTPStatus($code);
 
     // prepare the returning object 
     $result = array_merge($extra, [
@@ -334,8 +349,13 @@ class Router extends Http {
     ]);
 
     // if it's an error merge with error data 
-    if ($code >= 400) {
+    if ($code >= Http::_BAD_REQUEST) {
       unset($result[ $_variable_names['return_data'] ]);
+      
+      if (!is_array($response)) {
+        $response = (array) $response;
+      }
+
       $result = array_merge($result, $response, ['message' => $status['message']]);
       // $result = array_merge($extra, ['error' => $status['code'], 'message' => $status['message'], 'responseJSON' => $response]);
     }
@@ -366,6 +386,7 @@ class Router extends Http {
     if ($key === null) {
       return $this->headers;
     }
+
     return ( isset($this->headers[$key]) ? $this->headers[$key] : false );
   } // getHeader
 

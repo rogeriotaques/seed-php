@@ -13,7 +13,7 @@ namespace Seed;
 defined('ENV') or die('Direct script access is not allowed!');
 
 class Nucleos {
-  private $_version = '1.0.1';
+  private $_version = '1.0.2';
   protected $config;
 
   function __construct () {
