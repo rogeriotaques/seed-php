@@ -134,19 +134,12 @@ the current request. E.g:
 
 ```json
 {
-  ["base"]=>
-  string(25) "http://localhost/seed-php"
-  ["method"]=>
-  string(3) "GET"
-  ["endpoint"]=>
-  string(6) "sample"
-  ["verb"]=>
-  string(8) "anything"
-  ["id"]=>
-  NULL
-  ["args"]=>
-  array(0) {
-  }
+  "base" : "http://localhost/seed-php",
+  "method" : "GET",
+  "endpoint" : "sample",
+  "verb" : "anything",
+  "id" : NULL,
+  "args" : []
 }
 ```
 
