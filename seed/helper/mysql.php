@@ -1,24 +1,25 @@
 <?php 
 
  /* --------------------------------------------------------
- | PHP API KIT
+ | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1
+ | @version 0.1.0
  | @license MIT
- | @see http://github.com/rogeriotaques/php-api-kit
+ | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
 
-namespace Seed\Libraries;
+namespace Seed\Helper;
 
-defined('ENV') or die('Direct script access is not allowed!');
+defined('SEED') or die('Direct script access is not allowed!');
 
-class RMySQL {
+class MySQL {
 
   private $_host = 'localhost';
   private $_port = '3306';
   private $_user = 'root'; 
   private $_pass = ''; 
-  private $_base = ''; 
+  private $_base = 'test'; 
+  private $_charset = 'utf8'; 
 
   // the connection resource 
   private $_resource = null; 
@@ -26,23 +27,27 @@ class RMySQL {
   function __construct( $config = null ) {
 
     if (!is_null($config)) {
-      if (!isset($config['host']) || !isset($config['port'])) {
-        throw new \Exception('RMySQL: Config file missing "HOST" or "PORT" setting.');
+
+      if (isset($config['host'])) {
+        $this->setHost( $config['host'] );
       }
 
-      if (!isset($config['user']) || !isset($config['pass'])) {
-        throw new \Exception('RMySQL: Config file missing "USER" or "PASS" setting.');
+      if (isset($config['port'])) {
+        $this->setPort( $config['port'] );
       }
 
-      if (!isset($config['base'])) {
-        throw new \Exception('RMySQL: Config file missing "BASE" (database) setting.');
+      if (isset($config['base'])) {
+        $this->setDatabase( $config['base'] );
       }
 
-      $this->setHost( $config['host'], $config['port'] ); 
-      $this->setCredential( $config['user'], $config['pass'] ) or trigger_error('RMySQL: Config file missing "USER" or "PASS" setting.');
-      $this->setDatabase( $config['base'] );
-      $this->setCharset( $config['charset'] ); 
-      
+      if (isset($config['charset'])) {
+        $this->setCharset( $config['charset'] );
+      }
+
+      if (isset($config['user']) && isset($config['pass'])) {
+        $this->setCredential( $config['user'], $config['pass'] );
+      }
+
       return $this->connect();
     }
 
@@ -101,6 +106,7 @@ class RMySQL {
     if (!empty($pass) && !is_null($pass)) {
       $this->_pass = $pass;
     }
+
     return $this;
   } // setCredential
 
@@ -123,7 +129,7 @@ class RMySQL {
 
   public function connect () {
     if (empty($this->_base) || is_null($this->_base)) {
-      throw new \Exception("RMySQL: Impossible to connect to an empty database name!");
+      throw new \Exception("Seed-PHP MySQL: Impossible to connect to an empty database name!");
     }
 
     $this->_resource = new \mysqli($this->_host, $this->_user, $this->_pass, $this->_base, $this->_port);
@@ -149,7 +155,7 @@ class RMySQL {
 
   public function exec ( $query = '' ) {
     if (!is_object($this->_resource)) {
-      throw new \Exception('RMySQL: Resource is missing!');
+      throw new \Exception('Seed-PHP MySQL: Resource is missing!');
     }
 
     $res = $this->_resource->query( $query );

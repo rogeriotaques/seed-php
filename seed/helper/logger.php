@@ -1,18 +1,16 @@
 <?php 
 
  /* --------------------------------------------------------
- | PHP API KIT
+ | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1
+ | @version 0.1.0
  | @license MIT
- | @see http://github.com/rogeriotaques/php-api-kit
+ | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
 
-namespace Seed\Libraries;
+namespace Seed\Helper;
 
-defined('ENV') or die('Direct script access is not allowed!');
-
-use Seed\Libraries\RMySQL;
+defined('SEED') or die('Direct script access is not allowed!');
 
 class Logger {
   private $_db;
@@ -22,7 +20,7 @@ class Logger {
 
   function __construct ( $cfg = [] ) {
     $this->_config = $cfg;
-    $this->_db = new RMySQL($this->_config);
+    $this->_db = new \Seed\Helper\MySQL($this->_config);
   } // __construct
 
   public function endpoint ( $str = '' ) {

@@ -1,17 +1,19 @@
 <?php 
 
  /* --------------------------------------------------------
- | PHP API KIT
+ | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1
+ | @version 0.1.0
  | @license MIT
- | @see http://github.com/rogeriotaques/php-api-kit
+ | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
 
-defined('ENV') or die('Direct script access is not allowed!');
+if (!defined('SEED')) {
+  define('SEED', true);
+}
 
 // essential paths in the kit 
-$essential_paths = ['config', 'controllers', 'models', 'seed', 'seed/libraries'];
+$essential_paths = ['seed', 'seed/property'];
 
 // let's make sure that essential paths are in the include path 
 foreach ($essential_paths as $path) { 

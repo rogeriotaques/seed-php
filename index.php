@@ -11,49 +11,39 @@
 // define the api timezone 
 date_default_timezone_set('Asia/Tokyo');
 
-// is the system been updated?
-if (file_exists('.update.lock')) {
-  echo json_encode( ['status' => 503, 'message' => 'Service temporarely unavailable. Update in progress.'] );
-  exit;
-}
-
-// let's define the environment 
-// it can be whatever you want. usually will be either 'development' or 'production'
-if (!defined('ENV')) {
-  define('ENV', getenv('ENV') !== false ? getenv('ENV') : 'development');
-}
-
-if (defined('ENV')) {
-
-	switch (ENV)
-	{
-		case 'development':
-			error_reporting(E_ALL & ~E_NOTICE);
-			break;
-	
-		case 'testing':
-		case 'production':
-			error_reporting(0);
-			break;
-
-		default:
-			exit('The application environment is not set correctly.');
-	}
-
-}
-
 // import loader ...  
 if (!require_once('seed/loader.php')) {
   die("Loader not found! Aborted.");
 }
 
-use Seed\Router;
+$app = Seed\App::getInstance(); 
 
-// retrieve requested URI 
-$uri  = isset($_GET['uri']) ? $_GET['uri'] : '';
+// @use /sample/anything
+$app->route('GET /sample/([a-z]+)', function () use ($app) {
+  echo 
+    '<pre >',
+    'Arguments can be retrieved like this:', "\n",
+    var_dump( $app->request() ),
+    '</pre>';
+});
 
-// initialise the router 
-$router = Router::getInstance( $uri );
+// @use /sample/100/your/name
+$app->route('GET /sample/([0-9]+)/([a-z]+)(/[a-z]+){0,1}', function ( $args ) {
+  echo 
+    '<pre >',
+    'Arguments can be retrieved like this:', "\n",
+    var_dump( $args ),
+    '</pre>';
+});
 
-// let's rock ...
-$router->run();
+// @use /welcome
+$app->route('GET /welcome', function () use ($app) {
+  $app->response(200, ['message' => 'You are very welcome!']);
+});
+
+// @use /
+$app->route('GET /', function () use ($app) {
+  header("location: {$app->request()->base}/welcome", 302);
+});
+
+$app->run();

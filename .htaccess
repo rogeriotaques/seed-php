@@ -1,10 +1,10 @@
  # --------------------------------------------------------
- # PHP API KIT
+ # Seed-PHP Microframework.
  # @author Rogerio Taques (rogerio.taques@gmail.com)
- # @version 0.1
+ # @version 0.1.0
  # @license MIT
- # @see http://github.com/rogeriotaques/php-api-kit
- # --------------------------------------------------------
+ # @see http://github.com/rogeriotaques/seed-php
+ # -------------------------------------------------------- 
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -12,10 +12,5 @@
 
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php?uri=$1&%{QUERY_STRING} [L]
+    RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
-
-# -----------------------------------------------------------------------
-# After deploy it to production, replace 'development' for 'production'.
-# -----------------------------------------------------------------------
-SetEnv ENV development

@@ -1,18 +1,16 @@
 <?php
 
  /* --------------------------------------------------------
- | PHP API KIT
+ | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.3
  | @license MIT
- | @see http://github.com/rogeriotaques/php-api-kit
+ | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
 
-namespace Seed\Libraries;
+namespace Seed\Helper;
 
-defined('ENV') or die('Direct script access is not allowed!');
-
-use Seed\Nucleos;
+defined('SEED') or die('Direct script access is not allowed!');
 
 class Http {
 
@@ -113,17 +111,13 @@ class Http {
     * @return {string}  
     */
     public static function getBaseUrl ( $protocol = false ) {
-      $ncl = new Nucleos();
-      $cfg = $ncl->getConfig();
+      $_base = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
 
       return sprintf(
-        "%s://%s",
-        (
-          $protocol !== false 
-            ? $protocol 
-            : isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http'
-        ),
-        $cfg['base-url'][ENV]
+        "%s://%s%s",
+        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        $_SERVER['SERVER_NAME'],
+        $_base
       );
     } // getBaseUrl
 
