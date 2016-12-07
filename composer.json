@@ -20,11 +20,5 @@
             "classmap": "seed/",
             "files": ["seed/loader.php"]
         }
-    },
-    "repositories": [
-      {
-        "type": "vcs",
-        "url": "https://github/AbtzCo/seed-php"
-      }
-    ]
+    }
 }
