@@ -45,6 +45,9 @@ class Router {
   // requested uri 
   protected $_uri = '';
 
+  // define the default output type
+  protected $_output_type = 'json';
+
   // ~~~ PUBLIC ~~~
 
   public function route ( $route = 'GET /', $callback = false ) {
@@ -72,7 +75,11 @@ class Router {
     return $this;
   } // route 
 
-  public function response ( $code = 200, $response = [], $output = 'json' ) {
+  public function response ( $code = 200, $response = [], $output = null ) {
+    if (is_null($output)) {
+      $output = $this->_output_type;
+    }
+
     // identify the  http status code 
     $status = Http::getHTTPStatus( $code );
 
@@ -84,8 +91,8 @@ class Router {
     }
 
     // merge response and result 
-    $result = array_merge($result, $response);
-     
+    $result = array_merge($result, $response); 
+    
     header("{$status['protocol']} {$status['code']} {$status['message']}");
 
     if ($this->_cache === true) {
@@ -94,17 +101,30 @@ class Router {
 
     switch ( strtolower($output) ) {
       case 'xml':
+        header("Content-Type: application/xml");
+
+        // translate json into xml object 
+        $xml = new \SimpleXMLElement('<response />');
+        $xml = $this->json2xml($xml, $result);
+
+        // finally convert it to string for proper replacements
+        echo $xml->asXML();
+        break;
 
       case 'json':
-      default: // json 
-        // convert result into string
-        $result = json_encode($result);
-
         // set proper headers 
         header("{$status['protocol']} {$status['code']} {$status['message']}");
         header("Content-Type: application/json");
 
+        // convert result into string
+        $result = json_encode($result);
+
         echo $result;
+        break;
+      
+      default: 
+        // anything else, including "false"
+        // do nothing. do not output, just return it.
     }
 
     // return 
@@ -176,6 +196,12 @@ class Router {
     return $this;
   } // setCharset
 
+  public function setOutputType( $type = 'json' ) {
+    if (!empty($output)) {
+      $this->_output_type = $output;
+    }
+  } //setOutputType
+
   // ~~~ PROTECTED ~~~
 
   protected function dispatch ( $args = [] ) {
@@ -209,4 +235,59 @@ class Router {
     $str = str_replace(['/', '_', '.'], ['\\/', '\\_', '\\.'], $str);
     return '|' . ($pos == 'start' ? '^' : '') . $str . ($pos == 'end' ? '$' : '') . '$|';
   } // regexify
+
+  private function json2xml( &$xml, $data ) {
+
+    // exit when data is empty.
+    if (is_null($data)) {
+      return $xml;
+    }
+
+    // runs thru data to build xml 
+    foreach ($data as $dk => $dv) {
+
+      // node data can be an array/ object 
+      if ( is_array($dv) ) {
+
+        // is the key a string?
+        if ( !is_numeric($dk) ) {
+
+          // eventually it's possible that nodes have properties
+          // whenever it has, isolate properties for post use. 
+          if (strpos($dk, ' ') !== false) {
+            $props = explode(' ', $dk);
+            $dk = array_shift($props); 
+          }
+
+          // create a new node 
+          $node = $xml->addChild($dk);
+
+          // new node should have attributes? appends it ...   
+          if (isset($props) && count($props) > 0) {
+            foreach ($props as $prop) {
+              $prop = explode('=', $prop);
+              $prop[1] = strpos($prop[1], '"') === 0 ? substr($prop[1], 1, strlen($prop[1]) - 2) : $prop[1];
+              $node->addAttribute($prop[0], $prop[1]);
+            }
+          }
+
+          // recursive call for subnodes
+          // giving the most recent node created
+          $this->json2xml($node, $dv);
+        } else {
+          // recursive call for subnodes 
+          $this->json2xml($xml, $dv);
+        }
+      } else {
+
+        $xml->addChild($dk, htmlspecialchars($dv));
+        
+      }
+    }
+
+    // return xml object 
+    return $xml;
+
+  } // json2xml
+
 } // class 

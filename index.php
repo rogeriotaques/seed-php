@@ -37,6 +37,11 @@ $app->route('GET /sample/([0-9]+)/([a-z]+)(/[a-z]+){0,1}', function ( $args ) {
 });
 
 // @use /welcome
+$app->route('GET /xml', function () use ($app) {
+  $app->response(200, ['message' => 'You are very welcome!', 'output' => 'xml'], 'xml');
+});
+
+// @use /welcome
 $app->route('GET /welcome', function () use ($app) {
   $app->response(200, ['message' => 'You are very welcome!']);
 });

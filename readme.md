@@ -2,7 +2,18 @@
 
 > The stupidly easy to learn and use PHP microframework!
 
-## Get started
+A microframework is a term used to refer to minimalistic web 
+application frameworks. It lacks most of the functionality which 
+is common to expect in a full-fledged web application framework.
+
+Seed-PHP is a microframework that offers you a really simple way 
+to implement simple, small but powerfull ```RESTfull APIs``` that could 
+support pretty much all needed methods and response in ```JSON``` or ```XML``` 
+formats. 
+
+
+## Get started 
+---
 
 You can either fork/clone this repository or install this package using 
 **composer**. As for composer, check the sample below out:
@@ -48,25 +59,24 @@ include './vendor/seed-php/loader.php';
 
 ```
 
+
 ## Get involved
+---
 
 This is an open-source project, which means that you can also contribute. 
 To make your contributions, fork this repository, do your changes or 
 improvements and create a pull request.
 
+
 ## Get support
+---
 
 Found an issue or would like to suggest something? <br>
 Just go to [this page](https://github.com/AbtzCo/seed-php/issues) and 
 open a ticket.
 
 ## Documentation
-
-### What's a microframework?
-
-A microframework is a term used to refer to minimalistic web 
-application frameworks. It lacks most of the functionality which 
-is common to expect in a full-fledged web application framework.
+---
 
 ### Methods 
 
@@ -154,17 +164,6 @@ name that you would like to attach the helper in the instance.
 $app->load('mysql', [ 'base' => 'test' ], 'db');
 ```
 
-##### Available Helpers
-
-| Helper Name | Remark |
-| ------------| ------ |
-| curl        | A full featured ccurl class. |
-| logger      | A simple log class. Log data in a mysql database. |
-| mysql       | A mysql wrapper. |
-| http        | A http class helper for work with http response codes. |
-
-> Helper classes and methods information are missing ...
-
 #### ```\Seed\App()->route( string:required, function:optional )```
 
 Define a route to your app. E.g:
@@ -202,3 +201,17 @@ If code is not given, then ```200``` is assumed.
 #### ```\Seed\App()->setLanguage( string:required  )```
 
 #### ```\Seed\App()->setCharset( string:required  )```
+
+#### ```\Seed\App()->setOutputType( string:required  )```
+
+
+#### Available Helpers
+
+| Helper Name | Remark |
+| ------------| ------ |
+| curl        | A full featured ccurl class. |
+| logger      | A simple log class. Log data in a mysql database. |
+| mysql       | A mysql wrapper. |
+| http        | A http class helper for work with http response codes. |
+
+> I know, details about helpers are missing ...
