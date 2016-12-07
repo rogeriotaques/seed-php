@@ -11,9 +11,10 @@
             "role": "Developer"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
-      "php": ">=5.3.0"
+      "php": ">=5.3.0",
+        "abtzco/seed-php": "dev-master"
     },
     "autoload": {
         "psr-0": {
