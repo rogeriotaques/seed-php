@@ -2,7 +2,6 @@
     "name": "abtzco/seed-php",
     "description": "The stupidly easy to learn and use PHP microframework. ;)",
     "type": "package",
-    "version": "0.1.0",
     "keywords": ["php","api","framework","microframework"],
     "homepage": "https://github.com/AbtzCo/seed-php",
     "license": "MIT",
@@ -19,8 +18,6 @@
       "php": ">=5.3.0"
     },
     "autoload": {
-      "psr-0": {
-        "Seed": "seed/"
-      }
+      "files": ["seed/loader.php"]
     }
 }
