@@ -13,7 +13,6 @@ formats.
 
 
 ## Get started 
----
 
 You can either fork/clone this repository or install this package using 
 **composer**. As for composer, check the sample below out:
@@ -61,7 +60,6 @@ include './vendor/seed-php/loader.php';
 
 
 ## Get involved
----
 
 This is an open-source project, which means that you can also contribute. 
 To make your contributions, fork this repository, do your changes or 
@@ -69,14 +67,12 @@ improvements and create a pull request.
 
 
 ## Get support
----
 
 Found an issue or would like to suggest something? <br>
 Just go to [this page](https://github.com/AbtzCo/seed-php/issues) and 
 open a ticket.
 
 ## Documentation
----
 
 ### Methods 
 
@@ -204,6 +200,7 @@ If code is not given, then ```200``` is assumed.
 
 #### ```\Seed\App()->setOutputType( string:required  )```
 
+---
 
 #### Available Helpers
 
