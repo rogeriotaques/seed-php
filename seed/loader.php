@@ -13,7 +13,7 @@ if (!defined('SEED')) {
 }
 
 // essential paths in the kit 
-$essential_paths = ['seed', 'seed/property'];
+$essential_paths = ['', 'seed', 'seed/helper'];
 
 // let's make sure that essential paths are in the include path 
 foreach ($essential_paths as $path) { 
