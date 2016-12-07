@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.0
+ | @version 0.1.3
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -11,17 +11,6 @@
 if (!defined('SEED')) {
   define('SEED', true);
 }
-
-// essential paths in the kit 
-$essential_paths = ['', 'seed', 'seed/helper'];
-
-// let's make sure that essential paths are in the include path 
-foreach ($essential_paths as $path) { 
-  ini_set(
-    'include_path', 
-    get_include_path() . PATH_SEPARATOR . dirname(__DIR__) . DIRECTORY_SEPARATOR . $path
-  ); 
-};
 
 // ----------------------------
 // autoloader 
@@ -40,6 +29,7 @@ spl_autoload_register (
     }
 
     $file .= str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
+    $file  = dirname(__DIR__) . DIRECTORY_SEPARATOR . $file;
 
     // load files in lowercase and named 
     // with dashes when class names are camelcase
