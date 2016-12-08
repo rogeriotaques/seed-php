@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.3
+ | @version 0.1.4
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -48,6 +48,13 @@ class Router {
   // define the default output type
   protected $_output_type = 'json';
 
+  // define the names for default return structure
+  private $_return_names = [
+    'status'  => 'status',
+    'message' => 'message',
+    'data' => 'data'
+  ];
+
   // ~~~ PUBLIC ~~~
 
   public function route ( $route = 'GET /', $callback = false ) {
@@ -63,6 +70,9 @@ class Router {
       if (!isset($this->_routes[ $m ])) {
         $this->_routes[ $m ] = [];
       }
+
+      // sanitize the regular expression
+      $route = str_replace(['/', '.', '@'], ['\\/', '\\.', '\\@'], $route);
 
       // add new route 
       $this->_routes[ $m ][] = (object) [
@@ -83,7 +93,30 @@ class Router {
     // identify the  http status code 
     $status = Http::getHTTPStatus( $code );
 
-    $result = [ 'status' => $status['code'], 'message' => $status['message'] ];
+    // allow enduser to customize the return structure for status
+    if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
+      $this->_return_names['status'] = $_GET['_router_status'];
+    }
+
+    // allow enduser to customize the return structure for data
+    if ( isset($_GET['_router_data']) && !empty($_GET['_router_data']) ) {
+      $this->_return_names['data'] = $_GET['_router_data'];
+    }
+
+    // allow enduser to customize the return structure for message
+    if ( isset($_GET['_router_message']) && !empty($_GET['_router_message']) ) {
+      $this->_return_names['message'] = $_GET['_router_message'];
+    }
+
+    $result = [ 
+      $this->_return_names['status']  => $status['code'], 
+      $this->_return_names['message'] => $status['message'] 
+    ];
+
+    if ( $this->_return_names['data'] != 'data' && isset($result['data']) ) {
+      $result[ $this->_return_names['data'] ] = $result['data'];
+      unset($result['data']);
+    }
 
     // if it's an error merge with error data 
     if ($code >= Http::_BAD_REQUEST) {
@@ -130,10 +163,7 @@ class Router {
     }
 
     // return 
-    return [
-      'code' => $code,
-      'result' => $result
-    ];
+    return $result;
   } // response
 
   public function setAllowedMethod ( $method = '', $merge = true ) {
@@ -213,7 +243,7 @@ class Router {
     // is there a matching route?
     if ( isset($this->_routes[$this->_method]) ) {
       foreach ($this->_routes[$this->_method] as $route) {
-        if ( preg_match($this->regexify($route->uri, 'end'), $this->_uri, $matches) ) {
+        if ( @preg_match("@{$route->uri}@", $this->_uri, $matches) ) {
           $matched_callback = $route->callback;
           break;
         }
@@ -232,11 +262,6 @@ class Router {
   } // dispatch
 
   // ~~~ PRIVATE ~~~
-
-  private function regexify ( $str = '', $pos = false ) {
-    $str = str_replace(['/', '_', '.'], ['\\/', '\\_', '\\.'], $str);
-    return '|' . ($pos == 'start' ? '^' : '') . $str . ($pos == 'end' ? '$' : '') . '$|';
-  } // regexify
 
   private function json2xml( &$xml, $data ) {
 
