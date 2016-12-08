@@ -113,6 +113,17 @@ class Router {
       $this->_return_names['message'] => $status['message'] 
     ];
 
+    // remove original status property in case there's a custom one
+    if ( $this->_return_names['status'] != 'status' && isset($result['status']) ) {
+      unset($result['status']);
+    }
+
+    // remove original message property in case there's a custom one
+    if ( $this->_return_names['message'] != 'message' && isset($result['message']) ) {
+      unset($result['message']);
+    }
+
+    // replace the original data property in case there's a custom one
     if ( $this->_return_names['data'] != 'data' && isset($result['data']) ) {
       $result[ $this->_return_names['data'] ] = $result['data'];
       unset($result['data']);
