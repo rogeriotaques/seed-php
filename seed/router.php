@@ -92,12 +92,14 @@ class Router {
 
     // merge response and result 
     $result = array_merge($result, $response); 
-    
-    header("{$status['protocol']} {$status['code']} {$status['message']}");
 
-    if ($this->_cache === true) {
-      header('ETag: ' . md5( !is_string($result) ? json_encode($result) : $result )); // this help on caching
-    } 
+    if ($output !== false) {
+      header("{$status['protocol']} {$status['code']} {$status['message']}");
+
+      if ($this->_cache === true) {
+        header('ETag: ' . md5( !is_string($result) ? json_encode($result) : $result )); // this help on caching
+      } 
+    }
 
     switch ( strtolower($output) ) {
       case 'xml':
