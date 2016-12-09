@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.5
+ | @version 0.1.6
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -249,12 +249,17 @@ class Router {
     // is there a matching route?
     if ( isset($this->_routes[$this->_method]) ) {
       foreach ($this->_routes[$this->_method] as $route) {
-        if ( @preg_match("@{$route->uri}@", $this->_uri, $matches) ) {
+        // echo '<pre>', $route->uri, ' ::: ', $this->_uri;
+        if ( @preg_match("@^{$route->uri}$@", $this->_uri, $matches) ) {
+          // echo " -> MATCHED";
           $matched_callback = $route->callback;
           break;
         }
+        // echo "</pre><br>";
       }
     }
+
+    // echo '<pre>', var_dump($matches), '</pre><br >'; die;
 
     if (count($matches) === 0) {
       return $this->response(Http::_NOT_IMPLEMENTED);
