@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.6
+ | @version 0.2.1
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */

@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.6
+ | @version 0.2.1
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -176,6 +176,11 @@ class Core extends \Seed\Router {
 
     // remove trailing slashes
     $args = preg_replace('/\/$/', '', $this->_uri);
+
+    // add a initial (root) slash case it's not present
+    if ( !preg_match('/^\//', $this->_uri) ) {
+      $this->_uri = "/{$this->_uri}";
+    }
 
     // explode arguments 
     $args = explode('/', $this->_uri);
