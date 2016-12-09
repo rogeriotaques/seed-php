@@ -98,6 +98,11 @@ do the 'magic' and make the engine start. After define all routes
 and settings you need for your tiny app, just call this method 
 (it will be done pretty much at the bottom of your index file).
 
+#### ```\Seed\App()->onFail( function:required )```
+
+Allows you to hand over the error response. If this handler is not given, 
+then Seed-PHP will return it in the normal process.
+
 #### ```\Seed\App()->header( string:optional )```
 
 Retrieve all headers from request. 

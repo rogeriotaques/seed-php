@@ -48,6 +48,9 @@ class Router {
   // define the default output type
   protected $_output_type = 'json';
 
+  // the callback for when an error is held
+  private $_error_handler = false;
+
   // ~~~ PUBLIC ~~~
 
   public function route ( $route = 'GET /', $callback = false ) {
@@ -233,6 +236,12 @@ class Router {
     }
   } //setOutputType
 
+  public function onFail ( $callback = false ) {
+    if ($callback !== false && is_callable($callback)) {
+      $this->_error_handler = $callback;
+    }
+  } // onFail
+
   // ~~~ PROTECTED ~~~
 
   protected function dispatch ( $args = [] ) {
@@ -255,7 +264,11 @@ class Router {
     // echo '<pre>', var_dump($matches), '</pre><br >'; die;
 
     if (count($matches) === 0) {
-      return $this->response(Http::_NOT_IMPLEMENTED);
+      if ( $this->_error_handler === false ) {
+        return $this->response(Http::_NOT_IMPLEMENTED);
+      } else {
+        return call_user_func($this->_error_handler, (object) Http::getHTTPStatus( Http::_NOT_IMPLEMENTED ));    
+      }
     } 
 
     if ($matched_callback !== false && is_callable($matched_callback)) {

@@ -18,8 +18,21 @@ if (!require_once('seed/loader.php')) {
 
 $app = Seed\App::getInstance(); 
 
-// force app to not do page caching 
+// force app to not do page caching (optional) 
 $app->setCache(false);
+
+// set an error handler (optional) 
+$app->onFail( function ( $error ) {
+
+  echo '<h1>Oops! An error has happened! </h1>';
+  echo "<p >The error sais: {$error->code} - {$error->message}</p>";
+
+  echo 
+    '<pre >',
+    'This is what we give to your error handler:', "\n",
+    var_dump( $error ),
+    '</pre>';
+} );
 
 // @use /sample/foo or /sample/foo/bar
 $app->route('GET /sample/(\w+)(/\w+)?', function ( $args ) {
