@@ -43,7 +43,7 @@ $app->route('GET /xml', function () use ($app) {
 
 // @use /welcome
 $app->route('GET /welcome', function () use ($app) {
-  $app->response(200, ['message' => 'You are very welcome!']);
+  $app->response(200, ['message' => 'You are very welcome!', 'data' => [ 'foo' => 'bar' ] ]);
 });
 
 // @use /

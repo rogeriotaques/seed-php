@@ -49,11 +49,11 @@ class Router {
   protected $_output_type = 'json';
 
   // define the names for default return structure
-  private $_return_names = [
-    'status'  => 'status',
-    'message' => 'message',
-    'data' => 'data'
-  ];
+  // private $_return_names = [
+  //   'status'  => 'status',
+  //   'message' => 'message',
+  //   'data' => 'data'
+  // ];
 
   // ~~~ PUBLIC ~~~
 
@@ -93,41 +93,10 @@ class Router {
     // identify the  http status code 
     $status = Http::getHTTPStatus( $code );
 
-    // allow enduser to customize the return structure for status
-    if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
-      $this->_return_names['status'] = $_GET['_router_status'];
-    }
-
-    // allow enduser to customize the return structure for data
-    if ( isset($_GET['_router_data']) && !empty($_GET['_router_data']) ) {
-      $this->_return_names['data'] = $_GET['_router_data'];
-    }
-
-    // allow enduser to customize the return structure for message
-    if ( isset($_GET['_router_message']) && !empty($_GET['_router_message']) ) {
-      $this->_return_names['message'] = $_GET['_router_message'];
-    }
-
     $result = [ 
-      $this->_return_names['status']  => $status['code'], 
-      $this->_return_names['message'] => $status['message'] 
+      'status'  => $status['code'], 
+      'message' => $status['message'] 
     ];
-
-    // remove original status property in case there's a custom one
-    if ( $this->_return_names['status'] != 'status' && isset($result['status']) ) {
-      unset($result['status']);
-    }
-
-    // remove original message property in case there's a custom one
-    if ( $this->_return_names['message'] != 'message' && isset($result['message']) ) {
-      unset($result['message']);
-    }
-
-    // replace the original data property in case there's a custom one
-    if ( $this->_return_names['data'] != 'data' && isset($result['data']) ) {
-      $result[ $this->_return_names['data'] ] = $result['data'];
-      unset($result['data']);
-    }
 
     // if it's an error merge with error data 
     if ($code >= Http::_BAD_REQUEST) {
@@ -137,6 +106,31 @@ class Router {
     // merge response and result 
     $result = array_merge($result, $response); 
 
+    // allow enduser to customize the return structure for status
+    if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
+      if ( isset($result['status']) ) {
+        $result[ $_GET['_router_status'] ] = $result['status'];
+        unset($result['status']);
+      }
+    }
+
+    // allow enduser to customize the return structure for message
+    if ( isset($_GET['_router_message']) && !empty($_GET['_router_message']) ) {
+      if ( isset($result['message']) ) {
+        $result[ $_GET['_router_message'] ] = $result['message'];
+        unset($result['message']);
+      }
+    }
+
+    // allow enduser to customize the return structure for data
+    if ( isset($_GET['_router_data']) && !empty($_GET['_router_data']) ) {
+      if ( isset($result['data']) ) {
+        $result[ $_GET['_router_data'] ] = $result['data'];
+        unset($result['data']);
+      }
+    }
+
+    // is output required?
     if ($output !== false) {
       header("{$status['protocol']} {$status['code']} {$status['message']}");
 
@@ -145,6 +139,7 @@ class Router {
       } 
     }
 
+    // what kind of output is expected?
     switch ( strtolower($output) ) {
       case 'xml':
         header("Content-Type: application/xml");
@@ -173,7 +168,7 @@ class Router {
         // do nothing. do not output, just return it.
     }
 
-    // return 
+    // return as object the response 
     return $result;
   } // response
 
