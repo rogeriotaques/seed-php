@@ -222,6 +222,16 @@ $app->route('/', function () use ($app) {
 });
 ```
 
+Some properties from the returning object can be customized by the enduser. 
+In order to customize those properties, use the following meta parameters as 
+a query-string:
+
+| Param | Type | Remark |
+| ----- | ---- | ------ |
+| _router_status | string | Changes the name of property ```status``` |
+| _router_message | string | Changes the name of property ```message``` |
+| _router_data | string | Changes the name of property ```data``` (if any) |
+
 #### ```\Seed\App()->setAllowedMethod( string:required, boolean:optional )```
 
 By calling this method you can customize whatever methods you wanna 

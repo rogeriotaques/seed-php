@@ -48,13 +48,6 @@ class Router {
   // define the default output type
   protected $_output_type = 'json';
 
-  // define the names for default return structure
-  // private $_return_names = [
-  //   'status'  => 'status',
-  //   'message' => 'message',
-  //   'data' => 'data'
-  // ];
-
   // ~~~ PUBLIC ~~~
 
   public function route ( $route = 'GET /', $callback = false ) {
