@@ -23,6 +23,14 @@ class Logger {
     $this->_db = new \Seed\Helper\MySQL($this->_config);
   } // __construct
 
+  public function table ( $name = '' ) {
+    if (!empty($name)) {
+      $this->_table = $name;
+    }
+
+    return $this;
+  }
+
   public function endpoint ( $str = '' ) {
     $this->_data['endpoint'] = $str;
     return $this;
