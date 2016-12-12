@@ -99,8 +99,18 @@ class Router {
       $result['error'] = true;
     }
 
+    // $response should be an array. Whenever it isn't, try to convert it. 
+    // If impossible to convert, just ignores it.  
+    if ( !is_array($response) && is_object($response) ) {
+      $response = (array) $response;
+    } elseif ( !is_string($response) ) {
+      $response = [ $response ];
+    } else {
+      $response = [];
+    }
+
     // merge response and result 
-    $result = array_merge($result, $response); 
+    $result = array_merge($result, $response);
 
     // allow enduser to customize the return structure for status
     if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
