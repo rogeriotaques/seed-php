@@ -101,11 +101,11 @@ class Router {
 
     // $response should be an array. Whenever it isn't, try to convert it. 
     // If impossible to convert, just ignores it.  
-    if ( !is_array($response) && is_object($response) ) {
+    if ( is_object($response) ) {
       $response = (array) $response;
-    } elseif ( !is_string($response) ) {
+    } elseif ( is_string($response) ) {
       $response = [ $response ];
-    } else {
+    } elseif ( !is_array($response) ) {
       $response = [];
     }
 
