@@ -235,10 +235,12 @@ class Curl {
       // check what kind result is expected. 
       // whenever it's json (default), encodes it 
       switch ($this->_return_content_type) {
+
         case 'json':
-          if (is_string($result)) {
+          if (is_string($result) && !empty($result)) {
             $result = json_decode($result);
           }
+        
           break;
       }
     }
