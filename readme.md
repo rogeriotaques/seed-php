@@ -22,7 +22,7 @@ $ php composer create-project abtzco/seed-php
 ```
 
 After having create a project with the above command, go to the 
-recently created **seed-php** folder and create a new index.php file, 
+recently created **seed-php** folder and create a new `index.php` file, 
 such as below:
 
 ```php
@@ -44,8 +44,6 @@ $app->run();
 
 ```
 
-That's it!
-
 If you have forked or cloned the repository from Github, then instead of 
 include the 'autoload.php' from composer, include the package loader:
 
@@ -57,6 +55,30 @@ include the 'autoload.php' from composer, include the package loader:
 include './vendor/seed-php/loader.php';
 
 ```
+
+Now, as a final step, we must create the `.htaccess` file (in the same folder of 
+the index.php) which will contain the necessary settings for Apache properly use 
+the `mod_rewrite` and route all the traffic thru our `index.php`. Create the file 
+as follow:
+
+```sh
+ # --------------------------------------------------------
+ # Seed-PHP Microframework.
+ # @see http://github.com/rogeriotaques/seed-php
+ # -------------------------------------------------------- 
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    #RewriteBase /
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+```
+
+Done! Now, do access your project on any browser. ;)
 
 
 ## Get involved
