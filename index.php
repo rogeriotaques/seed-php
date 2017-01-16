@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.5
+ | @version 0.2.4
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -18,21 +18,37 @@ if (!require_once('seed/loader.php')) {
 
 $app = Seed\App::getInstance(); 
 
-// @use /sample/anything
-$app->route('GET /sample/([a-z]+)', function () use ($app) {
+// force app to not do page caching (optional) 
+$app->setCache(false);
+
+// set an error handler (optional) 
+$app->onFail( function ( $error ) {
+
+  echo '<h1>Oops! An error has happened! </h1>';
+  echo "<p >The error sais: {$error->code} - {$error->message}</p>";
+
   echo 
     '<pre >',
-    'Arguments can be retrieved like this:', "\n",
-    var_dump( $app->request() ),
+    'This is what we give to your error handler:', "\n",
+    var_dump( $error ),
     '</pre>';
-});
+} );
 
-// @use /sample/100/your/name
-$app->route('GET /sample/([0-9]+)/([a-z]+)(/[a-z]+){0,1}', function ( $args ) {
+// @use /sample/foo or /sample/foo/bar
+$app->route('GET /sample/(\w+)(/\w+)?', function ( $args ) {
   echo 
     '<pre >',
     'Arguments can be retrieved like this:', "\n",
     var_dump( $args ),
+    '</pre>';
+});
+
+// // @use /sample or /sample/100
+$app->route('GET /sample(/\d+)?', function () use ($app) {
+  echo 
+    '<pre >',
+    'Arguments can be retrieved like this:', "\n",
+    var_dump( $app->request() ),
     '</pre>';
 });
 
@@ -43,7 +59,7 @@ $app->route('GET /xml', function () use ($app) {
 
 // @use /welcome
 $app->route('GET /welcome', function () use ($app) {
-  $app->response(200, ['message' => 'You are very welcome!']);
+  $app->response(200, ['message' => 'You are very welcome!', 'data' => [ 'foo' => 'bar' ] ]);
 });
 
 // @use /

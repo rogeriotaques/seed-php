@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.5
+ | @version 0.2.4
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -22,6 +22,14 @@ class Logger {
     $this->_config = $cfg;
     $this->_db = new \Seed\Helper\MySQL($this->_config);
   } // __construct
+
+  public function table ( $name = '' ) {
+    if (!empty($name)) {
+      $this->_table = $name;
+    }
+
+    return $this;
+  }
 
   public function endpoint ( $str = '' ) {
     $this->_data['endpoint'] = $str;

@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.5
+ | @version 0.2.4
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -48,12 +48,8 @@ class Router {
   // define the default output type
   protected $_output_type = 'json';
 
-  // define the names for default return structure
-  private $_return_names = [
-    'status'  => 'status',
-    'message' => 'message',
-    'data' => 'data'
-  ];
+  // the callback for when an error is held
+  private $_error_handler = false;
 
   // ~~~ PUBLIC ~~~
 
@@ -93,50 +89,54 @@ class Router {
     // identify the  http status code 
     $status = Http::getHTTPStatus( $code );
 
-    // allow enduser to customize the return structure for status
-    if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
-      $this->_return_names['status'] = $_GET['_router_status'];
-    }
-
-    // allow enduser to customize the return structure for data
-    if ( isset($_GET['_router_data']) && !empty($_GET['_router_data']) ) {
-      $this->_return_names['data'] = $_GET['_router_data'];
-    }
-
-    // allow enduser to customize the return structure for message
-    if ( isset($_GET['_router_message']) && !empty($_GET['_router_message']) ) {
-      $this->_return_names['message'] = $_GET['_router_message'];
-    }
-
     $result = [ 
-      $this->_return_names['status']  => $status['code'], 
-      $this->_return_names['message'] => $status['message'] 
+      'status'  => $status['code'], 
+      'message' => $status['message'] 
     ];
-
-    // remove original status property in case there's a custom one
-    if ( $this->_return_names['status'] != 'status' && isset($result['status']) ) {
-      unset($result['status']);
-    }
-
-    // remove original message property in case there's a custom one
-    if ( $this->_return_names['message'] != 'message' && isset($result['message']) ) {
-      unset($result['message']);
-    }
-
-    // replace the original data property in case there's a custom one
-    if ( $this->_return_names['data'] != 'data' && isset($result['data']) ) {
-      $result[ $this->_return_names['data'] ] = $result['data'];
-      unset($result['data']);
-    }
 
     // if it's an error merge with error data 
     if ($code >= Http::_BAD_REQUEST) {
       $result['error'] = true;
     }
 
-    // merge response and result 
-    $result = array_merge($result, $response); 
+    // $response should be an array. Whenever it isn't, try to convert it. 
+    // If impossible to convert, just ignores it.  
+    if ( is_object($response) ) {
+      $response = (array) $response;
+    } elseif ( is_string($response) ) {
+      $response = [ $response ];
+    } elseif ( !is_array($response) ) {
+      $response = [];
+    }
 
+    // merge response and result 
+    $result = array_merge($result, $response);
+
+    // allow enduser to customize the return structure for status
+    if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
+      if ( isset($result['status']) ) {
+        $result[ $_GET['_router_status'] ] = $result['status'];
+        unset($result['status']);
+      }
+    }
+
+    // allow enduser to customize the return structure for message
+    if ( isset($_GET['_router_message']) && !empty($_GET['_router_message']) ) {
+      if ( isset($result['message']) ) {
+        $result[ $_GET['_router_message'] ] = $result['message'];
+        unset($result['message']);
+      }
+    }
+
+    // allow enduser to customize the return structure for data
+    if ( isset($_GET['_router_data']) && !empty($_GET['_router_data']) ) {
+      if ( isset($result['data']) ) {
+        $result[ $_GET['_router_data'] ] = $result['data'];
+        unset($result['data']);
+      }
+    }
+
+    // is output required?
     if ($output !== false) {
       header("{$status['protocol']} {$status['code']} {$status['message']}");
 
@@ -145,6 +145,7 @@ class Router {
       } 
     }
 
+    // what kind of output is expected?
     switch ( strtolower($output) ) {
       case 'xml':
         header("Content-Type: application/xml");
@@ -173,7 +174,7 @@ class Router {
         // do nothing. do not output, just return it.
     }
 
-    // return 
+    // return as object the response 
     return $result;
   } // response
 
@@ -245,6 +246,12 @@ class Router {
     }
   } //setOutputType
 
+  public function onFail ( $callback = false ) {
+    if ($callback !== false && is_callable($callback)) {
+      $this->_error_handler = $callback;
+    }
+  } // onFail
+
   // ~~~ PROTECTED ~~~
 
   protected function dispatch ( $args = [] ) {
@@ -254,15 +261,24 @@ class Router {
     // is there a matching route?
     if ( isset($this->_routes[$this->_method]) ) {
       foreach ($this->_routes[$this->_method] as $route) {
-        if ( @preg_match("@{$route->uri}@", $this->_uri, $matches) ) {
+        // echo '<pre>', $route->uri, ' ::: ', $this->_uri;
+        if ( @preg_match("@^{$route->uri}$@", $this->_uri, $matches) ) {
+          // echo " -> MATCHED";
           $matched_callback = $route->callback;
           break;
         }
+        // echo "</pre><br>";
       }
     }
 
+    // echo '<pre>', var_dump($matches), '</pre><br >'; die;
+
     if (count($matches) === 0) {
-      return $this->response(Http::_NOT_IMPLEMENTED);
+      if ( $this->_error_handler === false ) {
+        return $this->response(Http::_NOT_IMPLEMENTED);
+      } else {
+        return call_user_func($this->_error_handler, (object) Http::getHTTPStatus( Http::_NOT_IMPLEMENTED ));    
+      }
     } 
 
     if ($matched_callback !== false && is_callable($matched_callback)) {

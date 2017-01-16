@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.1.5
+ | @version 0.2.4
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -230,15 +230,24 @@ class Curl {
     if ($result === false) { 
       $this->error->code = (isset($this->info['http_code']) ? $this->info['http_code'] : curl_errno($this->_ch)); 
       $this->error->message = curl_error($this->_ch);
-      $this->error->headers = $this->info['request_header'];
+      $this->error->headers = isset($this->info['request_header']) ? $this->info['request_header'] : [];
     } else {
       // check what kind result is expected. 
       // whenever it's json (default), encodes it 
       switch ($this->_return_content_type) {
+
         case 'json':
-          if (is_string($result)) {
+          if (is_string($result) && !empty($result)) {
+            $orig   = $result;
             $result = json_decode($result);
+
+            // after trying decode a json content and for some reason
+            // it doesn't work, then, falls back to the original result. 
+            if ( is_null($result) ) {
+              $result = $orig;
+            }
           }
+        
           break;
       }
     }
