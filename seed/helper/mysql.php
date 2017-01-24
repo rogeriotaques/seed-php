@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.0
+ | @version 0.3.1
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -178,7 +178,7 @@ class MySQL {
       }
 
       // Since v0.3.0. Provide the result count for a select statement 
-      $this->_last_result_count = $this->_resource->num_rows;
+      $this->_last_result_count = mysqli_num_rows($res);
 
       return $result;
     }
@@ -255,7 +255,7 @@ class MySQL {
    * @since v0.3.0
    */
   public function insertedId () {
-    return mysqli_inserted_id($this->_resource);
+    return mysqli_insert_id($this->_resource);
   } // insertedId
 
   /**
