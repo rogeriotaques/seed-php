@@ -451,17 +451,56 @@ Writes the log in the database table.
 Gives you a simple wrapper to work with database (mysql) queries.
 
 #### ```MySQL()->setHost( string<host>:required, string<port>:optional, string<charset>:optional ) : MySQL```
+
+Set the database host address and returns itself. Default is localhost.
+
 #### ```MySQL()->setPort( string:required ) : MySQL```
+
+Set the database access port and returns itself. Default is 3306.
+
 #### ```MySQL()->setCredential( string<user>:required, string<pass>:required ) : MySQL```
+
+Set the database creedentials (user and password) and returns itself.
+
 #### ```MySQL()->setDatabase( string:required ) : MySQL```
+
+Set the database name and returns itself. Default is test.
+
 #### ```MySQL()->setCharset( string:required ) : MySQL```
+
+Set the database charset and returns itself. Default is utf8.
+
 #### ```MySQL()->connect() : MySQL```
+
+Connects the page with the MySQL server and returns itself.
+
 #### ```MySQL()->disconnect() : MySQL```
+
+Closes a connection to the database.
+
 #### ```MySQL()->exec( string<query>:required ) : MySQL```
-#### ```MySQL()->exec( string<query>:required ) : Variant```
+
+Execute a query statement and returns itself.
+
 #### ```MySQL()->insert( string<table>:required, array:required ) : Variant```
+
+A short call for insert records into any table from connected database. Returns the number os affected records.
+
 #### ```MySQL()->update( string<table>:required, array<data>:required, array<where>:required ) : Variant```
+
+A short call for update records into any table from connected database. Returns the number os affected records.
+
 #### ```MySQL()->delete( string<table>:required, array<where>:required ) : Variant```
+
+A short call for delete records from any table from connected database. Returns the number os affected records.
+
+#### ```MySQL()->insertedId( void ) : integer```
+
+Returns the last inserted ID.
+
+#### ```MySQL()->resultCount( void ) : integer```
+
+Returns the last result count. If ran after any statement other than a `select`, it will return zero.
 
 ### Curl  
 
