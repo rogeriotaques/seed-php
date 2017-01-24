@@ -35,8 +35,8 @@ class Core extends \Seed\Router {
 
   public function run () {
 
-    $this->buildRequest();
     $this->setPageHeaders();
+    $this->buildRequest();
 
     // is it an OPTIONS request?
     // it's used to confirm if app accept CORS calls
