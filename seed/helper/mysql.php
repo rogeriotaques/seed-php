@@ -24,6 +24,9 @@ class MySQL {
   // the connection resource 
   private $_resource = null; 
 
+  // the last result count (since v0.3.0)
+  private $_last_result_count = 0;
+
   function __construct( $config = null ) {
 
     if (!is_null($config)) {
@@ -174,8 +177,13 @@ class MySQL {
         }
       }
 
+      // Since v0.3.0. Provide the result count for a select statement 
+      $this->_last_result_count = $this->_resource->num_rows;
+
       return $result;
     }
+
+    $this->_last_result_count = 0;
 
     return $this->_resource->affected_rows;
   } // exec
@@ -242,5 +250,19 @@ class MySQL {
     
     return $this->exec($stdin);
   } // delete 
+
+  /**
+   * @since v0.3.0
+   */
+  public function insertedId () {
+    return mysqli_inserted_id($this->_resource);
+  } // insertedId
+
+  /**
+   * @since v0.3.0
+   */
+  public function resultCount () {
+    return $this->_last_result_count;
+  } // insertedId
 
 } // class
