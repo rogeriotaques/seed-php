@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.1
+ | @version 0.3.2
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -174,13 +174,14 @@ class Core extends \Seed\Router {
     
     $this->_method  = (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
 
+    // remove trailing slashes to easily match paths.
+    // it must be done before adding a "root" slash, otherwise it breaks the router for (hidden) index pages.
+    $this->_uri = preg_replace('/\/$/', '', $this->_uri);
+
     // add a initial (root) slash case it's not present
     if ( !preg_match('/^\//', $this->_uri) ) {
       $this->_uri = "/{$this->_uri}";
     }
-
-    // remove trailing slashes to easily match paths
-    $this->_uri = preg_replace('/\/$/', '', $this->_uri);
 
     // explode arguments 
     $args = explode('/', $this->_uri);
