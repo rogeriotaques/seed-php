@@ -113,9 +113,16 @@ class Http {
     public static function getBaseUrl ( $protocol = false ) {
       $_base = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
 
+      // tries to figure out what is the right protocol if it's not given
+      $protocol = false !== $protocol
+        ? $protocol
+        : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' || $_SERVER['SERVER_PORT'] == 443) 
+          ? 'https' 
+          : 'http';
+
       return sprintf(
         "%s://%s%s",
-        isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' ? 'https' : 'http',
+        $protocol,
         $_SERVER['SERVER_NAME'],
         $_base
       );
