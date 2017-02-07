@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3
+ | @version 0.3.4
  | @license MIT
  | @see http://github.com/rogeriotaques/seed-php
  * -------------------------------------------------------- */
@@ -111,21 +111,24 @@ class Http {
     * @return {string}  
     */
     public static function getBaseUrl ( $protocol = false ) {
-      $_base = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
+       $_base = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
 
       // tries to figure out what is the right protocol if it's not given
-      $protocol = false !== $protocol
-        ? $protocol
-        : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' || $_SERVER['SERVER_PORT'] == 443) 
+      if (false === $protocol) {
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' || $_SERVER['SERVER_PORT'] == 443) 
           ? 'https' 
           : 'http';
+      }
 
-      return sprintf(
+      $_base = sprintf(
         "%s://%s%s",
         $protocol,
         $_SERVER['SERVER_NAME'],
         $_base
       );
+
+      // remove trailing slash (if any) and return 
+      return preg_replace('/\/$/', '', $_base);
     } // getBaseUrl
 
     /**
