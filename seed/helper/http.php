@@ -3,9 +3,9 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.4
+ | @version 0.3.5
  | @license MIT
- | @see http://github.com/rogeriotaques/seed-php
+ | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
 
 namespace Seed\Helper;

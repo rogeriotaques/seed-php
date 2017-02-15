@@ -70,7 +70,7 @@ as follow:
 ```sh
  # --------------------------------------------------------
  # Seed-PHP Microframework.
- # @see http://github.com/rogeriotaques/seed-php
+ # @see http://github.com/abtzco/seed-php
  # -------------------------------------------------------- 
 
 <IfModule mod_rewrite.c>

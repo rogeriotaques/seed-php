@@ -5,7 +5,7 @@
  | @author Rogerio Taques (rogerio.taques@gmail.com)
  | @version 0.2.4
  | @license MIT
- | @see http://github.com/rogeriotaques/seed-php
+ | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
  
 // define the api timezone 
