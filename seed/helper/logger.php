@@ -70,7 +70,9 @@ class Logger {
     $res = false;
 
     try {
+      $this->_db->connect();
       $res = $this->_db->insert($this->_table, $this->_data);
+      $this->_db->disconnect();
     } catch (\Exception $e) {
       // result is already set to false ... 
     }
