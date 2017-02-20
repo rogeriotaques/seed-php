@@ -1,9 +1,9 @@
-<?php 
+<?php
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.7
+ | @version 0.3.8
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -15,34 +15,34 @@ defined('SEED') or die('Direct script access is not allowed!');
 use Seed\Helper\Http;
 
 class Router {
-  // request method 
+  // request method
   protected $_method = 'GET';
 
   // app routes
   protected $_routes = [];
 
-  // app allowed methods 
+  // app allowed methods
   protected $_allowed_methods = [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH' ];
 
-  // app allowed headers 
+  // app allowed headers
   protected $_allowed_headers = [ 'Origin', 'Content-Type', 'X-Requested-With' ];
 
-  // app allowed headers 
+  // app allowed headers
   protected $_allowed_origin = '*';
 
   // app page cache
-  protected $_cache = true; 
+  protected $_cache = true;
 
   // app page cache max age
-  protected $_cache_max_age = 3600; // default is one hour 
+  protected $_cache_max_age = 3600; // default is one hour
 
   // app page language
-  protected $_language = 'en'; // english 
+  protected $_language = 'en'; // english
 
   // app page charset
-  protected $_charset = 'utf8'; 
+  protected $_charset = 'utf8';
 
-  // requested uri 
+  // requested uri
   protected $_uri = '';
 
   // define the default output type
@@ -59,7 +59,7 @@ class Router {
     if (strpos($route, ' ') !== false) {
       list($method, $route) = explode(' ', $route);
       $method = explode('|', $method);
-    } 
+    }
 
     foreach ($method as $m) {
       // is there a route set for given method?
@@ -70,7 +70,7 @@ class Router {
       // sanitize the regular expression
       $route = str_replace(['/', '.', '@'], ['\\/', '\\.', '\\@'], $route);
 
-      // add new route 
+      // add new route
       $this->_routes[ $m ][] = (object) [
         'uri' => $route,
         'callback' => $callback
@@ -79,28 +79,28 @@ class Router {
 
     // make it chainable
     return $this;
-  } // route 
+  } // route
 
   public function response ( $code = 200, $response = [], $output = null ) {
     if (is_null($output)) {
       $output = $this->_output_type;
     }
 
-    // identify the  http status code 
+    // identify the  http status code
     $status = Http::getHTTPStatus( $code );
 
-    $result = [ 
-      'status'  => $status['code'], 
-      'message' => $status['message'] 
+    $result = [
+      'status'  => $status['code'],
+      'message' => $status['message']
     ];
 
-    // if it's an error merge with error data 
+    // if it's an error merge with error data
     if ($code >= Http::_BAD_REQUEST) {
       $result['error'] = true;
     }
 
-    // $response should be an array. Whenever it isn't, try to convert it. 
-    // If impossible to convert, just ignores it.  
+    // $response should be an array. Whenever it isn't, try to convert it.
+    // If impossible to convert, just ignores it.
     if ( is_object($response) ) {
       $response = (array) $response;
     } elseif ( is_string($response) ) {
@@ -109,7 +109,7 @@ class Router {
       $response = [];
     }
 
-    // merge response and result 
+    // merge response and result
     $result = array_merge($result, $response);
 
     // allow enduser to customize the return structure for status
@@ -142,7 +142,7 @@ class Router {
 
       if ($this->_cache === true) {
         header('ETag: ' . md5( !is_string($result) ? json_encode($result) : $result )); // this help on caching
-      } 
+      }
     }
 
     // what kind of output is expected?
@@ -150,7 +150,7 @@ class Router {
       case 'xml':
         header("Content-Type: application/xml");
 
-        // translate json into xml object 
+        // translate json into xml object
         $xml = new \SimpleXMLElement('<response />');
         $xml = $this->json2xml($xml, $result);
 
@@ -159,7 +159,7 @@ class Router {
         break;
 
       case 'json':
-        // set proper headers 
+        // set proper headers
         header("{$status['protocol']} {$status['code']} {$status['message']}");
         header("Content-Type: application/json");
 
@@ -168,13 +168,13 @@ class Router {
 
         echo $result;
         break;
-      
-      default: 
+
+      default:
         // anything else, including "false"
         // do nothing. do not output, just return it.
     }
 
-    // return as object the response 
+    // return as object the response
     return $result;
   } // response
 
@@ -188,7 +188,7 @@ class Router {
         $this->_allowed_methods = array_merge($this->_allowed_methods, $method);
       } else {
         $this->_allowed_methods[] = $method;
-      }   
+      }
     }
 
     return $this;
@@ -204,7 +204,7 @@ class Router {
         $this->_allowed_headers = array_merge($this->_allowed_headers, $header);
       } else {
         $this->_allowed_headers[] = $header;
-      }   
+      }
     }
 
     return $this;
@@ -214,7 +214,7 @@ class Router {
     if (!empty($origin)) {
       $this->_allowed_origin = $origin;
     }
-    
+
     return $this;
   } // setAllowedOrigin
 
@@ -256,7 +256,7 @@ class Router {
 
   protected function dispatch ( $args = [] ) {
     $matches = [];
-    $matched_callback = false; 
+    $matched_callback = false;
 
     // is there a matching route?
     if ( isset($this->_routes[$this->_method]) ) {
@@ -277,9 +277,9 @@ class Router {
       if ( $this->_error_handler === false ) {
         return $this->response(Http::_NOT_IMPLEMENTED);
       } else {
-        return call_user_func($this->_error_handler, (object) Http::getHTTPStatus( Http::_NOT_IMPLEMENTED ));    
+        return call_user_func($this->_error_handler, (object) Http::getHTTPStatus( Http::_NOT_IMPLEMENTED ));
       }
-    } 
+    }
 
     if ($matched_callback !== false && is_callable($matched_callback)) {
       return call_user_func($matched_callback, $args);
@@ -297,26 +297,26 @@ class Router {
       return $xml;
     }
 
-    // runs thru data to build xml 
+    // runs thru data to build xml
     foreach ($data as $dk => $dv) {
 
-      // node data can be an array/ object 
+      // node data can be an array/ object
       if ( is_array($dv) ) {
 
         // is the key a string?
         if ( !is_numeric($dk) ) {
 
           // eventually it's possible that nodes have properties
-          // whenever it has, isolate properties for post use. 
+          // whenever it has, isolate properties for post use.
           if (strpos($dk, ' ') !== false) {
             $props = explode(' ', $dk);
-            $dk = array_shift($props); 
+            $dk = array_shift($props);
           }
 
-          // create a new node 
+          // create a new node
           $node = $xml->addChild($dk);
 
-          // new node should have attributes? appends it ...   
+          // new node should have attributes? appends it ...
           if (isset($props) && count($props) > 0) {
             foreach ($props as $prop) {
               $prop = explode('=', $prop);
@@ -329,19 +329,19 @@ class Router {
           // giving the most recent node created
           $this->json2xml($node, $dv);
         } else {
-          // recursive call for subnodes 
+          // recursive call for subnodes
           $this->json2xml($xml, $dv);
         }
       } else {
 
         $xml->addChild($dk, htmlspecialchars($dv));
-        
+
       }
     }
 
-    // return xml object 
+    // return xml object
     return $xml;
 
   } // json2xml
 
-} // class 
+} // class

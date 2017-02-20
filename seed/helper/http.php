@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.7
+ | @version 0.3.8
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -14,7 +14,7 @@ defined('SEED') or die('Direct script access is not allowed!');
 
 class Http {
 
-  // HTTP Status Codes 
+  // HTTP Status Codes
   const _CONTINUE = 100;
   const _SWITCHING_PROTOCOLS = 101;
   const _OK = 200;
@@ -101,22 +101,22 @@ class Http {
         case 505: $text = 'HTTP Version not supported'; break;
         default: exit('Unknown http status code "' . htmlentities($code) . '"'); break;
       }
-      
+
       return ['protocol' => $protocol, 'code' => $code, 'message' => $text];
     } // getHTTPStatus
 
     /**
     * Returns the project base URL.
     * @param {variant} [$protocol] - Default is false. Should be 'http', 'https' or false.
-    * @return {string}  
+    * @return {string}
     */
     public static function getBaseUrl ( $protocol = false ) {
        $_base = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
 
       // tries to figure out what is the right protocol if it's not given
       if (false === $protocol) {
-        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' || $_SERVER['SERVER_PORT'] == 443) 
-          ? 'https' 
+        $protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off' || $_SERVER['SERVER_PORT'] == 443)
+          ? 'https'
           : 'http';
       }
 
@@ -127,7 +127,7 @@ class Http {
         $_base
       );
 
-      // remove trailing slash (if any) and return 
+      // remove trailing slash (if any) and return
       return preg_replace('/\/$/', '', $_base);
     } // getBaseUrl
 
@@ -152,8 +152,8 @@ class Http {
           $ipaddress = getenv('REMOTE_ADDR');
       } else {
           $ipaddress = 'UNKNOWN';
-      } 
-      
+      }
+
       return $ipaddress;
     } // getClientIP
 

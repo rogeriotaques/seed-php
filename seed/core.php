@@ -1,9 +1,9 @@
-<?php 
+<?php
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.7
+ | @version 0.3.8
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -22,7 +22,7 @@ class Core extends \Seed\Router {
   private $_request;
 
   function __construct () {}
- 
+
   // ~~~ PUBLIC METHODS ~~~
 
   public static function getInstance () {
@@ -45,7 +45,7 @@ class Core extends \Seed\Router {
     }
 
     return $this->dispatch( $this->_request->args );
-  } // run 
+  } // run
 
   public function header ( $key = null ) {
     $headers = getallheaders();
@@ -58,6 +58,12 @@ class Core extends \Seed\Router {
   } // header
 
   public function post ( $key = null ) {
+    // The 'always_populate_raw_post_data' is deprecated since php@5.6.
+    // So, check if auto_populate_post_data is enabled, if not enabled, use php://input instead.
+    if (intval( ini_get('always_populate_raw_post_data') ) < 1) {
+      parse_str(file_get_contents("php://input"), $_POST);
+    }
+
     if ($key === null) {
       return $_POST;
     }
@@ -115,7 +121,7 @@ class Core extends \Seed\Router {
   } // load
 
   // ~~~ PRIVATE METHODS ~~~
-  
+
   private function camelfy ( $str, $first_lower = false ) {
     if ( empty($str) ) {
       return '';
@@ -124,13 +130,13 @@ class Core extends \Seed\Router {
     $worldCounter = 0;
 
     return implode(
-      '', 
+      '',
       array_map(
         function ($el) use (&$worldCounter, $first_lower) {
           return $first_lower === true && $worldCounter++ === 0
             ? $el
-            : ucfirst($el); 
-        }, 
+            : ucfirst($el);
+        },
         explode('-', $str)
       )
     );
@@ -156,10 +162,10 @@ class Core extends \Seed\Router {
   } // setPageHeaders
 
   private function buildRequest () {
-    // define base path  
+    // define base path
     $patt = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
 
-    // retrieve requested uri 
+    // retrieve requested uri
     $this->_uri = isset($_SERVER['REQUEST_URI'])
       ? $this->_uri = $_SERVER['REQUEST_URI']
       : '/';
@@ -169,9 +175,9 @@ class Core extends \Seed\Router {
       $this->_uri = substr($this->_uri, 0, strpos($this->_uri, '?'));
     }
 
-    // remove base path from uri 
+    // remove base path from uri
     $this->_uri = preg_replace('|' . $patt . '|', '', $this->_uri);
-    
+
     $this->_method  = (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
 
     // remove trailing slashes to easily match paths.
@@ -183,7 +189,7 @@ class Core extends \Seed\Router {
       $this->_uri = "/{$this->_uri}";
     }
 
-    // explode arguments 
+    // explode arguments
     $args = explode('/', $this->_uri);
 
     // filter empty arguments
@@ -231,8 +237,8 @@ class Core extends \Seed\Router {
       'endpoint'  => $endpoint,
       'verb'      => $verb,
       'id'        => $id,
-      'args'      => $args 
+      'args'      => $args
     ];
   } // buildRequest
 
-} // class 
+} // class

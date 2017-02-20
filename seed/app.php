@@ -1,9 +1,9 @@
-<?php 
+<?php
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.7
+ | @version 0.3.8
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -16,4 +16,4 @@ class App extends \Seed\Core {
 
   // this class extends the fw core.
 
-} // class 
+} // class

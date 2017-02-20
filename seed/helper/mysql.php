@@ -1,9 +1,9 @@
-<?php 
+<?php
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.7
+ | @version 0.3.8
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -16,13 +16,13 @@ class MySQL {
 
   private $_host = 'localhost';
   private $_port = '3306';
-  private $_user = 'root'; 
-  private $_pass = ''; 
-  private $_base = 'test'; 
-  private $_charset = 'utf8'; 
+  private $_user = 'root';
+  private $_pass = '';
+  private $_base = 'test';
+  private $_charset = 'utf8';
 
-  // the connection resource 
-  private $_resource = null; 
+  // the connection resource
+  private $_resource = null;
 
   // the last result count (since v0.3.0)
   private $_last_result_count = 0;
@@ -60,18 +60,18 @@ class MySQL {
   private function _escape ( $str = '' ) {
     if (!is_object( $this->_resource )) {
       return $str;
-    } 
+    }
 
     return (
         is_null($str)
           ? 'NULL'
           : (
-            is_numeric($str) || is_bool($str) 
+            is_numeric($str) || is_bool($str)
               ? $str
               : (
                 is_string($str)
                   ? "'{$this->_resource->real_escape_string($str)}'"
-                  : $str 
+                  : $str
               )
           )
       );
@@ -135,7 +135,7 @@ class MySQL {
     }
 
     $this->_resource = new \mysqli($this->_host, $this->_user, $this->_pass, $this->_base, $this->_port);
-    
+
     if (!is_null($this->_resource->connect_error)) {
       throw new \Exception($this->_resource->connect_error, $this->_resource->connect_errno);
     }
@@ -176,7 +176,7 @@ class MySQL {
         }
       }
 
-      // Since v0.3.0. Provide the result count for a select statement 
+      // Since v0.3.0. Provide the result count for a select statement
       $this->_last_result_count = mysqli_num_rows($res);
 
       return $result;
@@ -189,8 +189,8 @@ class MySQL {
 
   public function insert ($table = '', $data = []) {
     $self   = $this;
-    $fields = array_keys($data); 
-    $values = array_values($data); 
+    $fields = array_keys($data);
+    $values = array_values($data);
 
     $values = array_map(function ($el) use ($self) {
       return $self->_escape($el);
@@ -199,12 +199,12 @@ class MySQL {
     $stdin  = "INSERT INTO `{$table}` (`" . implode("`,`", $fields) . "`) VALUES (" . implode(",", $values) . ")";
 
     return $this->exec($stdin);
-  } // insert 
+  } // insert
 
   public function update ($table = '', $data = [], $where = null) {
     $self   = $this;
-    $fields = array_keys($data); 
-    $values = array_values($data); 
+    $fields = array_keys($data);
+    $values = array_values($data);
 
     $data = array_map(function ($k, $v, $i) use ($self) {
       $val = $self->_escape($v);
@@ -217,10 +217,10 @@ class MySQL {
     if (!is_null($where)) {
       $where = array_map(function ($k, $v, $i) use ($self) {
         $val = $self->_escape($v);
-        $key = preg_match('/^(or|and)\s/i', $k) < 1 
-          ? ($i > 0 ? "AND " : "") . "`{$k}`" 
+        $key = preg_match('/^(or|and)\s/i', $k) < 1
+          ? ($i > 0 ? "AND " : "") . "`{$k}`"
           : preg_replace('/^(or|and)(\s)(.*)/i', '$1$2`$3`', $k);
-        
+
         return "{$key} = {$val}";
       }, array_keys($where), array_values($where), array_keys(array_keys($where)));
 
@@ -228,7 +228,7 @@ class MySQL {
     }
 
     return $this->exec($stdin);
-  } // update 
+  } // update
 
   public function delete ($table = '', $where = []) {
     $self   = $this;
@@ -237,18 +237,18 @@ class MySQL {
     if (!is_null($where)) {
       $where = array_map(function ($k, $v, $i) use ($self) {
         $val = $self->_escape($v);
-        $key = preg_match('/^(or|and)\s/i', $k) < 1 
-          ? ($i > 0 ? "AND " : "") . "`{$k}`" 
+        $key = preg_match('/^(or|and)\s/i', $k) < 1
+          ? ($i > 0 ? "AND " : "") . "`{$k}`"
           : preg_replace('/^(or|and)(\s)(.*)/i', '$1$2`$3`', $k);
-        
+
         return "{$key} = {$val}";
       }, array_keys($where), array_values($where), array_keys(array_keys($where)));
 
       $stdin .= " WHERE " . implode('', $where);
     }
-    
+
     return $this->exec($stdin);
-  } // delete 
+  } // delete
 
   /**
    * @since v0.3.0

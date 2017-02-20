@@ -1,9 +1,9 @@
-<?php 
+<?php
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.7
+ | @version 0.3.8
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -74,7 +74,7 @@ class Logger {
       $res = $this->_db->insert($this->_table, $this->_data);
       $this->_db->disconnect();
     } catch (\Exception $e) {
-      // result is already set to false ... 
+      // result is already set to false ...
     }
 
     return $res;
