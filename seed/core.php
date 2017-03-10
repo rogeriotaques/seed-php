@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.8
+ | @version 0.3.9
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -158,6 +158,13 @@ class Core extends \Seed\Router {
     if ($this->_cache === true) {
       header("Cache-Control: max-age={$this->_cache_max_age}");
       header('Expires: '.gmdate('D, d M Y H:i:s', time() + $this->_cache_max_age) .' GMT');
+    }
+
+    // when cache is not allowed, adds necessary headers to force browser ignore caching
+    else {
+      header("Cache-Control: max-age=0, no-cache, no-store, must-revalidate");
+      header("Pragma \"no-cache\"");
+      header("Expires \"Wed, 11 Jan 1984 05:00:00 GMT\"");
     }
   } // setPageHeaders
 

@@ -2,37 +2,37 @@
 
 > The stupidly easy to learn and use PHP microframework!
 
-A microframework is a term used to refer to minimalistic web 
-application frameworks. It lacks most of the functionality which 
+A microframework is a term used to refer to minimalistic web
+application frameworks. It lacks most of the functionality which
 is common to expect in a full-fledged web application framework.
 
-Seed-PHP is a microframework that offers you a really simple way 
-to implement simple, small but powerfull ```RESTfull APIs``` that could 
-support pretty much all needed methods and responses in ```JSON``` or ```XML``` 
-formats. 
+Seed-PHP is a microframework that offers you a really simple way
+to implement simple, small but powerfull ```RESTfull APIs``` that could
+support pretty much all needed methods and responses in ```JSON``` or ```XML```
+formats.
 
 
-## Get started 
+## Get started
 
-You can either fork/clone this repository or install this package using 
+You can either fork/clone this repository or install this package using
 **composer**. If you are using composer and has already a project folder, use:
 
 ```sh
-$ php composer require abtzco/seed-php 
+$ php composer require abtzco/seed-php
 ```
 
 or, to start a project from scratch, use:
 
 ```sh
-$ php composer create-project abtzco/seed-php 
+$ php composer create-project abtzco/seed-php
 ```
 
-After having create a project with the above command, go to the 
-recently created **seed-php** folder and create a new `index.php` file, 
+After having create a project with the above command, go to the
+recently created **seed-php** folder and create a new `index.php` file,
 such as below:
 
 ```php
-<?php 
+<?php
 
 // include composer autoloader
 include './vendor/autoload.php';
@@ -40,7 +40,7 @@ include './vendor/autoload.php';
 // initilise the Seed-PHP App class
 $app = \Seed\App::getInstance();
 
-// Define a initial route 
+// Define a initial route
 $app->route('GET /', function () {
   echo 'Hello Word!';
 });
@@ -50,7 +50,7 @@ $app->run();
 
 ```
 
-If you have forked or cloned the repository from Github, then instead of 
+If you have forked or cloned the repository from Github, then instead of
 include the 'autoload.php' from composer, include the package loader:
 
 ```php
@@ -62,16 +62,16 @@ include './seed-php/loader.php';
 
 ```
 
-Now, as a final step, we must create the `.htaccess` file (in the same folder of 
-the index.php) which will contain the necessary settings for Apache properly use 
-the `mod_rewrite` and route all the traffic thru our `index.php`. Create the file 
+Now, as a final step, we must create the `.htaccess` file (in the same folder of
+the index.php) which will contain the necessary settings for Apache properly use
+the `mod_rewrite` and route all the traffic thru our `index.php`. Create the file
 as follow:
 
 ```sh
  # --------------------------------------------------------
  # Seed-PHP Microframework.
  # @see http://github.com/abtzco/seed-php
- # -------------------------------------------------------- 
+ # --------------------------------------------------------
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -89,94 +89,94 @@ Done! Now, do access your project on any browser. ;)
 
 ## Get involved
 
-This is an open-source project, which means that you can also freely 
-contribute to improve it and make it better. To do your contributions, 
-fork this repository, do your changes or improvements and create a pull 
+This is an open-source project, which means that you can also freely
+contribute to improve it and make it better. To do your contributions,
+fork this repository, do your changes or improvements and create a pull
 request.
 
 
 ## Get support
 
 Found an issue or would like to suggest something? <br>
-Just go to [this page](https://github.com/AbtzCo/seed-php/issues) and 
+Just go to [this page](https://github.com/AbtzCo/seed-php/issues) and
 open a ticket.
 
 ## Documentation
 
 Check out the available methods in Seed-PHP microframework.
 
-### Methods 
+### Methods
 
 #### ```\Seed\App::getInstance()```
 
-The most basic method, this should be the first called method 
-after loading the package resources. The core engine app is a 
-singleton. All you need to do is get its instance to be able 
+The most basic method, this should be the first called method
+after loading the package resources. The core engine app is a
+singleton. All you need to do is get its instance to be able
 to use it.
 
 #### ```\Seed\App()->run()```
 
-This is the last method you are gonna call. It is reponsible for 
-do the 'magic' and make the engine start. After define all routes 
-and settings you need for your tiny app, just call this method 
+This is the last method you are gonna call. It is reponsible for
+do the 'magic' and make the engine start. After define all routes
+and settings you need for your tiny app, just call this method
 (it will be done pretty much at the bottom of your index file).
 
 #### ```\Seed\App()->onFail( function:required )```
 
-Allows you to hand over the error response. If this handler is not given, 
+Allows you to hand over the error response. If this handler is not given,
 then Seed-PHP will return it in the normal process.
 
 #### ```\Seed\App()->header( string:optional )```
 
-Retrieve all headers from request. 
+Retrieve all headers from request.
 
-If a string is provided as parameter, then only the header 
-that key matches the given string will be returned, or false, 
+If a string is provided as parameter, then only the header
+that key matches the given string will be returned, or false,
 when not found.
 
 #### ```\Seed\App()->post( string:optional )```
 
-Retrieve all posted data when requests uses a POST method. 
+Retrieve all posted data when requests uses a POST method.
 
-If a string is provided as parameter, then only the post data that 
-key matches the given string will be returned, or false, 
+If a string is provided as parameter, then only the post data that
+key matches the given string will be returned, or false,
 when not found.
 
 #### ```\Seed\App()->get( string:optional )```
 
-Retrieve all data passed as query-string in a request. 
+Retrieve all data passed as query-string in a request.
 
-If a string is provided as parameter, then only the data that 
-key matches the given string will be returned, or false, 
+If a string is provided as parameter, then only the data that
+key matches the given string will be returned, or false,
 when not found.
 
 #### ```\Seed\App()->file( string:optional )```
 
-Retrieve all information about uploaded files. 
+Retrieve all information about uploaded files.
 
-If a string is provided as parameter, then only the file information 
-that key matches the given string will be returned, or false, 
+If a string is provided as parameter, then only the file information
+that key matches the given string will be returned, or false,
 when not found.
 
 #### ```\Seed\App()->cookie( string:optional )```
 
-Retrieve all cookies from a request. 
+Retrieve all cookies from a request.
 
-If a string is provided as parameter, then only the cookie that 
-key matches the given string will be returned, or false, 
+If a string is provided as parameter, then only the cookie that
+key matches the given string will be returned, or false,
 when not found.
 
 #### ```\Seed\App()->put( string:optional )```
 
-Retrieve all data posted when request uses PUT method. 
+Retrieve all data posted when request uses PUT method.
 
-If a string is provided as parameter, then only the data that 
-key matches the given string will be returned, or false, 
+If a string is provided as parameter, then only the data that
+key matches the given string will be returned, or false,
 when not found.
 
 #### ```\Seed\App()->request()```
 
-Returns an object that contains relevant information about 
+Returns an object that contains relevant information about
 the current request. E.g:
 
 ```GET http://dev.seed-php/sample/anything/foo/bar```
@@ -194,7 +194,7 @@ the current request. E.g:
 
 #### ```\Seed\App()->load( string:required, array:optional, string:optional)```
 
-Loads a helper and makes it available from your instance 
+Loads a helper and makes it available from your instance
 of ```\Seed\App()```.
 
 ```php
@@ -217,7 +217,7 @@ Define a necessary route for your app. E.g:
 $app->route('GET /', function () {});
 ```
 
-All following methods can be used by default, otherwise, 
+All following methods can be used by default, otherwise,
 the allowed methods list can be customized (see below):
 
 ```GET, POST, PUT, DELETE, PATCH, OPTIONS```
@@ -237,21 +237,21 @@ $app->route('/', function () {});
 
 #### ```\Seed\App()->response( code:optional, data:optional )```
 
-This method returns the result to your browser in the chosen 
-format (json or xml) and stops the routing process. The output 
-format can be defined thru ```::setOutputType```, as later in 
+This method returns the result to your browser in the chosen
+format (json or xml) and stops the routing process. The output
+format can be defined thru ```::setOutputType```, as later in
 this docs.
 
 If code is not given, then ```200``` is assumed as default.
 
-```php 
+```php
 $app->route('/', function () use ($app) {
   $app->response(200, ['data' => ['foo' => 'bar]]);
 });
 ```
 
-Some properties from the returning object can be customized by the enduser. 
-In order to customize those properties, use the following meta parameters as 
+Some properties from the returning object can be customized by the enduser.
+In order to customize those properties, use the following meta parameters as
 a query-string:
 
 | Param | Type | Remark |
@@ -262,50 +262,50 @@ a query-string:
 
 #### ```\Seed\App()->setAllowedMethod( string:required, boolean:optional )```
 
-By calling this method you can customize whatever methods you wanna 
-allow your users consume from your API. When provinding the second 
+By calling this method you can customize whatever methods you wanna
+allow your users consume from your API. When provinding the second
 parameter, the whole method list will be reseted.
 
 ```php
-// allow the COPY method alongside the existing list  
+// allow the COPY method alongside the existing list
 $app->setAllowedMethod( 'COPY' );
 
-// allow ONLY the GET method  
+// allow ONLY the GET method
 $app->setAllowedMethod( 'GET', true );
 ```
 
 #### ```\Seed\App()->setAllowedHeader( string:required, boolean:optional )```
 
-By calling this method you can customize whatever header you wanna 
-allow your users pass to your API. When provinding the second 
+By calling this method you can customize whatever header you wanna
+allow your users pass to your API. When provinding the second
 parameter, the whole header list will be reseted.
 
 ```php
-// allow the 'X-My-Custom-Header' header alongside the existing list  
+// allow the 'X-My-Custom-Header' header alongside the existing list
 $app->setAllowedHeader( 'X-My-Custom-Header' );
 
-// allow ONLY the 'X-My-Custom-Header' header  
+// allow ONLY the 'X-My-Custom-Header' header
 $app->setAllowedHeader( 'X-My-Custom-Header', true );
 ```
 
 #### ```\Seed\App()->setAllowedOrigin( string:required  )```
 
-By calling this method you can define an allowed origin for your API.<br> 
+By calling this method you can define an allowed origin for your API.<br>
 By default, Seed-PHP allows your API receive cross origin calls.
 
 ```php
-// allow ONLY domain.tld calls   
+// allow ONLY domain.tld calls
 $app->setAllowedOrigin( 'domain.tld' );
 ```
 
 #### ```\Seed\App()->setCache( boolean:required, int:optional  )```
 
-By calling this method you can enable or disable the page caching 
-meta tags. The second parameter refers to the ```max-cache-age```. 
+By calling this method you can enable or disable the page caching
+meta tags. The second parameter refers to the ```max-cache-age```.
 Cache is enabled by default with a max-age of 1 hour (3600 ms).
 
 ```php
-// disable cache  
+// disable cache
 $app->setCache( false );
 
 // enable cache for 1 day (60 * 60 * 24) ms
@@ -317,7 +317,7 @@ $app->setCache( true, 86400 );
 Changes the metatag content for page language. Default language is English (en).
 
 ```php
-// change language for Japanese.   
+// change language for Japanese.
 $app->setLanguage( 'ja' );
 ```
 
@@ -326,21 +326,21 @@ $app->setLanguage( 'ja' );
 Changes the metatag content for page charset encoding. Default language is UTF-8.
 
 ```php
-// change charset.   
-$app->setLanguage( 'utf8' );
+// change charset.
+$app->setCharset( 'utf8' );
 ```
 
 #### ```\Seed\App()->setOutputType( string:required  )```
 
-By calling this method you can customize the output format 
-for your API. The default format is ```JSON```, but you can 
+By calling this method you can customize the output format
+for your API. The default format is ```JSON```, but you can
 also choose ```XML``` instead.
 
 ```php
-// set output format as json  
+// set output format as json
 $app->setOutputType( 'json' );
 
-// set output format as xml  
+// set output format as xml
 $app->setOutputType( 'xml' );
 ```
 
@@ -355,7 +355,7 @@ $app->setOutputType( 'xml' );
 | mysql       | A mysql wrapper. |
 | http        | A http class helper for work with http response codes. |
 
-### Http 
+### Http
 
 ```php
   $app->load('http');
@@ -364,7 +364,7 @@ $app->setOutputType( 'xml' );
 
 Gives you some useful methods to standardise the manipulation of HTTP methods.
 
-#### ```Http()->getHTTPStatus( integer:required ) : array``` 
+#### ```Http()->getHTTPStatus( integer:required ) : array```
 
 Returns an array containing the protocol, response code and response text.
 
@@ -377,7 +377,7 @@ Returns the project base URL.
 Returns the most probably client IP address.<br>
 Since this information depends on data provided by browser, it may not be precise.
 
-### Logger 
+### Logger
 
 ```php
   $config = ['base' => 'test', 'user' => 'your-user', 'pass' => 'your-pass'];
@@ -440,7 +440,7 @@ Set values for ```responseCode``` field.
 
 Writes the log in the database table.
 
-### MySQL 
+### MySQL
 
 ```php
   $config = ['base' => 'test', 'user' => 'your-user', 'pass' => 'your-pass'];
@@ -502,7 +502,7 @@ Returns the last inserted ID.
 
 Returns the last result count. If ran after any statement other than a `select`, it will return zero.
 
-### Curl  
+### Curl
 
 ```php
   $app->load('curl');
@@ -513,15 +513,53 @@ Gives you a simple wrapper to work with curl calls. <br>
 An usefull way to make your API consumes third party APIs on background.
 
 #### ```Curl()->create( string<url>:required, array<options>:optional, string<returnType>:optional ) : Curl```
+
+Resets and points the Curl to a new URL.
+
 #### ```Curl()->data( array<options>:required ) : Curl```
+
+Appends a data object to the call.
+
 #### ```Curl()->option( string<code>:required, string<value>:required ) : Curl```
+
+Allows to add new custom options.
+
 #### ```Curl()->proxy( string<url>:required, string<username>:required, string<password>:required ) : Curl```
+
+Whenever your network goes thru proxy, you should provide it here.
+
 #### ```Curl()->cookies( array<params>:required ) : Curl```
+
+
+
 #### ```Curl()->credential( string<username>:required, string<password>:required ) : Curl```
+
+Set credentials for your endpoint authentication
+
 #### ```Curl()->header( string:required ) : Curl```
+
+Allows you to add additional headers to the call.
+
 #### ```Curl()->get( string<url>:optional, array<options>:optional ) : Curl```
+
+Performs a GET call
+
 #### ```Curl()->post( string<url>:optional, array<options>:optional ) : Curl```
+
+Performs a POST call.
+
 #### ```Curl()->put( string<url>:optional, array<options>:optional ) : Curl```
+
+Performs a PUT call.
+
 #### ```Curl()->update( string<url>:optional, array<options>:optional ) : Curl```
+
+Performs an UPDATE call.
+
 #### ```Curl()->delete( string<url>:optional, array<options>:optional ) : Curl```
+
+Performs a DELETE call.
+
 #### ```Curl()->run( string<method>:required, string<url>:required, array<options>:optional ) : Curl```
+
+Performs a general call.

@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.3.8
+ | @version 0.3.9
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -67,8 +67,11 @@ class Router {
         $this->_routes[ $m ] = [];
       }
 
+      // NOTE:
+      //  Coz unicorn exists, this url sanitization was placed here!
+      //  Damn, it was breaking the routing system for multiples methods and that's why it is commented now!
       // sanitize the regular expression
-      $route = str_replace(['/', '.', '@'], ['\\/', '\\.', '\\@'], $route);
+      // $route = str_replace(['/', '.', '@'], ['\/', '\.', '\@'], $route);
 
       // add new route
       $this->_routes[ $m ][] = (object) [
@@ -258,20 +261,25 @@ class Router {
     $matches = [];
     $matched_callback = false;
 
+    // echo "METHOD ", $this->_method, "<br />\n";
+
     // is there a matching route?
     if ( isset($this->_routes[$this->_method]) ) {
+      // echo "Found routes for ", $this->_method, "\n";
+
       foreach ($this->_routes[$this->_method] as $route) {
-        // echo '<pre>', $route->uri, ' ::: ', $this->_uri;
+        // echo $route->uri, ' ::: ', $this->_uri, "<br />\n";
         if ( @preg_match("@^{$route->uri}$@", $this->_uri, $matches) ) {
           // echo " -> MATCHED";
           $matched_callback = $route->callback;
           break;
         }
-        // echo "</pre><br>";
+        // echo "<br />\n";
       }
     }
 
-    // echo '<pre>', var_dump($matches), '</pre><br >'; die;
+    // echo '<pre>', var_dump($matches), '</pre><br >', "\n";
+    // die;
 
     if (count($matches) === 0) {
       if ( $this->_error_handler === false ) {
