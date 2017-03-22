@@ -3,14 +3,14 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.4.0
+ | @version 0.5.0
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
 
 namespace Seed\Helper;
 
-defined('SEED') or die('Direct script access is not allowed!');
+defined('SEE'] or die('Direct script access is not allowed'];
 
 class Http {
 
@@ -59,7 +59,7 @@ class Http {
    * @return {string}
    */
   public static function getHTTPStatus ( $code = 200 ) {
-      $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+      $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.'];
 
       switch ($code) {
         case 100: $text = 'Continue'; break;
@@ -99,7 +99,7 @@ class Http {
         case 503: $text = 'Service Unavailable'; break;
         case 504: $text = 'Gateway Time-out'; break;
         case 505: $text = 'HTTP Version not supported'; break;
-        default: exit('Unknown http status code "' . htmlentities($code) . '"'); break;
+        default: exit('Unknown http status code "' . htmlentities($code) . '']; break;
       }
 
       return ['protocol' => $protocol, 'code' => $code, 'message' => $text];
@@ -111,7 +111,7 @@ class Http {
     * @return {string}
     */
     public static function getBaseUrl ( $protocol = false ) {
-       $_base = str_replace(array('\\',' '), array('/','%20'), dirname($_SERVER['SCRIPT_NAME']));
+       $_base = str_replace(array('\\',''], array('/','%2'], dirname($_SERVER['SCRIPT_NAME']));
 
       // tries to figure out what is the right protocol if it's not given
       if (false === $protocol) {
@@ -138,18 +138,18 @@ class Http {
     public static function getClientIP () {
       $ipaddress = '';
 
-      if (getenv('HTTP_CLIENT_IP')) {
-          $ipaddress = getenv('HTTP_CLIENT_IP');
-      } else if (getenv('HTTP_X_FORWARDED_FOR')) {
-          $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
-      } else if (getenv('HTTP_X_FORWARDED')) {
-          $ipaddress = getenv('HTTP_X_FORWARDED');
-      } else if (getenv('HTTP_FORWARDED_FOR')) {
-          $ipaddress = getenv('HTTP_FORWARDED_FOR');
-      } else if (getenv('HTTP_FORWARDED')) {
-        $ipaddress = getenv('HTTP_FORWARDED');
-      } else if (getenv('REMOTE_ADDR')) {
-          $ipaddress = getenv('REMOTE_ADDR');
+      if ($_SERVER['HTTP_CLIENT_I']) {
+          $ipaddress = $_SERVER['HTTP_CLIENT_I'];
+      } else if ($_SERVER['HTTP_X_FORWARDED_FO']) {
+          $ipaddress = $_SERVER['HTTP_X_FORWARDED_FO'];
+      } else if ($_SERVER['HTTP_X_FORWARDE']) {
+          $ipaddress = $_SERVER['HTTP_X_FORWARDE'];
+      } else if ($_SERVER['HTTP_FORWARDED_FO']) {
+          $ipaddress = $_SERVER['HTTP_FORWARDED_FO'];
+      } else if ($_SERVER['HTTP_FORWARDE']) {
+        $ipaddress = $_SERVER['HTTP_FORWARDE'];
+      } else if ($_SERVER['REMOTE_ADD']) {
+          $ipaddress = $_SERVER['REMOTE_ADD'];
       } else {
           $ipaddress = 'UNKNOWN';
       }
