@@ -3,14 +3,14 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.5.0
+ | @version 0.5.1
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
 
 namespace Seed\Helper;
 
-defined('SEE'] or die('Direct script access is not allowed'];
+defined('SEED') or die('Direct script access is not allowed');
 
 class Http {
 
@@ -59,7 +59,7 @@ class Http {
    * @return {string}
    */
   public static function getHTTPStatus ( $code = 200 ) {
-      $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.'];
+      $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.');
 
       switch ($code) {
         case 100: $text = 'Continue'; break;
@@ -99,7 +99,7 @@ class Http {
         case 503: $text = 'Service Unavailable'; break;
         case 504: $text = 'Gateway Time-out'; break;
         case 505: $text = 'HTTP Version not supported'; break;
-        default: exit('Unknown http status code "' . htmlentities($code) . '']; break;
+        default: exit('Unknown http status code "' . htmlentities($code) . ''); break;
       }
 
       return ['protocol' => $protocol, 'code' => $code, 'message' => $text];
@@ -111,7 +111,7 @@ class Http {
     * @return {string}
     */
     public static function getBaseUrl ( $protocol = false ) {
-       $_base = str_replace(array('\\',''], array('/','%2'], dirname($_SERVER['SCRIPT_NAME']));
+       $_base = str_replace(array('\\',''), array('/','%2'), dirname($_SERVER['SCRIPT_NAME']));
 
       // tries to figure out what is the right protocol if it's not given
       if (false === $protocol) {
