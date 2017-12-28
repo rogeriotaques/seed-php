@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.5.1
+ | @version 0.5.2
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -174,7 +174,7 @@ class Core extends \Seed\Router {
 
     // retrieve requested uri
     $this->_uri = isset($_SERVER['REQUEST_URI'])
-      ? $this->_uri = $_SERVER['REQUEST_URI']
+      ? $_SERVER['REQUEST_URI']
       : '/';
 
     // remove query-string (if any)
@@ -183,8 +183,9 @@ class Core extends \Seed\Router {
     }
 
     // remove base path from uri
-    $this->_uri = preg_replace('|' . $patt . '|', '', $this->_uri);
+    $this->_uri = preg_replace('@^' . $patt . '@', '', $this->_uri);
 
+    // Identify the request method
     $this->_method  = (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
 
     // remove trailing slashes to easily match paths.
