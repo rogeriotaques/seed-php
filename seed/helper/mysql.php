@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.5.3
+ | @version 0.6.0
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -76,6 +76,17 @@ class MySQL {
           )
       );
   } // _escape
+
+  /**
+   * Escapes an string to be used in the SQL statement.
+   * Since version 0.6.0.
+   * 
+   * @param string $str
+   * @return string
+   */
+  public function escape( $str = '' ) {
+    return $this->_escape($str);
+  } // escape
 
   public function setHost ($host = 'localhost', $port = '3306', $charset = 'utf8') {
     if (!empty($host) && !is_null($host)) {
