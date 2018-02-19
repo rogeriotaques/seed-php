@@ -19,6 +19,12 @@ class SeedUnitTests extends UnitTestCase {
     $this->assertEqual( $route, $app );
   } // testSetRoute
 
+  function testSetMultipleRoutes () {
+    $app   = \Seed\App::getInstance();
+    $route = $app->route('GET|POST /', function () {});
+    $this->assertEqual( $route, $app );
+  } // testSetRoute
+
   function testResponse () {
     $app   = \Seed\App::getInstance();
     $res = $app->response(200, ['simpletest' => 'success'], false);
