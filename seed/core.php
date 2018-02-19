@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.5.2
+ | @version 0.5.3
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -60,15 +60,24 @@ class Core extends \Seed\Router {
   public function post ( $key = null ) {
     // The 'always_populate_raw_post_data' is deprecated since php@5.6.
     // So, check if auto_populate_post_data is enabled, if not enabled, use php://input instead.
+    $post_data = [];
+
     if (intval( ini_get('always_populate_raw_post_data') ) < 1) {
-      parse_str(file_get_contents("php://input"), $_POST);
+      $input = file_get_contents("php://input");
+
+      if (is_null($post_data = json_decode($input, true))) {
+        // Sometimes input cannot be decoded from json, then try to parse it from string.
+        parse_str(file_get_contents("php://input"), $post_data);
+      } 
+    } else {
+      $post_data = $_POST;
     }
 
     if ($key === null) {
-      return $_POST;
+      return $post_data;
     }
 
-    return ( isset($_POST[$key]) ? $_POST[$key] : false );
+    return ( isset($post_data[$key]) ? $post_data[$key] : false );
   } // post
 
   public function get ( $key = null ) {
