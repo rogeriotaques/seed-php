@@ -1,27 +1,27 @@
 {
-    "name": "abtzco/seed-php",
-    "description": "The stupidly easy to learn and use PHP microframework. ;)",
-    "version": "0.5.2",
-    "type": "package",
-    "keywords": ["php","api","framework","microframework"],
-    "homepage": "https://github.com/AbtzCo/seed-php",
-    "license": "MIT",
-    "minimum-stability": "dev",
-    "authors": [
-        {
-            "name": "Rogerio Taques",
-            "email": "rogerio.taques@gmail.com",
-            "homepage": "https://abtz.co",
-            "role": "Developer"
-        }
-    ],
-    "require-dev": {
-      "simpletest/simpletest": "^1.1"
-    },
-    "require": {
-      "php": ">=5.3.0"
-    },
-    "autoload": {
-      "files": ["seed/loader.php"]
+  "name": "abtzco/seed-php",
+  "description": "The stupidly easy to learn and use PHP microframework. ;)",
+  "version": "0.5.3",
+  "type": "package",
+  "keywords": ["php", "api", "framework", "microframework"],
+  "homepage": "https://github.com/AbtzCo/seed-php",
+  "license": "MIT",
+  "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Rogerio Taques",
+      "email": "rogerio.taques@gmail.com",
+      "homepage": "https://abtz.co",
+      "role": "Developer"
     }
+  ],
+  "require-dev": {
+    "simpletest/simpletest": "^1.1"
+  },
+  "require": {
+    "php": ">=5.3.0"
+  },
+  "autoload": {
+    "files": ["seed/loader.php"]
+  }
 }
