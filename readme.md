@@ -7,10 +7,8 @@ application frameworks. It lacks most of the functionality which
 is common to expect in a full-fledged web application framework.
 
 Seed-PHP is a microframework that offers you a really simple way
-to implement simple, small but powerfull ```RESTfull APIs``` that could
-support pretty much all needed methods and responses in ```JSON``` or ```XML```
-formats.
-
+to implement powerfull `RESTfull APIs` that could support pretty
+much all needed methods and responses in `JSON` or `XML` formats.
 
 ## Get started
 
@@ -28,8 +26,9 @@ $ php composer create-project abtzco/seed-php
 ```
 
 After having create a project with the above command, go to the
-recently created **seed-php** folder and create a new `index.php` file,
-such as below:
+recently created **seed-php** folder and create a new `index.php`.
+
+Example:
 
 ```php
 <?php
@@ -47,7 +46,6 @@ $app->route('GET /', function () {
 
 // Let's rock ...
 $app->run();
-
 ```
 
 If you have forked or cloned the repository from Github, then instead of
@@ -59,13 +57,13 @@ include the 'autoload.php' from composer, include the package loader:
 
 // include package loader
 include './seed-php/loader.php';
-
 ```
 
 Now, as a final step, we must create the `.htaccess` file (in the same folder of
 the index.php) which will contain the necessary settings for Apache properly use
-the `mod_rewrite` and route all the traffic thru our `index.php`. Create the file
-as follow:
+the `mod_rewrite` and route all the traffic thru our `index.php`.
+
+Example:
 
 ```sh
  # --------------------------------------------------------
@@ -81,19 +79,16 @@ as follow:
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
-
 ```
 
 Done! Now, do access your project on any browser. ;)
 
-
 ## Get involved
 
-This is an open-source project, which means that you can also freely
+This is an open-source project, which means you can also freely
 contribute to improve it and make it better. To do your contributions,
 fork this repository, do your changes or improvements and create a pull
 request.
-
 
 ## Get support
 
@@ -107,26 +102,28 @@ Check out the available methods in Seed-PHP microframework.
 
 ### Methods
 
-#### ```\Seed\App::getInstance()```
+#### `\Seed\App::getInstance()`
 
 The most basic method, this should be the first called method
 after loading the package resources. The core engine app is a
 singleton. All you need to do is get its instance to be able
 to use it.
 
-#### ```\Seed\App()->run()```
+#### `\Seed\App()->run()`
 
-This is the last method you are gonna call. It is reponsible for
-do the 'magic' and make the engine start. After define all routes
-and settings you need for your tiny app, just call this method
-(it will be done pretty much at the bottom of your index file).
+This is the last method you are gonna call.
 
-#### ```\Seed\App()->onFail( function:required )```
+It is reponsible for do the 'magic' and make the engine start.
+After define all routes and settings you need for your tiny app,
+just call this method (it will be done pretty much at the bottom
+of your index file).
 
-Allows you to hand over the error response. If this handler is not given,
-then Seed-PHP will return it in the normal process.
+#### `\Seed\App()->onFail( function:required )`
 
-#### ```\Seed\App()->header( string:optional )```
+Hand over the error response. If this handler is not given,
+then Seed-PHP will return an error message in the chosen return format.
+
+#### `\Seed\App()->header( string:optional )`
 
 Retrieve all headers from request.
 
@@ -134,7 +131,7 @@ If a string is provided as parameter, then only the header
 that key matches the given string will be returned, or false,
 when not found.
 
-#### ```\Seed\App()->post( string:optional )```
+#### `\Seed\App()->post( string:optional )`
 
 Retrieve all posted data when requests uses a POST method.
 
@@ -142,7 +139,7 @@ If a string is provided as parameter, then only the post data that
 key matches the given string will be returned, or false,
 when not found.
 
-#### ```\Seed\App()->get( string:optional )```
+#### `\Seed\App()->get( string:optional )`
 
 Retrieve all data passed as query-string in a request.
 
@@ -150,7 +147,7 @@ If a string is provided as parameter, then only the data that
 key matches the given string will be returned, or false,
 when not found.
 
-#### ```\Seed\App()->file( string:optional )```
+#### `\Seed\App()->file( string:optional )`
 
 Retrieve all information about uploaded files.
 
@@ -158,7 +155,7 @@ If a string is provided as parameter, then only the file information
 that key matches the given string will be returned, or false,
 when not found.
 
-#### ```\Seed\App()->cookie( string:optional )```
+#### `\Seed\App()->cookie( string:optional )`
 
 Retrieve all cookies from a request.
 
@@ -166,7 +163,7 @@ If a string is provided as parameter, then only the cookie that
 key matches the given string will be returned, or false,
 when not found.
 
-#### ```\Seed\App()->put( string:optional )```
+#### `\Seed\App()->put( string:optional )`
 
 Retrieve all data posted when request uses PUT method.
 
@@ -174,44 +171,43 @@ If a string is provided as parameter, then only the data that
 key matches the given string will be returned, or false,
 when not found.
 
-#### ```\Seed\App()->request()```
+#### `\Seed\App()->request()`
 
-Returns an object that contains relevant information about
+Returns an object which contains relevant information about
 the current request. E.g:
 
-```GET http://dev.seed-php/sample/anything/foo/bar```
+`GET http://dev.seed-php/sample/anything/foo/bar`
 
 ```json
 {
-  "base" : "http://dev.seed-php/",
-  "method" : "GET",
-  "endpoint" : "sample",
-  "verb" : "anything",
-  "id" : NULL,
-  "args" : {'foo':'bar}
+  "base": "http://dev.seed-php/",
+  "method": "GET",
+  "endpoint": "sample",
+  "verb": "anything",
+  "id": null,
+  "args": { "foo": "foo" }
 }
 ```
 
-#### ```\Seed\App()->load( string:required, array:optional, string:optional)```
+#### `\Seed\App()->load( string:required, array:optional, string:optional)`
 
-Loads a helper and makes it available from your instance
-of ```\Seed\App()```.
+Loads a helper and makes it available from the instance of `\Seed\App()`.
 
 ```php
 $app->load('mysql', [ 'base' => 'test' ], 'db');
 ```
 
-| Param       | Type   | Required | Default | Remark |
-| ----------- | ------ | -------- | ------- | ------ |
-| Helper name | string | Yes      |         | Available helpers: <br >```mysql```, ```curl```, ```logger``` and ```http``` |
-| Config      | array  | No       | []      | Some helper use this, such as <br >```mysql``` or ```logger``` |
-| Alias       | string | No       | empty   | When given helper will be attached to ```\Seed\App()``` with this name, instead of the helper name. |
+| Param       | Type   | Required | Default | Remark                                                                                          |
+| ----------- | ------ | -------- | ------- | ----------------------------------------------------------------------------------------------- |
+| Helper name | string | Yes      |         | Available helpers: <br >`mysql`, `curl`, `logger` and `http`                                    |
+| Config      | array  | No       | []      | Some helper use this, such as <br >`mysql` or `logger`                                          |
+| Alias       | string | No       | empty   | When given helper will be attached to `\Seed\App()` with this name, instead of the helper name. |
 
 > More details about helper are at the end of this doc.
 
-#### ```\Seed\App()->route( string:required, function:optional )```
+#### `\Seed\App()->route( string:required, function:optional )`
 
-Define a necessary route for your app. E.g:
+Creates the routing rules for the API. E.g:
 
 ```php
 $app->route('GET /', function () {});
@@ -220,7 +216,7 @@ $app->route('GET /', function () {});
 All following methods can be used by default, otherwise,
 the allowed methods list can be customized (see below):
 
-```GET, POST, PUT, DELETE, PATCH, OPTIONS```
+`GET, POST, PUT, DELETE, PATCH, OPTIONS`
 
 You can define multiples methods at once, such as:
 
@@ -228,21 +224,19 @@ You can define multiples methods at once, such as:
 $app->route('GET|POST /', function () {});
 ```
 
-In case you don't provide a method, ```GET``` will be assumed.
+In case you don't provide a method, `GET` will be assumed.
 
 ```php
 // for this route, GET is assumed as default
 $app->route('/', function () {});
 ```
 
-#### ```\Seed\App()->response( code:optional, data:optional )```
+#### `\Seed\App()->response( code:optional, data:optional )`
 
-This method returns the result to your browser in the chosen
-format (json or xml) and stops the routing process. The output
-format can be defined thru ```::setOutputType```, as later in
-this docs.
+Completes the routing process and returns the result to client's browser. The chosen format (`json` or `xml`) will be respected.
+The output format can be defined thru `::setOutputType`, as later in this docs.
 
-If code is not given, then ```200``` is assumed as default.
+If code is not given, then `200` is assumed as default.
 
 ```php
 $app->route('/', function () use ($app) {
@@ -254,16 +248,17 @@ Some properties from the returning object can be customized by the enduser.
 In order to customize those properties, use the following meta parameters as
 a query-string:
 
-| Param | Type | Remark |
-| ----- | ---- | ------ |
-| _router_status | string | Changes the name of property ```status``` |
-| _router_message | string | Changes the name of property ```message``` |
-| _router_data | string | Changes the name of property ```data``` (if any) |
+`GET http://dev.seed-php/sample/anything/foo/bar?_router_status=code&_router_message=str&_router_data=obj`
 
-#### ```\Seed\App()->setAllowedMethod( string:required, boolean:optional )```
+| Param            | Type   | Remark                                       |
+| ---------------- | ------ | -------------------------------------------- |
+| \_router_status  | string | Changes the name of property `status`        |
+| \_router_message | string | Changes the name of property `message`       |
+| \_router_data    | string | Changes the name of property `data` (if any) |
 
-By calling this method you can customize whatever methods you wanna
-allow your users consume from your API. When provinding the second
+#### `\Seed\App()->setAllowedMethod( string:required, boolean:optional )`
+
+Allow custom methods to consume the API. When provinding the second
 parameter, the whole method list will be reseted.
 
 ```php
@@ -274,10 +269,9 @@ $app->setAllowedMethod( 'COPY' );
 $app->setAllowedMethod( 'GET', true );
 ```
 
-#### ```\Seed\App()->setAllowedHeader( string:required, boolean:optional )```
+#### `\Seed\App()->setAllowedHeader( string:required, boolean:optional )`
 
-By calling this method you can customize whatever header you wanna
-allow your users pass to your API. When provinding the second
+Allow a custom header to your API. When provinding the second
 parameter, the whole header list will be reseted.
 
 ```php
@@ -288,9 +282,9 @@ $app->setAllowedHeader( 'X-My-Custom-Header' );
 $app->setAllowedHeader( 'X-My-Custom-Header', true );
 ```
 
-#### ```\Seed\App()->setAllowedOrigin( string:required  )```
+#### `\Seed\App()->setAllowedOrigin( string:required )`
 
-By calling this method you can define an allowed origin for your API.<br>
+Define the allowed origin to your API.<br>
 By default, Seed-PHP allows your API receive cross origin calls.
 
 ```php
@@ -298,10 +292,9 @@ By default, Seed-PHP allows your API receive cross origin calls.
 $app->setAllowedOrigin( 'domain.tld' );
 ```
 
-#### ```\Seed\App()->setCache( boolean:required, int:optional  )```
+#### `\Seed\App()->setCache( boolean:required, int:optional )`
 
-By calling this method you can enable or disable the page caching
-meta tags. The second parameter refers to the ```max-cache-age```.
+Enables or disables the page caching meta tags. The second parameter refers to the `max-cache-age`.
 Cache is enabled by default with a max-age of 1 hour (3600 ms).
 
 ```php
@@ -312,7 +305,7 @@ $app->setCache( false );
 $app->setCache( true, 86400 );
 ```
 
-#### ```\Seed\App()->setLanguage( string:required  )```
+#### `\Seed\App()->setLanguage( string:required )`
 
 Changes the metatag content for page language. Default language is English (en).
 
@@ -321,7 +314,7 @@ Changes the metatag content for page language. Default language is English (en).
 $app->setLanguage( 'ja' );
 ```
 
-#### ```\Seed\App()->setCharset( string:required  )```
+#### `\Seed\App()->setCharset( string:required )`
 
 Changes the metatag content for page charset encoding. Default language is UTF-8.
 
@@ -330,11 +323,10 @@ Changes the metatag content for page charset encoding. Default language is UTF-8
 $app->setCharset( 'utf8' );
 ```
 
-#### ```\Seed\App()->setOutputType( string:required  )```
+#### `\Seed\App()->setOutputType( string:required )`
 
-By calling this method you can customize the output format
-for your API. The default format is ```JSON```, but you can
-also choose ```XML``` instead.
+Customize the output format from the API. The default format is `JSON`, but you can
+also choose `XML` instead. Other formats are (yet) not supported.
 
 ```php
 // set output format as json
@@ -348,11 +340,11 @@ $app->setOutputType( 'xml' );
 
 ## Available Helpers
 
-| Helper Name | Remark |
-| ------------| ------ |
-| curl        | A full featured ccurl class. |
-| logger      | A simple log class. Log data in a mysql database. |
-| mysql       | A mysql wrapper. |
+| Helper Name | Remark                                                 |
+| ----------- | ------------------------------------------------------ |
+| curl        | A full featured cCurl class.                           |
+| logger      | A simple log class. Log data in a mysql database.      |
+| mysql       | A simple mysql wrapper.                                |
 | http        | A http class helper for work with http response codes. |
 
 ### Http
@@ -364,15 +356,15 @@ $app->setOutputType( 'xml' );
 
 Gives you some useful methods to standardise the manipulation of HTTP methods.
 
-#### ```Http()->getHTTPStatus( integer:required ) : array```
+#### `Http()->getHTTPStatus( integer:required ) : array`
 
 Returns an array containing the protocol, response code and response text.
 
-#### ```Http()->getBaseUrl() : string```
+#### `Http()->getBaseUrl() : string`
 
 Returns the project base URL.
 
-#### ```Http()->getClientIP() : string```
+#### `Http()->getClientIP() : string`
 
 Returns the most probably client IP address.<br>
 Since this information depends on data provided by browser, it may not be precise.
@@ -387,9 +379,9 @@ Since this information depends on data provided by browser, it may not be precis
 
 Gives you a simple solution to write down logs in the database.
 
-#### ```Logger()->table( string:required ) : Logger```
+#### `Logger()->table( string:required ) : Logger`
 
-Defines the table name to write the logs. Default table name is ```log_usage```.
+Defines the table name to write the logs. Default table name is `log_usage`.
 
 Table should have this structure:
 
@@ -408,35 +400,35 @@ CREATE TABLE `log_usage` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
 
-#### ```Logger()->endpoint( string:required ) : Logger```
+#### `Logger()->endpoint( string:required ) : Logger`
 
-Set values for ```endpoint``` field.
+Set values for `endpoint` field.
 
-#### ```Logger()->resource( string:required ) : Logger```
+#### `Logger()->resource( string:required ) : Logger`
 
-Set values for ```resource``` field.
+Set values for `resource` field.
 
-#### ```Logger()->requestIP( string:required ) : Logger```
+#### `Logger()->requestIP( string:required ) : Logger`
 
-Set values for ```requestIP``` field.
+Set values for `requestIP` field.
 
-#### ```Logger()->requestHeader( array:required ) : Logger```
+#### `Logger()->requestHeader( array:required ) : Logger`
 
-Set values for ```requestHeader``` field.
+Set values for `requestHeader` field.
 
-#### ```Logger()->requestData( array:required ) : Logger```
+#### `Logger()->requestData( array:required ) : Logger`
 
-Set values for ```requestData``` field.
+Set values for `requestData` field.
 
-#### ```Logger()->responseData( array:required ) : Logger```
+#### `Logger()->responseData( array:required ) : Logger`
 
-Set values for ```responseData``` field.
+Set values for `responseData` field.
 
-#### ```Logger()->responseCode( string:required ) : Logger```
+#### `Logger()->responseCode( string:required ) : Logger`
 
-Set values for ```responseCode``` field.
+Set values for `responseCode` field.
 
-#### ```Logger()->log() : Boolean```
+#### `Logger()->log() : Boolean`
 
 Writes the log in the database table.
 
@@ -448,57 +440,57 @@ Writes the log in the database table.
   $res = $app->db->query( '...' );
 ```
 
-Gives you a simple wrapper to work with database (mysql) queries.
+Gives you a simple, but powerful, wrapper to work with database (mysql) queries.
 
-#### ```MySQL()->setHost( string<host>:required, string<port>:optional, string<charset>:optional ) : MySQL```
+#### `MySQL()->setHost( string<host>:required, string<port>:optional, string<charset>:optional ) : MySQL`
 
 Set the database host address and returns itself. Default is localhost.
 
-#### ```MySQL()->setPort( string:required ) : MySQL```
+#### `MySQL()->setPort( string:required ) : MySQL`
 
 Set the database access port and returns itself. Default is 3306.
 
-#### ```MySQL()->setCredential( string<user>:required, string<pass>:required ) : MySQL```
+#### `MySQL()->setCredential( string<user>:required, string<pass>:required ) : MySQL`
 
 Set the database creedentials (user and password) and returns itself.
 
-#### ```MySQL()->setDatabase( string:required ) : MySQL```
+#### `MySQL()->setDatabase( string:required ) : MySQL`
 
 Set the database name and returns itself. Default is test.
 
-#### ```MySQL()->setCharset( string:required ) : MySQL```
+#### `MySQL()->setCharset( string:required ) : MySQL`
 
 Set the database charset and returns itself. Default is utf8.
 
-#### ```MySQL()->connect() : MySQL```
+#### `MySQL()->connect() : MySQL`
 
 Connects the page with the MySQL server and returns itself.
 
-#### ```MySQL()->disconnect() : MySQL```
+#### `MySQL()->disconnect() : MySQL`
 
 Closes a connection to the database.
 
-#### ```MySQL()->exec( string<query>:required ) : MySQL```
+#### `MySQL()->exec( string<query>:required ) : MySQL`
 
 Execute a query statement and returns itself.
 
-#### ```MySQL()->insert( string<table>:required, array:required ) : Variant```
+#### `MySQL()->insert( string<table>:required, array:required ) : Variant`
 
 A short call for insert records into any table from connected database. Returns the number os affected records.
 
-#### ```MySQL()->update( string<table>:required, array<data>:required, array<where>:required ) : Variant```
+#### `MySQL()->update( string<table>:required, array<data>:required, array<where>:required ) : Variant`
 
 A short call for update records into any table from connected database. Returns the number os affected records.
 
-#### ```MySQL()->delete( string<table>:required, array<where>:required ) : Variant```
+#### `MySQL()->delete( string<table>:required, array<where>:required ) : Variant`
 
 A short call for delete records from any table from connected database. Returns the number os affected records.
 
-#### ```MySQL()->insertedId( void ) : integer```
+#### `MySQL()->insertedId( void ) : integer`
 
 Returns the last inserted ID.
 
-#### ```MySQL()->resultCount( void ) : integer```
+#### `MySQL()->resultCount( void ) : integer`
 
 Returns the last result count. If ran after any statement other than a `select`, it will return zero.
 
@@ -512,54 +504,52 @@ Returns the last result count. If ran after any statement other than a `select`,
 Gives you a simple wrapper to work with curl calls. <br>
 An usefull way to make your API consumes third party APIs on background.
 
-#### ```Curl()->create( string<url>:required, array<options>:optional, string<returnType>:optional ) : Curl```
+#### `Curl()->create( string<url>:required, array<options>:optional, string<returnType>:optional ) : Curl`
 
 Resets and points the Curl to a new URL.
 
-#### ```Curl()->data( array<options>:required ) : Curl```
+#### `Curl()->data( array<options>:required ) : Curl`
 
 Appends a data object to the call.
 
-#### ```Curl()->option( string<code>:required, string<value>:required ) : Curl```
+#### `Curl()->option( string<code>:required, string<value>:required ) : Curl`
 
 Allows to add new custom options.
 
-#### ```Curl()->proxy( string<url>:required, string<username>:required, string<password>:required ) : Curl```
+#### `Curl()->proxy( string<url>:required, string<username>:required, string<password>:required ) : Curl`
 
 Whenever your network goes thru proxy, you should provide it here.
 
-#### ```Curl()->cookies( array<params>:required ) : Curl```
+#### `Curl()->cookies( array<params>:required ) : Curl`
 
-
-
-#### ```Curl()->credential( string<username>:required, string<password>:required ) : Curl```
+#### `Curl()->credential( string<username>:required, string<password>:required ) : Curl`
 
 Set credentials for your endpoint authentication
 
-#### ```Curl()->header( string:required ) : Curl```
+#### `Curl()->header( string:required ) : Curl`
 
 Allows you to add additional headers to the call.
 
-#### ```Curl()->get( string<url>:optional, array<options>:optional ) : Curl```
+#### `Curl()->get( string<url>:optional, array<options>:optional ) : Curl`
 
 Performs a GET call
 
-#### ```Curl()->post( string<url>:optional, array<options>:optional ) : Curl```
+#### `Curl()->post( string<url>:optional, array<options>:optional ) : Curl`
 
 Performs a POST call.
 
-#### ```Curl()->put( string<url>:optional, array<options>:optional ) : Curl```
+#### `Curl()->put( string<url>:optional, array<options>:optional ) : Curl`
 
 Performs a PUT call.
 
-#### ```Curl()->update( string<url>:optional, array<options>:optional ) : Curl```
+#### `Curl()->update( string<url>:optional, array<options>:optional ) : Curl`
 
 Performs an UPDATE call.
 
-#### ```Curl()->delete( string<url>:optional, array<options>:optional ) : Curl```
+#### `Curl()->delete( string<url>:optional, array<options>:optional ) : Curl`
 
 Performs a DELETE call.
 
-#### ```Curl()->run( string<method>:required, string<url>:required, array<options>:optional ) : Curl```
+#### `Curl()->run( string<method>:required, string<url>:required, array<options>:optional ) : Curl`
 
 Performs a general call.
