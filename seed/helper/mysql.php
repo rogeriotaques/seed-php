@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.6.0
+ | @version 0.7.0
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -20,12 +20,8 @@ class MySQL {
   private $_pass = '';
   private $_base = 'test';
   private $_charset = 'utf8';
-
-  // the connection resource
-  private $_resource = null;
-
-  // the last result count (since v0.3.0)
-  private $_last_result_count = 0;
+  private $_resource = null; // the connection resource
+  private $_last_result_count = 0; // the last result count (since v0.3.0)
 
   function __construct( $config = null ) {
 
@@ -77,16 +73,45 @@ class MySQL {
       );
   } // _escape
 
+  // ~~~ PUBLIC METHODS ~~~
+
   /**
    * Escapes an string to be used in the SQL statement.
    * Since version 0.6.0.
-   * 
+   *
    * @param string $str
    * @return string
    */
   public function escape( $str = '' ) {
     return $this->_escape($str);
   } // escape
+
+  /**
+   * Returns the connection resource link.
+   * @since version 0.7.0
+   * @return MySQLConnectionObject|null
+   */
+  public function getLink () {
+    return $this->_resource;
+  } // getLink
+
+  /**
+   * Returns the latest inserted ID
+   * @since version 0.3.0
+   * @return integer
+   */
+  public function insertedId () {
+    return mysqli_insert_id($this->_resource);
+  } // insertedId
+
+  /**
+   * Returns the result count after a query.
+   * @since version 0.3.0
+   * @return integer
+   */
+  public function resultCount () {
+    return $this->_last_result_count;
+  } // insertedId
 
   public function setHost ($host = 'localhost', $port = '3306', $charset = 'utf8') {
     if (!empty($host) && !is_null($host)) {
@@ -163,9 +188,16 @@ class MySQL {
 
     $this->_resource->close();
     $this->_resource = null;
+
     return $this;
   } // disconnect
 
+  /**
+   * Executes an SQL statement.
+   * @param string $query
+   * @return integer|array<array>
+   * @throws Exception
+   */
   public function exec ( $query = '' ) {
     if (!is_object($this->_resource)) {
       throw new \Exception('Seed-PHP MySQL: Resource is missing!');
@@ -193,8 +225,10 @@ class MySQL {
       return $result;
     }
 
+    // When not a select, result count is zero.
     $this->_last_result_count = 0;
 
+    // Returns the number of affected rows
     return $this->_resource->affected_rows;
   } // exec
 
@@ -260,19 +294,5 @@ class MySQL {
 
     return $this->exec($stdin);
   } // delete
-
-  /**
-   * @since v0.3.0
-   */
-  public function insertedId () {
-    return mysqli_insert_id($this->_resource);
-  } // insertedId
-
-  /**
-   * @since v0.3.0
-   */
-  public function resultCount () {
-    return $this->_last_result_count;
-  } // insertedId
 
 } // class
