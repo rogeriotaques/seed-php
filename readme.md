@@ -494,6 +494,10 @@ Returns the last inserted ID.
 
 Returns the last result count. If ran after any statement other than a `select`, it will return zero.
 
+#### `MySQL()->getLink( void ) : MySQLConnectionObject`
+
+Returns the existing MySQL Connection Object or NULL when there's no connection.
+
 ### Curl
 
 ```php
