@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.7.0
+ | @version 0.7.1
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -89,7 +89,7 @@ class MySQL {
   /**
    * Returns the connection resource link.
    * @since version 0.7.0
-   * @return MySQLConnectionObject|null
+   * @return MySQLConnectionObject
    */
   public function getLink () {
     return $this->_resource;
@@ -202,6 +202,12 @@ class MySQL {
     if (!is_object($this->_resource)) {
       throw new \Exception('Seed-PHP MySQL: Resource is missing!');
     }
+
+    // Prepare the statement to be executed, removing
+    // unnecessary spaces and breaklines.
+    $query = trim($query);
+    $query = preg_replace('/(\n|\r)/', ' ', $query);
+    $query = preg_replace('/\s{2,}/', ' ', $query);
 
     $res = $this->_resource->query( $query );
     $result = [];
