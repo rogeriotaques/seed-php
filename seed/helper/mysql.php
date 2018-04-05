@@ -62,7 +62,7 @@ class MySQL {
         is_null($str)
           ? 'NULL'
           : (
-            is_numeric($str) || is_bool($str)
+            is_bool($str) || ( is_numeric($str) && ( strpos($str, '.') !== false || substr($str, 0, 1) !== '0' ) )
               ? $str
               : (
                 is_string($str)
