@@ -1,7 +1,7 @@
 {
   "name": "abtzco/seed-php",
   "description": "The stupidly easy to learn and use PHP microframework. ;)",
-  "version": "0.7.1",
+  "version": "0.7.3",
   "type": "package",
   "keywords": ["php", "api", "framework", "microframework"],
   "homepage": "https://github.com/AbtzCo/seed-php",
