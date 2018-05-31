@@ -54,7 +54,11 @@ class Core extends \Seed\Router {
       return $headers;
     }
 
-    return ( isset($headers[$key]) ? $headers[$key] : false );
+    return isset($headers[$key]) 
+      ? $headers[$key] 
+      : isset($headers[strtolower($key)])
+        ? isset($headers[strtolower($key)])
+        : false;
   } // header
 
   public function post ( $key = null ) {
