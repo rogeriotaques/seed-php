@@ -54,11 +54,19 @@ class Core extends \Seed\Router {
       return $headers;
     }
 
-    return isset($headers[$key]) 
-      ? $headers[$key] 
-      : isset($headers[strtolower($key)])
-        ? isset($headers[strtolower($key)])
-        : false;
+    // Tries the header case-sensitive
+    if (isset($headers[$key]) !== false) {
+      return $headers[$key];
+    } 
+
+    // Tries the header case-insensitive
+    // @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+    if (isset($headers[strtolower($key)]) !== false) {
+      return $headers[strtolower($key)];
+    }
+
+    // Otherwise, error
+    return false;
   } // header
 
   public function post ( $key = null ) {
