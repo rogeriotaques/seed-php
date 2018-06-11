@@ -3,7 +3,7 @@
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
  | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.7.5
+ | @version 0.7.6
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
@@ -74,7 +74,10 @@ class Core extends \Seed\Router {
     // So, check if auto_populate_post_data is enabled, if not enabled, use php://input instead.
     $post_data = [];
 
-    if (intval( ini_get('always_populate_raw_post_data') ) < 1) {
+    if (
+      (!isset($_POST) || count($_POST) === 0) && 
+      intval( ini_get('always_populate_raw_post_data') ) < 1
+    ) {
       $input = file_get_contents("php://input");
 
       if (is_null($post_data = json_decode($input, true))) {
@@ -107,6 +110,15 @@ class Core extends \Seed\Router {
 
     return ( isset($_FILES[$key]) ? $_FILES[$key] : false );
   } // file
+
+  /**
+   * Alias for file().
+   * @param string [$key]
+   * @return string|array
+   */
+  public function files ( $key = null ) {
+    return $this->file($key);
+  } // files
 
   public function cookie ( $key = null ) {
     if ($key === null) {
