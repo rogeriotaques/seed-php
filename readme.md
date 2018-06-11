@@ -155,6 +155,10 @@ If a string is provided as parameter, then only the file information
 that key matches the given string will be returned, or false,
 when not found.
 
+#### `\Seed\App()->files( string:optional )`
+
+An alias for `\Seed\App()->file()`.
+
 #### `\Seed\App()->cookie( string:optional )`
 
 Retrieve all cookies from a request.
