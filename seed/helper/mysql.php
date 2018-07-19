@@ -269,7 +269,7 @@ class MySQL {
       $where = array_map(function ($k, $v, $i) use ($self) {
         $val = $self->_escape($v);
         $key = preg_match('/^(or|and)\s/i', $k) < 1
-          ? ($i > 0 ? "AND " : "") . "`{$k}`"
+          ? ($i > 0 ? " AND " : "") . "`{$k}`"
           : preg_replace('/^(or|and)(\s)(.*)/i', '$1$2`$3`', $k);
 
         return "{$key} = {$val}";
