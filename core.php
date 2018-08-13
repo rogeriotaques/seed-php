@@ -20,8 +20,11 @@ class Core extends \SeedPHP\Router
   // an object containing the request data
   private $_request;
 
+  // ~~~ MAGIC METHODS ~~~
+
   function __construct()
   {
+    // Nothing to construct
   }
 
   // ~~~ PUBLIC METHODS ~~~
@@ -153,7 +156,9 @@ class Core extends \SeedPHP\Router
 
   public function load($component = '', $config = [], $alias = '')
   {
-    if (empty($component)) return false;
+    if (empty($component)) {
+      return false;
+    }
 
     $class = "\\SeedPHP\\Helper\\" . $this->camelfy($component);
     $alias = (!empty($alias) && is_string($alias) ? $alias : $component);
