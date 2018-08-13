@@ -71,7 +71,7 @@ $app->route('GET /database', function () use ($app) {
   echo '<br >';
 
   $app->load(
-    'pdo',
+    'database',
     [
       'host' => 'localhost',
       'port' => '3306',
@@ -83,6 +83,7 @@ $app->route('GET /database', function () use ($app) {
   );
 
   run_test_query(0, true);
+
 });
 
 // @use /sample/foo or /sample/foo/bar or /sample/foo/bar/zoo
