@@ -1,10 +1,6 @@
- # --------------------------------------------------------
- # Seed-PHP Microframework.
- # @author Rogerio Taques (rogerio.taques@gmail.com)
- # @version 0.7.8
- # @license MIT
- # @see http://github.com/abtzco/seed-php
- # -------------------------------------------------------- 
+
+# SeedPHP
+# © 2018, Abtz Labs. By Rogerio Taques.
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
@@ -14,3 +10,6 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
+
+# Replace "development" for "production" or "sandbox" when it goes online.
+SetEnv ENV development
