@@ -2,50 +2,53 @@
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework
- | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.7.8
+ | @author Rogerio Taques (hello@abtz.co)
+ | @version 1.0.0
  | @license MIT
  | @see http://github.com/abtzco/seed-php
+ | @deprecated Since 1.0.0. Will be removed from 1.2.0, use SeedPHP\Helper\PDO instead. 
  * -------------------------------------------------------- */
 
-namespace Seed\Helper;
+namespace SeedPHP\Helper;
 
-defined('SEED') or die('Direct script access is not allowed!');
-
-class MySQL {
-
+class MySQL
+{
   private $_host = 'localhost';
   private $_port = '3306';
   private $_user = 'root';
   private $_pass = '';
   private $_base = 'test';
   private $_charset = 'utf8';
-  private $_resource = null; // the connection resource
   private $_last_result_count = 0; // the last result count (since v0.3.0)
+  private static $_resource = null; // the connection resource
 
-  function __construct( $config = null ) {
+  public static $connections_attempts = 0; // how many times the ::connect() was called (since v1.0.0)
 
+  function __construct($config = null)
+  {
     if (!is_null($config)) {
 
       if (isset($config['host'])) {
-        $this->setHost( $config['host'] );
+        $this->setHost($config['host']);
       }
 
       if (isset($config['port'])) {
-        $this->setPort( $config['port'] );
+        $this->setPort($config['port']);
       }
 
       if (isset($config['base'])) {
-        $this->setDatabase( $config['base'] );
+        $this->setDatabase($config['base']);
       }
 
       if (isset($config['charset'])) {
-        $this->setCharset( $config['charset'] );
+        $this->setCharset($config['charset']);
       }
 
       if (isset($config['user']) && isset($config['pass'])) {
-        $this->setCredential( $config['user'], $config['pass'] );
+        $this->setCredential($config['user'], $config['pass']);
       }
+
+      self::$connections_attempts = 0;
 
     }
 
@@ -53,24 +56,19 @@ class MySQL {
 
   } // __construct
 
-  private function _escape ( $str = '' ) {
-    if (!is_object( $this->_resource )) {
+  private function _escape($str = '')
+  {
+    if (!is_object(self::$_resource)) {
       return $str;
     }
 
-    return (
-        is_null($str)
-          ? 'NULL'
-          : (
-            is_bool($str) || ( is_numeric($str) && ( strpos($str, '.') !== false || substr($str, 0, 1) !== '0' ) )
-              ? $str
-              : (
-                is_string($str)
-                  ? "'{$this->_resource->real_escape_string($str)}'"
-                  : $str
-              )
-          )
-      );
+    return (is_null($str)
+      ? 'NULL'
+      : (is_bool($str) || (is_numeric($str) && (strpos($str, '.') !== false || substr($str, 0, 1) !== '0'))
+      ? $str
+      : (is_string($str)
+      ? "'{self::$_resource->real_escape_string($str)}'"
+      : $str)));
   } // _escape
 
   // ~~~ PUBLIC METHODS ~~~
@@ -82,7 +80,8 @@ class MySQL {
    * @param string $str
    * @return string
    */
-  public function escape( $str = '' ) {
+  public function escape($str = '')
+  {
     return $this->_escape($str);
   } // escape
 
@@ -91,8 +90,9 @@ class MySQL {
    * @since version 0.7.0
    * @return MySQLConnectionObject
    */
-  public function getLink () {
-    return $this->_resource;
+  public function getLink()
+  {
+    return self::$_resource;
   } // getLink
 
   /**
@@ -100,8 +100,9 @@ class MySQL {
    * @since version 0.3.0
    * @return integer
    */
-  public function insertedId () {
-    return mysqli_insert_id($this->_resource);
+  public function insertedId()
+  {
+    return mysqli_insert_id(self::$_resource);
   } // insertedId
 
   /**
@@ -109,11 +110,13 @@ class MySQL {
    * @since version 0.3.0
    * @return integer
    */
-  public function resultCount () {
+  public function resultCount()
+  {
     return $this->_last_result_count;
   } // insertedId
 
-  public function setHost ($host = 'localhost', $port = '3306', $charset = 'utf8') {
+  public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8')
+  {
     if (!empty($host) && !is_null($host)) {
       $this->_host = $host;
     }
@@ -129,14 +132,16 @@ class MySQL {
     return $this;
   } // setHost
 
-  public function setPort ($port = '3306') {
+  public function setPort($port = '3306')
+  {
     if (!empty($port) && !is_null($port)) {
       $this->_port = $port;
     }
     return $this;
   } // setPort
 
-  public function setCredential ($user = 'root', $pass = '') {
+  public function setCredential($user = 'root', $pass = '')
+  {
     if (!empty($user) && !is_null($user)) {
       $this->_user = $user;
     }
@@ -148,46 +153,63 @@ class MySQL {
     return $this;
   } // setCredential
 
-  public function setDatabase ($name = '') {
+  public function setDatabase($name = '')
+  {
     if (!empty($name) && !is_null($name)) {
       $this->_base = $name;
     }
     return $this;
   } // setDatabase
 
-  public function setCharset ($charset = 'utf8') {
+  public function setCharset($charset = 'utf8')
+  {
     $this->_charset = $charset;
 
-    if (!is_null($this->_resource)) {
-      $this->_resource->set_charset($charset);
+    if (!is_null(self::$_resource)) {
+      self::$_resource->set_charset($charset);
     }
 
     return $this;
   } // setCharset
 
-  public function connect () {
+  public function connect()
+  {
+    if (is_object(self::$_resource)) {
+      self::$connections_attempts += 1;
+      return $this;
+    }
+
     if (empty($this->_base) || is_null($this->_base)) {
       throw new \Exception("Seed-PHP MySQL: Impossible to connect to an empty database name!");
     }
 
-    $this->_resource = new \mysqli($this->_host, $this->_user, $this->_pass, $this->_base, $this->_port);
+    self::$_resource = new \mysqli($this->_host, $this->_user, $this->_pass, $this->_base, $this->_port);
 
-    if (!is_null($this->_resource->connect_error)) {
-      throw new \Exception($this->_resource->connect_error, $this->_resource->connect_errno);
+    if (!is_null(self::$_resource->connect_error)) {
+      throw new \Exception(self::$_resource->connect_error, self::$_resource->connect_errno);
     }
 
-    $this->_resource->set_charset($this->_charset);
+    self::$connections_attempts += 1;
+    self::$_resource->set_charset($this->_charset);
 
     return $this;
   } // connect
 
-  public function disconnect () {
-    if (!is_object($this->_resource)) {
+  public function disconnect()
+  {
+    // Since 1.0.0
+    // If there was chained connections, just decreases the connection attempts count.
+    if (self::$connections_attempts > 1) {
+      self::$connections_attempts -= 1;
       return $this;
     }
 
-    $this->_resource->close();
-    $this->_resource = null;
+    if (!is_object(self::$_resource)) {
+      return $this;
+    }
+
+    self::$_resource->close();
+    self::$_resource = null;
 
     return $this;
   } // disconnect
@@ -198,8 +220,9 @@ class MySQL {
    * @return integer|array<array>
    * @throws Exception
    */
-  public function exec ( $query = '' ) {
-    if (!is_object($this->_resource)) {
+  public function exec($query = '')
+  {
+    if (!is_object(self::$_resource)) {
       throw new \Exception('Seed-PHP MySQL: Resource is missing!');
     }
 
@@ -209,18 +232,18 @@ class MySQL {
     $query = preg_replace('/(\n|\r)/', ' ', $query);
     $query = preg_replace('/\s{2,}/', ' ', $query);
 
-    $res = $this->_resource->query( $query );
+    $res = self::$_resource->query($query);
     $result = [];
 
     if ($res === false) {
-      $error = mysqli_error_list($this->_resource);
+      $error = mysqli_error_list(self::$_resource);
       $error = array_shift($error);
       throw new \Exception($error['error'], $error['errno']);
     }
 
     if (preg_match('/^(\t|\r|\n|\s){0,}(select)/i', $query) > 0) {
       if ($res) {
-        while( $row = $res->fetch_assoc() ) {
+        while ($row = $res->fetch_assoc()) {
           $result[] = $row;
         }
       }
@@ -235,11 +258,12 @@ class MySQL {
     $this->_last_result_count = 0;
 
     // Returns the number of affected rows
-    return $this->_resource->affected_rows;
+    return self::$_resource->affected_rows;
   } // exec
 
-  public function insert ($table = '', $data = []) {
-    $self   = $this;
+  public function insert($table = '', $data = [])
+  {
+    $self = $this;
     $fields = array_keys($data);
     $values = array_values($data);
 
@@ -247,13 +271,14 @@ class MySQL {
       return $self->_escape($el);
     }, $values);
 
-    $stdin  = "INSERT INTO `{$table}` (`" . implode("`,`", $fields) . "`) VALUES (" . implode(",", $values) . ")";
+    $stdin = "INSERT INTO `{$table}` (`" . implode("`,`", $fields) . "`) VALUES (" . implode(",", $values) . ")";
 
     return $this->exec($stdin);
   } // insert
 
-  public function update ($table = '', $data = [], $where = null) {
-    $self   = $this;
+  public function update($table = '', $data = [], $where = null)
+  {
+    $self = $this;
     $fields = array_keys($data);
     $values = array_values($data);
 
@@ -263,7 +288,7 @@ class MySQL {
       return "{$key} = {$val}";
     }, array_keys($data), array_values($data), array_keys(array_keys($data)));
 
-    $stdin  = "UPDATE `{$table}` SET " . implode(",", $data);
+    $stdin = "UPDATE `{$table}` SET " . implode(",", $data);
 
     if (!is_null($where)) {
       $where = array_map(function ($k, $v, $i) use ($self) {
@@ -281,9 +306,10 @@ class MySQL {
     return $this->exec($stdin);
   } // update
 
-  public function delete ($table = '', $where = []) {
-    $self   = $this;
-    $stdin  = "DELETE FROM `{$table}`";
+  public function delete($table = '', $where = [])
+  {
+    $self = $this;
+    $stdin = "DELETE FROM `{$table}`";
 
     if (!is_null($where)) {
       $where = array_map(function ($k, $v, $i) use ($self) {

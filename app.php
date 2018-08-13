@@ -2,17 +2,16 @@
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
- | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.7.8
+ | @author Rogerio Taques (hello@abtz.co)
+ | @version 1.0.0
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
 
-namespace Seed;
+namespace SeedPHP;
 
-defined('SEED') or die('Direct script access is not allowed!');
-
-class App extends \Seed\Core {
+class App extends \SeedPHP\Core
+{
 
   // this class extends the fw core.
 

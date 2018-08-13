@@ -2,19 +2,18 @@
 
  /* --------------------------------------------------------
  | Seed-PHP Microframework.
- | @author Rogerio Taques (rogerio.taques@gmail.com)
- | @version 0.7.8
+ | @author Rogerio Taques (hello@abtz.co)
+ | @version 1.0.0
  | @license MIT
  | @see http://github.com/abtzco/seed-php
  * -------------------------------------------------------- */
 
-namespace Seed;
+namespace SeedPHP;
 
-defined('SEED') or die('Direct script access is not allowed!');
+use SeedPHP\Helper\Http;
 
-use Seed\Helper\Http;
-
-class Router {
+class Router
+{
   // request method
   protected $_method = 'GET';
 
@@ -22,10 +21,10 @@ class Router {
   protected $_routes = [];
 
   // app allowed methods
-  protected $_allowed_methods = [ 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH' ];
+  protected $_allowed_methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'];
 
   // app allowed headers
-  protected $_allowed_headers = [ 'Origin', 'Content-Type', 'X-Requested-With' ];
+  protected $_allowed_headers = ['Origin', 'Content-Type', 'X-Requested-With'];
 
   // app allowed headers
   protected $_allowed_origin = '*';
@@ -53,7 +52,8 @@ class Router {
 
   // ~~~ PUBLIC ~~~
 
-  public function route ( $route = 'GET /', $callback = false ) {
+  public function route($route = 'GET /', $callback = false)
+  {
     $method = ['GET'];
 
     if (strpos($route, ' ') !== false) {
@@ -63,8 +63,8 @@ class Router {
 
     foreach ($method as $m) {
       // is there a route set for given method?
-      if (!isset($this->_routes[ $m ])) {
-        $this->_routes[ $m ] = [];
+      if (!isset($this->_routes[$m])) {
+        $this->_routes[$m] = [];
       }
 
       // NOTE:
@@ -74,7 +74,7 @@ class Router {
       // $route = str_replace(['/', '.', '@'], ['\/', '\.', '\@'], $route);
 
       // add new route
-      $this->_routes[ $m ][] = (object) [
+      $this->_routes[$m][] = (object)[
         'uri' => $route,
         'callback' => $callback
       ];
@@ -84,16 +84,17 @@ class Router {
     return $this;
   } // route
 
-  public function response ( $code = 200, $response = [], $output = null ) {
+  public function response($code = 200, $response = [], $output = null)
+  {
     if (is_null($output)) {
       $output = $this->_output_type;
     }
 
     // identify the  http status code
-    $status = Http::getHTTPStatus( $code );
+    $status = Http::getHTTPStatus($code);
 
     $result = [
-      'status'  => $status['code'],
+      'status' => $status['code'],
       'message' => $status['message']
     ];
 
@@ -104,11 +105,11 @@ class Router {
 
     // $response should be an array. Whenever it isn't, try to convert it.
     // If impossible to convert, just ignores it.
-    if ( is_object($response) ) {
-      $response = (array) $response;
-    } elseif ( is_string($response) ) {
-      $response = [ $response ];
-    } elseif ( !is_array($response) ) {
+    if (is_object($response)) {
+      $response = (array)$response;
+    } elseif (is_string($response)) {
+      $response = [$response];
+    } elseif (!is_array($response)) {
       $response = [];
     }
 
@@ -116,25 +117,25 @@ class Router {
     $result = array_merge($result, $response);
 
     // allow enduser to customize the return structure for status
-    if ( isset($_GET['_router_status']) && !empty($_GET['_router_status']) ) {
-      if ( isset($result['status']) ) {
-        $result[ $_GET['_router_status'] ] = $result['status'];
+    if (isset($_GET['_router_status']) && !empty($_GET['_router_status'])) {
+      if (isset($result['status'])) {
+        $result[$_GET['_router_status']] = $result['status'];
         unset($result['status']);
       }
     }
 
     // allow enduser to customize the return structure for message
-    if ( isset($_GET['_router_message']) && !empty($_GET['_router_message']) ) {
-      if ( isset($result['message']) ) {
-        $result[ $_GET['_router_message'] ] = $result['message'];
+    if (isset($_GET['_router_message']) && !empty($_GET['_router_message'])) {
+      if (isset($result['message'])) {
+        $result[$_GET['_router_message']] = $result['message'];
         unset($result['message']);
       }
     }
 
     // allow enduser to customize the return structure for data
-    if ( isset($_GET['_router_data']) && !empty($_GET['_router_data']) ) {
-      if ( isset($result['data']) ) {
-        $result[ $_GET['_router_data'] ] = $result['data'];
+    if (isset($_GET['_router_data']) && !empty($_GET['_router_data'])) {
+      if (isset($result['data'])) {
+        $result[$_GET['_router_data']] = $result['data'];
         unset($result['data']);
       }
     }
@@ -144,12 +145,12 @@ class Router {
       header("{$status['protocol']} {$status['code']} {$status['message']}");
 
       if ($this->_cache === true) {
-        header('ETag: ' . md5( !is_string($result) ? json_encode($result) : $result )); // this help on caching
+        header('ETag: ' . md5(!is_string($result) ? json_encode($result) : $result)); // this help on caching
       }
     }
 
     // what kind of output is expected?
-    switch ( strtolower($output) ) {
+    switch (strtolower($output)) {
       case 'xml':
         header("Content-Type: application/xml");
 
@@ -181,7 +182,8 @@ class Router {
     return $result;
   } // response
 
-  public function setAllowedMethod ( $method = '', $merge = true ) {
+  public function setAllowedMethod($method = '', $merge = true)
+  {
     if (!empty($method)) {
       if (!$merge) {
         $this->_allowed_methods = [];
@@ -197,7 +199,8 @@ class Router {
     return $this;
   } // setAllowedMethod
 
-  public function setAllowedHeader ( $header = '', $merge = true ) {
+  public function setAllowedHeader($header = '', $merge = true)
+  {
     if (!empty($header)) {
       if (!$merge) {
         $this->_allowed_headers = [];
@@ -213,7 +216,8 @@ class Router {
     return $this;
   } // setAllowedHeader
 
-  public function setAllowedOrigin ( $origin = '' ) {
+  public function setAllowedOrigin($origin = '')
+  {
     if (!empty($origin)) {
       $this->_allowed_origin = $origin;
     }
@@ -221,13 +225,15 @@ class Router {
     return $this;
   } // setAllowedOrigin
 
-  public function setCache( $flag = true, $max_age = 3600 ) {
+  public function setCache($flag = true, $max_age = 3600)
+  {
     $this->_cache = $flag;
     $this->_cache_max_age = $max_age;
     return $this;
   } // setFlag
 
-  public function setLanguage ( $lang = 'en' ) {
+  public function setLanguage($lang = 'en')
+  {
     if (!empty($lang)) {
       $this->_language = $lang;
     }
@@ -235,7 +241,8 @@ class Router {
     return $this;
   } // set Language
 
-  public function setCharset ( $charset = 'utf8' ) {
+  public function setCharset($charset = 'utf8')
+  {
     if (!empty($charset)) {
       $this->_charset = $charset;
     }
@@ -243,13 +250,15 @@ class Router {
     return $this;
   } // setCharset
 
-  public function setOutputType( $type = 'json' ) {
+  public function setOutputType($type = 'json')
+  {
     if (!empty($output)) {
       $this->_output_type = $output;
     }
   } //setOutputType
 
-  public function onFail ( $callback = false ) {
+  public function onFail($callback = false)
+  {
     if ($callback !== false && is_callable($callback)) {
       $this->_error_handler = $callback;
     }
@@ -257,19 +266,20 @@ class Router {
 
   // ~~~ PROTECTED ~~~
 
-  protected function dispatch ( $args = [] ) {
+  protected function dispatch($args = [])
+  {
     $matches = [];
     $matched_callback = false;
 
     // echo "METHOD ", $this->_method, "<br />\n";
 
     // is there a matching route?
-    if ( isset($this->_routes[$this->_method]) ) {
+    if (isset($this->_routes[$this->_method])) {
       // echo "Found routes for ", $this->_method, "\n";
 
       foreach ($this->_routes[$this->_method] as $route) {
         // echo $route->uri, ' ::: ', $this->_uri, "<br />\n";
-        if ( @preg_match("@^{$route->uri}$@", $this->_uri, $matches) ) {
+        if (@preg_match("@^{$route->uri}$@", $this->_uri, $matches)) {
           // echo " -> MATCHED";
           $matched_callback = $route->callback;
           break;
@@ -282,10 +292,10 @@ class Router {
     // die;
 
     if (count($matches) === 0) {
-      if ( $this->_error_handler === false ) {
+      if ($this->_error_handler === false) {
         return $this->response(Http::_NOT_IMPLEMENTED);
       } else {
-        return call_user_func($this->_error_handler, (object) Http::getHTTPStatus( Http::_NOT_IMPLEMENTED ));
+        return call_user_func($this->_error_handler, (object)Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
       }
     }
 
@@ -298,7 +308,8 @@ class Router {
 
   // ~~~ PRIVATE ~~~
 
-  private function json2xml( &$xml, $data ) {
+  private function json2xml(&$xml, $data)
+  {
 
     // exit when data is empty.
     if (is_null($data)) {
@@ -309,10 +320,10 @@ class Router {
     foreach ($data as $dk => $dv) {
 
       // node data can be an array/ object
-      if ( is_array($dv) ) {
+      if (is_array($dv)) {
 
         // is the key a string?
-        if ( !is_numeric($dk) ) {
+        if (!is_numeric($dk)) {
 
           // eventually it's possible that nodes have properties
           // whenever it has, isolate properties for post use.
