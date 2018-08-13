@@ -10,10 +10,13 @@
 
 namespace SeedPHP\Helper;
 
+use PDO;
+use PDOException;
+
 /**
  * The PDO helper
  */
-class PDO
+class Database
 {
   private $_dns = '';
   private $_driver = 'mysql';
@@ -24,9 +27,9 @@ class PDO
   private $_base = 'test';
   private $_charset = 'utf8';
   private $_last_result_count = 0;
-  private static $_resource = null; // the connection resource
-
-  public static $_attempts = 0;
+  private static $_resource = null;   // the connection resource
+  private static $_transactions = 0;  // how many transactions in chain
+  public static $_attempts = 0;       // how many connections in chain
 
   /**
    * Constructs a new PDO helper
@@ -171,7 +174,7 @@ class PDO
     }
 
     $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
-    self::$_resource = new \PDO($this->_dns, $this->_user, $this->_pass);
+    self::$_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
     self::$_attempts += 1;
 
     return $this;
@@ -216,7 +219,6 @@ class PDO
     // unnecessary spaces and breaklines.
     $query = trim($query);
     $query = preg_replace('/(\n|\r)/', ' ', $query);
-    $query = preg_replace('/\s{2,}/', ' ', $query);
 
     try {
       if (empty($values)) {
@@ -225,15 +227,15 @@ class PDO
         $stmt = self::$_resource->prepare($query);
         $stmt->execute($values);
       }
-    } catch (\PDOException $pdoex) {
-      throw new \Exception($pdoex->getMessage(), $pdoex->getCode());
+    } catch (\PDOException $PDOEx) {
+      throw new \Exception($PDOEx->getMessage(), $PDOEx->getCode());
     }
 
     $result = [];
 
     if (preg_match('/^(\t|\r|\n|\s){0,}(select)/i', $query) > 0) {
       if ($stmt && !is_bool($stmt)) {
-        $result[] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
 
       // Provide the result count for a select statement
@@ -250,6 +252,35 @@ class PDO
     // Returns the number of affected rows
     return "{$stmt}";
   } // exec
+
+  public function transaction($status = 'begin')
+  {
+    switch ($status) {
+      case 'commit':
+        if (self::$_transactions > 0) {
+          self::$_transactions -= 1;
+          self::$_resource->commit();
+        }
+        break;
+
+      case 'rollback':
+        if (self::$_transactions > 1) {
+          self::$_resource->execute('rollback to trans' . (self::$_transactions + 1));
+        } else {
+          self::$_resource->rollback();
+        }
+
+        break;
+
+      default:
+        self::$_transactions += 1;
+        self::$_resource->beginTransaction();
+
+        break;
+    }
+
+    return $this;
+  } // transaction
 
   /**
    * Insert new records into given table.
@@ -367,4 +398,4 @@ class PDO
   {
     return $this->_last_result_count;
   } // insertedId
-} // PDO
+} // Database
