@@ -10,6 +10,9 @@
 
 namespace SeedPHP\Helper;
 
+/**
+ * The PDO helper
+ */
 class PDO
 {
   private $_dns = '';
@@ -21,10 +24,13 @@ class PDO
   private $_base = 'test';
   private $_charset = 'utf8';
   private $_last_result_count = 0;
-
   private static $_resource = null; // the connection resource
+
   public static $_attempts = 0;
 
+  /**
+   * Constructs a new PDO helper
+   */
   function __construct(array $config = null)
   {
     if (!empty($config)) {
@@ -50,16 +56,29 @@ class PDO
     }
   } // __construct
 
+  /**
+   * Prevents sets not using the proper set... methods
+   */
   public function __set($name, $value)
   {
     // Prevents unexpected sets
   }
 
+  /**
+   * Prevents gets not using the proper get... methods
+   */
   public function __get($name)
   {
     // Prevents unexpected gets
   }
 
+  /**
+   * Sets the database host address
+   * @param string $host Default to localhost
+   * @param string $port Default to 3306
+   * @param string $charset Default to utf8
+   * @return SeedPHP\Helper\PDO
+   */
   public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8')
   {
     if (!empty($host) && !is_null($host)) {
@@ -77,6 +96,11 @@ class PDO
     return $this;
   } // setHost
 
+  /**
+   * Sets the database connection port
+   * @param string $port Default to 3306
+   * @return SeedPHP\Helper\PDO
+   */
   public function setPort($port = '3306')
   {
     if (!empty($port) && !is_null($port)) {
@@ -85,6 +109,12 @@ class PDO
     return $this;
   } // setPort
 
+  /**
+   * Sets the database connection credential
+   * @param string $user Default to root
+   * @param string $password Default to empty
+   * @return SeedPHP\Helper\PDO
+   */
   public function setCredential($user = 'root', $pass = '')
   {
     if (!empty($user) && !is_null($user)) {
@@ -98,6 +128,11 @@ class PDO
     return $this;
   } // setCredential
 
+  /**
+   * Sets the database name
+   * @param string $name Default to empty
+   * @return SeedPHP\Helper\PDO
+   */
   public function setDatabase($name = '')
   {
     if (!empty($name) && !is_null($name)) {
@@ -106,6 +141,11 @@ class PDO
     return $this;
   } // setDatabase
 
+  /**
+   * Sets the database connection charset
+   * @param string $charset Default to utf8
+   * @return SeedPHP\Helper\PDO
+   */
   public function setCharset($charset = 'utf8')
   {
     $this->_charset = $charset;
@@ -117,6 +157,11 @@ class PDO
     return $this;
   } // setCharset
 
+  /**
+   * Attempt to connect to the set database.
+   * @return SeedPHP\Helper\PDO
+   * @throws PDOExpception
+   */
   public function connect()
   {
     // Allows chained calls.
@@ -127,18 +172,15 @@ class PDO
 
     $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
     self::$_resource = new \PDO($this->_dns, $this->_user, $this->_pass);
-
-    // if (!is_null(self::$_resource->connect_error)) {
-    //   throw new \Exception(self::$_resource->connect_error, self::$_resource->connect_errno);
-    // }
-
     self::$_attempts += 1;
-
-    echo "Connected <br>\n";
 
     return $this;
   } // connect
 
+  /**
+   * Attempts to disconnect from an already connected database.
+   * @return SeedPHP\Helper\PDO
+   */
   public function disconnect()
   {
     // If there was chained connections, 
@@ -154,14 +196,13 @@ class PDO
 
     self::$_resource = null;
 
-    echo "Disconnected <br>\n";
-
     return $this;
   } // disconnect
 
   /**
-   * Executes an SQL statement.
+   * Executes an SQL statement. Supports statement variables binding.
    * @param string $query
+   * @param array $values Values to bind in the query. Default to null.
    * @return integer|array<array>
    * @throws Exception
    */
@@ -210,6 +251,12 @@ class PDO
     return "{$stmt}";
   } // exec
 
+  /**
+   * Insert new records into given table.
+   * @param string $table Default to empty
+   * @param array $data Default to []
+   * @return integer|boolean
+   */
   public function insert($table = '', $data = [])
   {
     $self = $this;
@@ -229,6 +276,13 @@ class PDO
     return $this->exec($stdin, $values);
   } // insert
 
+  /**
+   * Updates records from given table.
+   * @param string $table Default to empty
+   * @param array $data Default to []
+   * @param array [$where] Optional. Default to null
+   * @return integer|boolean
+   */
   public function update($table = '', $data = [], $where = null)
   {
     $self = $this;
@@ -256,6 +310,12 @@ class PDO
     return $this->exec($stdin, $values);
   } // update
 
+  /**
+   * Deletes records from given table.
+   * @param string $table Default to empty
+   * @param array $where Default to []
+   * @return integer|boolean
+   */
   public function delete($table = '', $where = [])
   {
     $self = $this;
@@ -280,4 +340,31 @@ class PDO
 
     return $this->exec($stdin);
   } // delete
+
+  /**
+   * Returns the connection resource link.
+   * @return MySQLConnectionObject
+   */
+  public function getLink()
+  {
+    return self::$_resource;
+  } // getLink
+
+  /**
+   * Returns the latest inserted ID
+   * @return integer
+   */
+  public function insertedId()
+  {
+    return self::$_resource->lastInsertId();
+  } // insertedId
+
+  /**
+   * Returns the result count after a query.
+   * @return integer
+   */
+  public function resultCount()
+  {
+    return $this->_last_result_count;
+  } // insertedId
 } // PDO

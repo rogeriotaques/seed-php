@@ -172,14 +172,6 @@ class MySQL
     return $this;
   } // setCharset
 
-  public function __set($name, $value)
-  {
-  }
-
-  public function __get($name)
-  {
-  }
-
   public function connect()
   {
     if (is_object(self::$_resource)) {
@@ -200,8 +192,6 @@ class MySQL
     self::$connections_attempts += 1;
     self::$_resource->set_charset($this->_charset);
 
-    echo "Connected <br>\n";
-
     return $this;
   } // connect
 
@@ -220,8 +210,6 @@ class MySQL
 
     self::$_resource->close();
     self::$_resource = null;
-
-    echo "Disconnected <br>\n";
 
     return $this;
   } // disconnect

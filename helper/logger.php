@@ -20,7 +20,7 @@ class Logger
   function __construct($cfg = [])
   {
     $this->_config = $cfg;
-    $this->_db = new \Seed\Helper\MySQL($this->_config);
+    $this->_db = new SeedPHP\Helper\PDO($this->_config);
   } // __construct
 
   public function table($name = '')
