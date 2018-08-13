@@ -260,6 +260,7 @@ class Database
         if (self::$_transactions > 0) {
           self::$_transactions -= 1;
           self::$_resource->commit();
+          self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
         }
         break;
 
@@ -268,12 +269,14 @@ class Database
           self::$_resource->execute('rollback to trans' . (self::$_transactions + 1));
         } else {
           self::$_resource->rollback();
+          self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
         }
 
         break;
 
       default:
         self::$_transactions += 1;
+        self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
         self::$_resource->beginTransaction();
 
         break;
