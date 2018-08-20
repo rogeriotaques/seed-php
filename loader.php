@@ -21,6 +21,12 @@ if (!function_exists('seed_loader')) {
 
     if ($lastNsPos = strripos($class, '\\')) {
       $namespace = substr($class, 0, $lastNsPos);
+
+      // backward compatbility for previous namespace
+      if (strpos($namespace, 'SeedPHP') === false) {
+        $namespace = 'SeedPHP' . str_replace('Seed', '', $namespace);
+      }
+
       $class = substr($class, $lastNsPos + 1);
       $file = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
     }

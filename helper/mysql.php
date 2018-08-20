@@ -67,7 +67,7 @@ class MySQL
       : (is_bool($str) || (is_numeric($str) && (strpos($str, '.') !== false || substr($str, 0, 1) !== '0'))
       ? $str
       : (is_string($str)
-      ? "'{self::$_resource->real_escape_string($str)}'"
+      ? "'" . self::$_resource->real_escape_string($str) . "'"
       : $str)));
   } // _escape
 
