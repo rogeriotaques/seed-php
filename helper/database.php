@@ -303,8 +303,8 @@ class Database
     }
 
     $stdin = "
-      INSERT INTO `{$table}` (`" . implode("`,`", $fields) . "`) 
-      VALUES (" . implode(",", $placeholders) . ")
+      INSERT INTO `{$table}` (`" . implode("`, `", $fields) . "`) 
+      VALUES (" . implode(", ", $placeholders) . ")
     ";
 
     return $this->exec($stdin, $values);
@@ -327,7 +327,7 @@ class Database
       return "`{$k}` = ?";
     }, array_keys($data));
 
-    $stdin = "UPDATE `{$table}` SET " . implode(",", $data);
+    $stdin = "UPDATE `{$table}` SET " . implode(", ", $data);
 
     if (!is_null($where)) {
       $where = array_map(function ($k, $i) use ($self) {
@@ -353,7 +353,7 @@ class Database
   public function delete($table = '', $where = [])
   {
     $self = $this;
-    $stdin = "DELETE FROM `{$table}`";
+    $stdin = "DELETE FROM `{$table}` ";
     $values = !is_null($where) ? array_values($where) : null;
 
     if (!is_null($where)) {
