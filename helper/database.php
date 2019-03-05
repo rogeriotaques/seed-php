@@ -14,7 +14,7 @@ use PDO;
 use PDOException;
 
 /**
- * The PDO helper
+ * The Database (PDO) helper
  */
 class Database
 {
@@ -249,8 +249,8 @@ class Database
     // When not a select, result count is zero.
     $this->_last_result_count = 0;
 
-    // Returns the number of affected rows
-    return "{$stmt}";
+    // Returns 1 by default for non selects
+    return 1;
   } // exec
 
   public function transaction($status = 'begin')

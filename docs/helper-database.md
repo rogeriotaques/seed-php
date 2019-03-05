@@ -1,9 +1,9 @@
 # Seed-PHP Microframework Documentation
 
-## PDO
+## Database (aka PDO)
 
-Package: `Helper\PDO` <br >
-Namespace: `SeedPHP\Helper\PDO`
+Package: `Helper\Database` <br >
+Namespace: `SeedPHP\Helper\Database`
 
 ```php
   $config = [
@@ -12,7 +12,7 @@ Namespace: `SeedPHP\Helper\PDO`
     'pass' => 'your-pass'
   ];
 
-  $app->load('pdo', $config, 'db');
+  $app->load('database', $config, 'db');
   $res = $app->db->connect();
   $res = $app->db->exec( '...' );
   $res = $app->db->disconnect();
