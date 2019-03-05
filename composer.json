@@ -7,7 +7,13 @@
     "php",
     "api",
     "framework",
-    "microframework"
+    "microframework",
+    "parsedown",
+    "mailgun",
+    "pdo",
+    "mysql",
+    "logger",
+    "easy"
   ],
   "homepage": "https://github.com/AbtzCo/seed-php",
   "license": "MIT",
