@@ -22,10 +22,6 @@ namespace SeedPHP\Helper;
  *
  * @see https://documentation.mailgun.com/en/latest/quickstart-sending.html#send-via-api
  * @author Rogerio Taques <hello@abtz.co>, Tadashi Neves <tadasshi@gmail.com>
- * @version 1.5.2
- * @license MIT
- *
- * Copyright (c) 2018, Abtz Labs
  */
 
 class Mailgun
@@ -81,21 +77,21 @@ class Mailgun
    * @param string $whitelist A white list of emails to really dispatch messages when developing/ testing
    * @return Mailgun
    */
-  function __construct($apiKey = '', $domain = null, $emailDefaultReplacement = null, $whitelist = null)
+  function __construct($config = ['apiKey' => '', 'domain' => null, 'emailDefaultReplacement' => null, 'whitelist' => null])
   {
-    if (empty($apiKey)) {
+    if (empty($config['apiKey'])) {
       throw new \Exception('Missing the API key. You can get it from your Mailgun account dashboard.');
     }
 
-    $this->_apiKey = $apiKey;
+    $this->_apiKey = $config['apiKey'];
     $this->_apiBase = 'https://api.mailgun.net/v3/';
     $this->_encoding = 'UTF-8';
 
-    $this->setWhiteList($whitelist);
-    $this->setEmailDefaultReplacement($emailDefaultReplacement);
+    $this->setWhiteList(!empty($config['whitelist']) ? $config['whitelist'] : []);
+    $this->setEmailDefaultReplacement(!empty($config['emailDefaultReplacement']) ? $config['emailDefaultReplacement'] : []);
 
-    if (!empty($domain)) {
-      $this->_domain = $domain;
+    if (!empty($config['domain'])) {
+      $this->_domain = $config['domain'];
     }
 
     return $this;
