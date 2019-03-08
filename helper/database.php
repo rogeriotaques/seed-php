@@ -235,7 +235,7 @@ class Database
 
     if (preg_match('/^(\t|\r|\n|\s){0,}(select)/i', $query) > 0) {
       if ($stmt && !is_bool($stmt)) {
-        $result[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
       }
 
       // Provide the result count for a select statement
