@@ -1,13 +1,12 @@
 <?php
 
- /* --------------------------------------------------------
- | Seed-PHP Microframework
- | @author Rogerio Taques (hello@abtz.co)
- | @version 1.1.1
- | @license MIT
- | @see http://github.com/abtzco/seed-php
- | @deprecated Since 1.0.0. Will be removed from 1.2.0, use SeedPHP\Helper\PDO instead. 
- * -------------------------------------------------------- */
+/** 
+ * Seed-PHP Microframework
+ * @copyright Abtz Labs
+ * @license MIT
+ * @see http://github.com/abtzco/seed-php
+ * @deprecated Since 1.0.0. Will be removed from 1.2.0, use SeedPHP\Helper\PDO instead. 
+ */
 
 namespace SeedPHP\Helper;
 

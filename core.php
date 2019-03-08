@@ -1,12 +1,11 @@
 <?php
 
- /* --------------------------------------------------------
- | Seed-PHP Microframework.
- | @author Rogerio Taques (hello@abtz.co)
- | @version 1.1.1
- | @license MIT
- | @see http://github.com/abtzco/seed-php
- * -------------------------------------------------------- */
+/** 
+ * Seed-PHP Microframework.
+ * @copyright Abtz Labs
+ * @license MIT
+ * @see http://github.com/abtzco/seed-php
+ */
 
 namespace SeedPHP;
 

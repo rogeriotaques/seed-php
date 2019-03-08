@@ -1,9 +1,11 @@
 <?php
 
- /* --------------------------------------------------------
- | Seed-PHP Microframework, TEST
- | @version 1.1.1
- * -------------------------------------------------------- */
+/** 
+ * Seed-PHP Microframework.
+ * @copyright Abtz Labs
+ * @license MIT
+ * @see http://github.com/abtzco/seed-php
+ */
  
 // define the api timezone 
 date_default_timezone_set('Asia/Tokyo');

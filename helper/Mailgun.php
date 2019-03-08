@@ -1,16 +1,11 @@
 <?php
 
- /* --------------------------------------------------------
- | Seed-PHP Microframework
- | @author Rogerio Taques (hello@abtz.co)
- | @version 1.1.1
- | @license MIT
- | @see http://github.com/abtzco/seed-php
- * -------------------------------------------------------- */
-
-namespace SeedPHP\Helper;
-
-/**
+/** 
+ * Seed-PHP Microframework
+ * @copyright Abtz Labs
+ * @license MIT
+ * @see http://github.com/abtzco/seed-php
+ * 
  * Original copy. Incorporated to SeedPHP since 1.1.0.
  * 
  * A wrapper class to make easier and flexible sending emails
@@ -23,6 +18,8 @@ namespace SeedPHP\Helper;
  * @see https://documentation.mailgun.com/en/latest/quickstart-sending.html#send-via-api
  * @author Rogerio Taques <hello@abtz.co>, Tadashi Neves <tadasshi@gmail.com>
  */
+
+namespace SeedPHP\Helper;
 
 class Mailgun
 {
