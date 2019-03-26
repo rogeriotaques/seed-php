@@ -139,8 +139,16 @@ class Core extends \SeedPHP\Router
 
   public function put($key = null)
   {
-    parse_str(file_get_contents("php://input"), $_PUT);
+    $php_input = file_get_contents("php://input");
+    
+    // Try parsing it from JSON
+    $_PUT = json_decode($php_input, true);
 
+    if (!$_PUT) {
+      // Fallback to parsing it from URL encoded string
+      parse_str($php_input, $_PUT);
+    }
+    
     if ($key === null) {
       return $_PUT;
     }
