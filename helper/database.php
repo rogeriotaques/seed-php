@@ -79,20 +79,20 @@ class Database
    * @param string $host Default to localhost
    * @param string $port Default to 3306
    * @param string $charset Default to utf8
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    */
   public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8')
   {
     if (!empty($host) && !is_null($host)) {
-      $this->_host = $host;
+      $this->_host = "{$host}";
     }
 
     if (!empty($port) && !is_null($port)) {
-      $this->_port = $port;
+      $this->_port = "{$port}";
     }
 
     if (!empty($charset) && !is_null($charset)) {
-      $this->_charset = $charset;
+      $this->_charset = "{$charset}";
     }
 
     return $this;
@@ -101,13 +101,14 @@ class Database
   /**
    * Sets the database connection port
    * @param string $port Default to 3306
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    */
   public function setPort($port = '3306')
   {
     if (!empty($port) && !is_null($port)) {
-      $this->_port = $port;
+      $this->_port = "{$port}";
     }
+
     return $this;
   } // setPort
 
@@ -115,16 +116,16 @@ class Database
    * Sets the database connection credential
    * @param string $user Default to root
    * @param string $password Default to empty
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    */
   public function setCredential($user = 'root', $pass = '')
   {
     if (!empty($user) && !is_null($user)) {
-      $this->_user = $user;
+      $this->_user = "{$user}";
     }
 
     if (!empty($pass) && !is_null($pass)) {
-      $this->_pass = $pass;
+      $this->_pass = "{$pass}";
     }
 
     return $this;
@@ -133,27 +134,30 @@ class Database
   /**
    * Sets the database name
    * @param string $name Default to empty
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    */
   public function setDatabase($name = '')
   {
     if (!empty($name) && !is_null($name)) {
-      $this->_base = $name;
+      $this->_base = "{$name}";
     }
+
     return $this;
   } // setDatabase
 
   /**
    * Sets the database connection charset
    * @param string $charset Default to utf8
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    */
   public function setCharset($charset = 'utf8')
   {
-    $this->_charset = $charset;
+    if (!empty($charset)) {
+      $this->_charset = "{$charset}";
+    }
 
     if (!is_null(self::$_resource)) {
-      self::$_resource->set_charset($charset);
+      self::$_resource->set_charset($this->_charset);
     }
 
     return $this;
@@ -161,7 +165,7 @@ class Database
 
   /**
    * Attempt to connect to the set database.
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    * @throws PDOExpception
    */
   public function connect()
@@ -181,7 +185,7 @@ class Database
 
   /**
    * Attempts to disconnect from an already connected database.
-   * @return SeedPHP\Helper\PDO
+   * @return SeedPHP\Helper\Database
    */
   public function disconnect()
   {
@@ -211,7 +215,11 @@ class Database
   public function exec($query = '', array $values = null)
   {
     if (!is_object(self::$_resource)) {
-      throw new \Exception('Seed-PHP MySQL: Cannot run this query, resource is missing!');
+      throw new \Exception('Seed-PHP Database Helper: Exec : Cannot run this query, resource is missing!');
+    }
+    
+    if (!is_string($query) || empty($query)) {
+      throw new \Exception('Seed-PHP Database Helper: Exec : Query cannot be empty and must be a string!');
     }
 
     // Prepare the statement to be executed, removing
@@ -252,6 +260,11 @@ class Database
     return 1;
   } // exec
 
+  /**
+   * Manage transactions.
+   * @param string $status Possible values: begin, commit or rollback
+   * @return SeedPHP\Helper\Database
+   */
   public function transaction($status = 'begin')
   {
     switch ($status) {
@@ -273,6 +286,7 @@ class Database
 
         break;
 
+      // Any status other than commit and rollback will be understood as 'begin'
       default:
         self::$_transactions += 1;
         self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
@@ -286,12 +300,20 @@ class Database
 
   /**
    * Insert new records into given table.
-   * @param string $table Default to empty
-   * @param array $data Default to []
+   * @param string $table
+   * @param array $data 
    * @return integer|boolean
    */
-  public function insert($table = '', $data = [])
+  public function insert($table = '', array $data = null)
   {
+    if (!is_string($table) || empty($table)) {
+      throw new \Exception("Seed-PHP Database Helper : Insert : Invalid table name");
+    }
+
+    if (empty($data)) {
+      throw new \Exception("Seed-PHP Database Helper : Insert : Data cannot be empty");
+    }
+
     $self = $this;
     $placeholders = [];
     $fields = array_keys($data);
@@ -311,24 +333,33 @@ class Database
 
   /**
    * Updates records from given table.
-   * @param string $table Default to empty
-   * @param array $data Default to []
+   * @param string $table 
+   * @param array $data 
    * @param array [$where] Optional. Default to null
    * @return integer|boolean
    */
-  public function update($table = '', $data = [], $where = null)
+  public function update($table = '', array $data = null, array $where = null)
   {
+    if (!is_string($table) || empty($table)) {
+      throw new \Exception("Seed-PHP Database Helper : Update : Invalid table name");
+    }
+
+    if (empty($data)) {
+      throw new \Exception("Seed-PHP Database Helper : Update : Data cannot be empty");
+    }
+
     $self = $this;
     $fields = array_keys($data);
     $values = array_values($data);
+    $where_values = !empty($where) ? array_values($where) : [];
 
     $data = array_map(function ($k) {
       return "`{$k}` = ?";
-    }, array_keys($data));
+    }, $fields);
 
     $stdin = "UPDATE `{$table}` SET " . implode(", ", $data);
 
-    if (!is_null($where)) {
+    if (!empty($where)) {
       $where = array_map(function ($k, $i) use ($self) {
         $key = preg_match('/^(or|and)\s/i', $k) < 1
           ? ($i > 0 ? " AND " : " ") . "`{$k}`"
@@ -340,22 +371,30 @@ class Database
       $stdin .= " WHERE " . implode('', $where);
     }
 
+    if (!empty($where_values)) {
+      $values = array_merge($values, $where_values);
+    }
+
     return $this->exec($stdin, $values);
   } // update
 
   /**
    * Deletes records from given table.
-   * @param string $table Default to empty
-   * @param array $where Default to []
+   * @param string $table 
+   * @param array [$where] Optional. Default to null 
    * @return integer|boolean
    */
-  public function delete($table = '', $where = [])
+  public function delete($table = '', array $where = null)
   {
+    if (!is_string($table) || empty($table)) {
+      throw new \Exception("Seed-PHP Database Helper : Update : Invalid table name");
+    }
+
     $self = $this;
     $stdin = "DELETE FROM `{$table}` ";
-    $values = !is_null($where) ? array_values($where) : null;
+    $values = !empty($where) ? array_values($where) : null;
 
-    if (!is_null($where)) {
+    if (!empty($where)) {
       $where = array_map(function ($k, $i) use ($self) {
         $key = preg_match('/^(or|and)\s/i', $k) < 1
           ? ($i > 0 ? " AND " : " ") . "`{$k}`"
