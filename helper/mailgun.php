@@ -363,7 +363,7 @@ class Mailgun
 
     if (sizeof($this->_attachments) > 0) {
       foreach ($this->_attachments as $key => $att) {
-        $data['attachment[' . ($k + 1) . ']'] = curl_file_create(
+        $data['attachment[' . ($key + 1) . ']'] = curl_file_create(
           $att['path'],
           $att['type'],
           $att['name']
@@ -423,10 +423,9 @@ class Mailgun
       $id = sizeof($this->_attachments);
 
       if ($id === 0) {
-        $this->_headers['multipart'] = 'Content-Type: multipart/form-data;';
+        $this->_headers['multipart'] = 'Content-Type: multipart/form-data';
       }
 
-      // $this->_attachments[$id] = "@{$filePath};filename={$fileName};";
       $this->_attachments[$id] = [
         'name' => $fileName,
         'path' => $filePath,
