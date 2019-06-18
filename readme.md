@@ -11,8 +11,8 @@ to implement powerfull `RESTfull APIs` or even simple websites that could suppor
 
 Check the complete [documentation](https://github.com/AbtzCo/seed-php/tree/master/docs).
 
-> NOTE: <br >
-> If you're updating from previous versions (prior to 1.0.0), you'll be required to update your code, replacing namespace from `Seed\` to `SeedPHP`. E.g: <br >
+> **NOTE OF BREAKING CHANGES:**
+> The _namespace_ was modified, so if you're updating from previous versions (prior to 1.0.0), you'll be required to update your code, replacing namespace from `Seed\` to `SeedPHP\`. E.g:
 
 ```php
 # Deprecated
