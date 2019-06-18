@@ -20,14 +20,21 @@ if (!function_exists('seed_loader')) {
 
     if ($lastNsPos = strripos($class, '\\')) {
       $namespace = substr($class, 0, $lastNsPos);
+      $expected_namespace = 'SeedPHP';
 
       // backward compatbility for previous namespace
-      if (strpos($namespace, 'SeedPHP') === false) {
-        $namespace = 'SeedPHP' . str_replace('Seed', '', $namespace);
+      if (strpos($namespace, $expected_namespace) === false && strpos($namespace, 'Seed') === 0) {
+        $namespace = $expected_namespace . str_replace('Seed', '', $namespace);
       }
 
       $class = substr($class, $lastNsPos + 1);
       $file = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+    }
+
+    // do not try to load the classes from SeedPHP when using a different namespace
+    // @since 1.1.6
+    if (strpos($namespace, $expected_namespace) === false) {
+      return;
     }
 
     $file .= str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
