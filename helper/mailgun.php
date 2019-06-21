@@ -309,7 +309,7 @@ class Mailgun
     }
 
     // Replaces the variables in the template, if any.
-    if (count($vars) > 0) {
+    if (is_array($vars) && count($vars) > 0) {
       foreach ($vars as $key => $value) {
         $temp = str_replace('{' . $key . '}', $value, $temp);
       }
