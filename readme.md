@@ -109,8 +109,6 @@ Found an issue or would like to suggest something? Just go to [this page](https:
 
 Sponsoring this project will help and motivate me to keep improving it and making it even better for you (and the whole open-source community) who is using this package. 
 
-<div style="max-width: 95%; margin: 30px auto; text-align: center;">
-  <a href="https://paypal.me/AbtzLabs/5USD" style="display: inline-block; width: calc(50% - 12px); max-width: 250px; border: 1px solid orange; border-radius: 3px; padding: 10px; background: orange; text-align: center; color: white; margin: 0 5px;" >Buy me a coffee! ($5.00)</a>
-  <a href="https://paypal.me/AbtzLabs" style="display: inline-block; width: calc(50% - 12px); max-width: 250px; border: 1px solid orange; border-radius: 3px; padding: 10px; background: white; text-align: center; color: orange; margin: 5px;" >Donate any amount</a>
-</div>
+  - [☕️ Buy me a coffee! ($5.00)](https://paypal.me/AbtzLabs/5USD)
+  - [💰 Donate any amount - You decide 😉](https://paypal.me/AbtzLabs)
 
