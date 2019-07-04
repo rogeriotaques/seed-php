@@ -21,6 +21,9 @@
 
 namespace SeedPHP\Helper;
 
+use Twig\Loader\FilesystemLoader;
+use Twig\Environment;
+
 class Mailgun
 {
   private $_emailPattern = '/[^a-zA-Z0-9.\-@+_]/';  // Since 1.4.1. Regular Expression to Sanitize email addresses.
@@ -286,13 +289,13 @@ class Mailgun
    *
    * @param string $filepath_or_string Either a template file path or template string.
    * @param array $vars Array<Key => Value>. Replaces strings in the template. E.g: {THIS_IS_A_VAR}
-   * @param string $parse_type Either "markdown", "file" or "string" (when a string is given in the first argument).
+   * @param string $parse_type Possible "twig", markdown", "file" or "string" (when a string is given in the first argument).
    * @return string
    */
   public function parse($filepath_or_string = '', $vars = [], $parse_type = 'markdown')
   {
     $temp = '';
-    $parsers = ['file', 'string', 'markdown'];
+    $parsers = ['file', 'string', 'markdown', 'twig'];
 
     if (!in_array($parse_type, $parsers)) {
       throw new \Exception('Given parse type "' . $parse_type . '" is not allowed.');
@@ -309,22 +312,37 @@ class Mailgun
     }
 
     // Replaces the variables in the template, if any.
-    if (is_array($vars) && count($vars) > 0) {
+    // Twig has it's own variable style, then ignores it to avoid conflicts.
+    if (is_array($vars) && count($vars) > 0 && !empty($temp) && $parse_type !== 'twig') {
       foreach ($vars as $key => $value) {
         $temp = str_replace('{' . $key . '}', $value, $temp);
       }
     }
 
-    // Try to parse a markdown file into HTML
-    if (!empty($temp) && $parse_type === 'markdown') {
-      $pd = new \Parsedown();
-      $temp = $pd->text($temp);
+    // When the template is valid
+    if (!empty($temp)) {
+
+      // Try to parse a markdown file into HTML
+      if ($parse_type === 'markdown') {
+        $pd = new \Parsedown();
+        $temp = $pd->text($temp);
+      }
+
+      // Try to parse the Twig file
+      if ($parse_type === 'twig') {
+        $twig_path = pathinfo($filepath_or_string, PATHINFO_DIRNAME);
+        $twig_file = pathinfo($filepath_or_string, PATHINFO_BASENAME);
+        $twig_loader = new FilesystemLoader( $twig_path );
+        $twig = new Environment($twig_loader, []);
+        $temp = $twig->render($twig_file, is_array($vars) ? $vars : []);
+      }
+
     }
 
     // Give the parsed template to the content
     $this->_message = $temp;
 
-    return $this;
+    return $temp;
   } // parse
 
   /**
