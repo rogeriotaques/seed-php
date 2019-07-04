@@ -1,13 +1,14 @@
 {
   "name": "abtzco/seed-php",
   "description": "The stupidly easy to learn and use PHP microframework. ;)",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "type": "package",
   "keywords": [
     "php",
     "api",
     "framework",
     "microframework",
+    "twig",
     "parsedown",
     "mailgun",
     "pdo",
@@ -29,7 +30,8 @@
   "require-dev": {},
   "require": {
     "php": ">=5.6.0",
-    "erusev/parsedown": "^1.7"
+    "erusev/parsedown": "^1.7",
+    "twig/twig": "^2.0"
   },
   "autoload": {
     "files": [
