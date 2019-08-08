@@ -42,15 +42,28 @@ class Mailgun
   private $_timeout = 20;                           // Request timeout
 
   // The white list for emails address (if given, no other address will get messages dispatched)
-  // @since 1.3.0
+  // @since 1.1.0
   private $_whitelist = [];
 
   // The default email replacement (when given, all emails not in the white list will be replaced by this)
-  // @since 1.3.0
+  // @since 1.1.0
   private $_emailDefaultReplacement = null;
 
+  // Enable or disable trackings on Mailgun
+  // @since 1.3.0
+  private $_trackings = [];
+
+  // Sets a custom TAG to the message. Tags don't need to be set in advange on your account.
+  // @since 1.3.0
+  private $_tag = [];
+
+  // Sets a custom variables to the message. 
+  // These variables are stored on Mailgun alongside your message and returned within the webhook payloads.
+  // @since 1.3.0
+  private $_customVars = [];
+
   /**
-   * Since 1.4.0 this library is supporting wildcard for white-listed emails. Eg: *@example.com.
+   * Since 1.1.0 this library is supporting wildcard for white-listed emails. Eg: *@example.com.
    * @param string $addr
    * @return boolean
    */
@@ -99,7 +112,7 @@ class Mailgun
 
   /**
    * Return the list of recipients
-   * @since 1.3.0
+   * @since 1.1.0
    * @return array<string>
    */
   public function getRecipients()
@@ -109,7 +122,7 @@ class Mailgun
 
   /**
    * Sets the addresses whitelisted to dispatch messages for real.
-   * @since 1.3.0
+   * @since 1.1.0
    * @param array<string> $whitelist
    * @return Mailgun
    */
@@ -128,7 +141,7 @@ class Mailgun
    * Always it is provided, all emails from $this->_recipients are gonna be replaced by this address
    * unless they are also whitelisted at $this->_whitelist.
    *
-   * @since 1.3.0
+   * @since 1.1.0
    * @param string $email
    * @return Mailgun
    */
@@ -295,21 +308,29 @@ class Mailgun
    */
   public function parse($filepath_or_string, $vars = [], $parse_type = 'markdown', $template_type = 'file')
   {
-    $temp = $filepath_or_string; // Initially, template is understood as a string.
+    $temp    = $filepath_or_string; // Initially, template is understood as a string.
     $parsers = ['file', 'string', 'markdown', 'twig'];
+    $types   = ['file', 'string'];
 
+    // First argument must be a string
     if (!is_string($filepath_or_string)) {
       throw new \Exception('SeedPHP\Helper\Mailgun::parse : First argument is expected to be a string.');
     }
 
+    // Given parse type must be supported
     if (!in_array($parse_type, $parsers)) {
-      throw new \Exception('SeedPHP\Helper\Mailgun::parse : Given parse_type "' . $parse_type . '" is not allowed.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::parse : Given parse_type "' . $parse_type . '" is not supported.');
     }
-    
+
+    // Given template type must be supported
+    if (!in_array($template_type, $types)) {
+      throw new \Exception('SeedPHP\Helper\Mailgun::parse : Given template_type "' . $template_type . '" is not supported.');
+    }
+
     if ($template_type === 'file') {
       // Try to load the content from a template file
       $temp = @file_get_contents($filepath_or_string);
-      
+
       if ($temp === false) {
         throw new \Exception('SeedPHP\Helper\Mailgun::parse : Template file not found or file cannot be read.');
       }
@@ -334,14 +355,28 @@ class Mailgun
 
       // Try to parse the Twig file
       if ($parse_type === 'twig') {
-        $twig_path = pathinfo($filepath_or_string, PATHINFO_DIRNAME);
-        $twig_file = pathinfo($filepath_or_string, PATHINFO_BASENAME);
-        $twig_loader = new FilesystemLoader( $twig_path );
-        $twig = new Environment($twig_loader, []);
-        $temp = $twig->render($twig_file, is_array($vars) ? $vars : []);
-      }
 
-    }
+        if ($template_type === 'file') {
+          $twig_path = pathinfo($filepath_or_string, PATHINFO_DIRNAME);
+          $twig_file = pathinfo($filepath_or_string, PATHINFO_BASENAME);
+        } else {
+          $twig_path = pathinfo(__DIR__ . '/mailgun.twig', PATHINFO_DIRNAME);
+          $twig_file = pathinfo(__DIR__ . '/mailgun.twig', PATHINFO_BASENAME);
+        }
+
+        $twig_loader = new \Twig\Loader\FilesystemLoader( $twig_path );
+        $twig = new \Twig\Environment($twig_loader, []);
+
+        if ($template_type === 'string') {
+          $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
+          $vars['seed_php_mailgun_template'] = $temp;
+        }
+
+        $temp = $twig->render($twig_file, is_array($vars) ? $vars : []);
+
+      } // if ($parse_type === 'twig')
+
+    } // if (!empty($temp))
 
     // Give the parsed template to the content
     $this->_message = $temp;
@@ -362,19 +397,35 @@ class Mailgun
       'subject' => $this->_subject,
       'html' => $this->_message,
       'text' => strip_tags($this->_message),
-
-      // 'o:tracking'=>'yes',
-      // 'o:tracking-clicks'=>'yes',
-      // 'o:tracking-opens'=>'yes',
-      // 'o:tag'=>$tag,
     ];
+    
+    // Append trackings to data, eg:
+    // 'o:tracking' => 'yes'
+    // 'o:tracking-clicks' => 'yes'
+    // 'o:tracking-opens' => 'yes'
+    if (!empty($this->_trackings)) {
+      foreach ($this->_trackings as $key => $val) {
+        $data[ "o:{$key}" ] = $val;
+      }
+    }
 
-    $curl = curl_init($this->_apiBase . $this->_domain . '/messages');
+    if ( !empty($this->_tag) ) {
+      $data['o:tag'] = $this->_tag;
+    }
 
     // Add the reply-to address (@since 1.2.0)
     if ($this->_replyTo) {
       $data['h:Reply-To'] = $this->_replyTo;
     }
+
+    // Add the custom variables
+    if ( !empty($this->_customVars) ) {
+      foreach ($this->_customVars as $key => $val) {
+        $data[ "v:{$key}" ] = $val;
+      }
+    }
+
+    $curl = curl_init($this->_apiBase . $this->_domain . '/messages');
 
     // Add headers to the call, if any (@since 1.2.0)
     if (sizeof($this->_headers) > 0) {
@@ -527,5 +578,91 @@ class Mailgun
     }
 
     return $this;
-  }
+  } // setReplyTo
+
+  /**
+   * Instructs Mailgun to track or not track the message activities.
+   *
+   * @param boolean [$enable] Optional. Default to FALSE.
+   * @param boolean [$clicks] Optional. Default to TRUE. Ignored when $enable is FALSE.
+   * @param boolean [$opens]  Optional. Default to TRUE. Ignored when $enable is FALSE.
+   * @since 1.3.0
+   * @return Mailgun
+   */
+  public function setTracking($enable = false, $clicks = true, $opens = true) 
+  {
+    $enable = is_bool($enable) ? $enable : false;
+    $clicks = is_bool($clicks) ? $clicks : false;
+    $opens  = is_bool($opens) ? $opens : false;
+
+    if (!$enable) {
+      $this->_trackings = [];
+    } else {
+      $this->_trackings = [
+        'tracking' => 'yes'
+      ];
+
+      if ($clicks) {
+        $this->_trackings['tracking-clicks'] = 'yes';
+      }
+
+      if ($opens) {
+        $this->_trackings['tracking-opens'] = 'yes';
+      }
+    }
+    
+    return $this;
+
+  } // setTracking
+
+  /**
+   * Set a tag to be attached in the message.
+   *
+   * @param string  $tag      
+   * @param boolean [$reset]  Optional. Default to false
+   * @since 1.3.0
+   * @return Mailgun
+   */
+  public function setTag($tag = null, $reset = false) 
+  {
+
+    if ($reset) {
+      $this->_tag = [];
+    }
+
+    if (!empty($tag) && is_string($tag)) {
+      $this->_tag[] = $tag;
+    }
+
+    return $this;
+
+  } // setTag
+
+
+  /**
+   * Attach a custom variable which will be stored on Mailgun alongside the message and 
+   * returned within the payload when any webhook is called.
+   *
+   * @param string  $key 
+   * @param string  $val 
+   * @param boolean [$reset] Optional. Default to false
+   * @since 1.3.0
+   * @return Mailgun
+   */
+  public function setCustomVar($key, $val, $reset = false) 
+  {
+    
+    if ($reset) {
+      $this->_customVars = [];
+    }
+
+    if (!empty($key) && !empty($val) && is_string($key) && is_string($val)) {
+      $key = preg_replace('/\s+/', '-', $key);
+      $this->_customVars[ $key ] = $val;
+    }
+
+    return $this;
+
+  } // setCustomVar
+
 } // Mailgun

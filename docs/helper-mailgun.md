@@ -136,3 +136,21 @@ Clear all the recipients.
 #### setReplyTo( string<email> : required, string<name> : optional ) : \SeedPHP\Helper\Mailgun
 
 Sets the reply-to address.
+
+#### setTracking( boolean<enable> : optional, boolean<clicks> : optional, boolean<opens> : optional ) : \SeedPHP\Helper\Mailgun
+
+Instructs Mailgun to track or not track the message activities.
+
+When `enable` is set to false, the other arguments are ignored.
+
+#### setTag( string<tag> : required, boolean<reset> : optional) : \SeedPHP\Helper\Mailgun
+
+Set a tag to be attached in the message. Multiple tags are supported.
+
+When `reset` is set to true, the list of tags is cleared.
+
+#### setCustomVar( string<key> : required, string<val> : required, boolean<reset> : optional) : \SeedPHP\Helper\Mailgun
+
+Attach a custom variable (json style) which will be stored on Mailgun alongside the message and returned within the payload when any webhook is called. Multiple variables are supported.
+
+When `reset` is set to true, the list of tags is cleared.
