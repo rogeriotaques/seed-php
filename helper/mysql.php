@@ -5,7 +5,7 @@
  * @copyright Abtz Labs
  * @license MIT
  * @see http://github.com/abtzco/seed-php
- * @deprecated Since 1.0.0. Will be removed from 1.2.0, use SeedPHP\Helper\PDO instead. 
+ * @deprecated Since 1.0.0. Will be removed from 1.5.0, use SeedPHP\Helper\Database instead. 
  */
 
 namespace SeedPHP\Helper;
