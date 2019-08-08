@@ -88,13 +88,22 @@ Sets the message body to be sent.
 
 Sets the request timeout.
 
-#### parse( string<filepath_or_string> : required, array<vars> : optional, string<parse_type> : optional ) : string
+#### parse( string<filepath_or_string> : required, array<vars> : optional, string<parse_type> : optional, string<template_type> : optional ) : string
 
-Emails content can be gathered from template files or strings. 
+Parses the message content from templates, replacing whatever has been definied by `setMessage`. 
+The templates can be written in either `plain text`, `HTML`, `Markdown` or `Twig` syntaxes and can be loaded either from `files` or `strings`.
 
-The templates can be written in either `HTML`, `Markdown` or `Twig`. This replaces any content set via "setMessage".
+Supported parser types:
+- markdown (default)
+- file
+- string
+- twig (since version `1.2.0`)
 
-Returns the redered template.
+Supported template types: (since version `1.3.0`)
+- file (default)
+- string
+
+Returns the rendered template.
 
 #### send() : JSON
 

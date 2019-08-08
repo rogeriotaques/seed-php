@@ -80,7 +80,7 @@ class Mailgun
   function __construct($config = ['apiKey' => '', 'domain' => null, 'emailDefaultReplacement' => null, 'whitelist' => null])
   {
     if (empty($config['apiKey'])) {
-      throw new \Exception('Missing the API key. You can get it from your Mailgun account dashboard.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::construct : Missing the API key. You can get it from your Mailgun account dashboard.');
     }
 
     $this->_apiKey = $config['apiKey'];
@@ -161,7 +161,7 @@ class Mailgun
   public function setDomain($domain = '')
   {
     if (empty($domain)) {
-      throw new \Exception('Missing account domain.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::setDomain : Missing account domain.');
     }
 
     $this->_domain = $domain;
@@ -178,7 +178,7 @@ class Mailgun
   public function setFrom($email = '', $name = '')
   {
     if (empty($email) || empty($name)) {
-      throw new \Exception('Missing sender address or name.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::setFrom : Missing sender address or name.');
     }
 
     $email = preg_replace($this->_emailPattern, '', $email);
@@ -260,7 +260,7 @@ class Mailgun
   public function setMessage($string = '')
   {
     if (empty($string)) {
-      throw new \Exception('Message should not be empty.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::setMessage : Message should not be empty.');
     }
 
     $this->_message = $string;
@@ -276,7 +276,7 @@ class Mailgun
   public function setTimeout($seconds = 20)
   {
     if (empty($seconds) || !is_numeric($seconds)) {
-      throw new \Exception('Request timeout must not be empty and must be an integer.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::setTimeout : Request timeout must not be empty and must be an integer.');
     }
 
     $this->_timeout = $seconds;
@@ -287,28 +287,32 @@ class Mailgun
    * Emails content can be gathered from template files or strings. The templates can be written in
    * either HTML or Markdown. This replaces any content set via "setMessage".
    *
-   * @param string $filepath_or_string Either a template file path or template string.
-   * @param array $vars Array<Key => Value>. Replaces strings in the template. E.g: {THIS_IS_A_VAR}
-   * @param string $parse_type Possible "twig", markdown", "file" or "string" (when a string is given in the first argument).
+   * @param string  $filepath_or_string   Either a template file-path or template string.
+   * @param array   [$vars]               Optional. Default to []. Array<Key => Value>. Replaces strings in the template. E.g: {THIS_IS_A_VAR}.
+   * @param string  [$parse_type]         Optional. Default to "markdown". Accepts "twig", "markdown", "file" or "string".
+   * @param string  [$template_type]      Optional. Default to "file". Accepts "file" or "string" to define whether the template will be considered a file-path or a string.
    * @return string
    */
-  public function parse($filepath_or_string = '', $vars = [], $parse_type = 'markdown')
+  public function parse($filepath_or_string, $vars = [], $parse_type = 'markdown', $template_type = 'file')
   {
-    $temp = '';
+    $temp = $filepath_or_string; // Initially, template is understood as a string.
     $parsers = ['file', 'string', 'markdown', 'twig'];
 
+    if (!is_string($filepath_or_string)) {
+      throw new \Exception('SeedPHP\Helper\Mailgun::parse : First argument is expected to be a string.');
+    }
+
     if (!in_array($parse_type, $parsers)) {
-      throw new \Exception('Given parse type "' . $parse_type . '" is not allowed.');
+      throw new \Exception('SeedPHP\Helper\Mailgun::parse : Given parse_type "' . $parse_type . '" is not allowed.');
     }
-
-    // Try to load the content from a template file
-    if ($parse_type !== 'string' && file_exists($filepath_or_string)) {
-      $temp = file_get_contents($filepath_or_string);
-    }
-
-    // The template is given as string
-    else {
-      $temp = $filepath_or_string;
+    
+    if ($template_type === 'file') {
+      try {
+        // Try to load the content from a template file
+        $temp = file_get_contents($filepath_or_string);
+      } catch (\Throwable $th) {
+        throw new \Exception('SeedPHP\Helper\Mailgun::parse : Template file not found.');
+      }
     }
 
     // Replaces the variables in the template, if any.
