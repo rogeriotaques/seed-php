@@ -26,7 +26,7 @@ class Curl
   function __construct($url = '', $options = [], $returnType = '')
   {
     if (!function_exists('curl_init')) {
-      trigger_error('PHP was not built with --with-curl, rebuild PHP to use RCurl.');
+      trigger_error('SeedPHP\Helper\Curl::construct : PHP was not built with --with-curl, rebuild PHP to use RCurl.');
     }
 
     // define a public error object
