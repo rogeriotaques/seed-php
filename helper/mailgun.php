@@ -307,11 +307,11 @@ class Mailgun
     }
     
     if ($template_type === 'file') {
-      try {
-        // Try to load the content from a template file
-        $temp = file_get_contents($filepath_or_string);
-      } catch (\Throwable $th) {
-        throw new \Exception('SeedPHP\Helper\Mailgun::parse : Template file not found.');
+      // Try to load the content from a template file
+      $temp = @file_get_contents($filepath_or_string);
+      
+      if ($temp === false) {
+        throw new \Exception('SeedPHP\Helper\Mailgun::parse : Template file not found or file cannot be read.');
       }
     }
 
