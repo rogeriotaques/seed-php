@@ -176,9 +176,13 @@ class Database
       return $this;
     }
 
-    $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
-    self::$_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    self::$_attempts += 1;
+    try {
+      $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
+      self::$_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+      self::$_attempts += 1;
+    } catch (\PDOException $PDOE) {
+      throw new PDOException("SeedPHP\Helper\Database::connect : " . $PDOE->getMessage(), $PDOE->getCode());
+    }
 
     return $this;
   } // connect
@@ -215,11 +219,11 @@ class Database
   public function exec($query = '', array $values = null)
   {
     if (!is_object(self::$_resource)) {
-      throw new \Exception('Seed-PHP Database Helper: Exec : Cannot run this query, resource is missing!');
+      throw new \Exception('SeedPHP\Helper\Database::exec : Cannot run this query, resource is missing!');
     }
     
     if (!is_string($query) || empty($query)) {
-      throw new \Exception('Seed-PHP Database Helper: Exec : Query cannot be empty and must be a string!');
+      throw new \Exception('SeedPHP\Helper\Database::exec : Query cannot be empty and must be a string!');
     }
 
     // Prepare the statement to be executed, removing
@@ -235,7 +239,7 @@ class Database
         $stmt->execute($values);
       }
     } catch (\PDOException $PDOEx) {
-      throw new \Exception($PDOEx->getMessage(), $PDOEx->getCode());
+      throw new \Exception("SeedPHP\Helper\Database::exec : " . $PDOEx->getMessage(), $PDOEx->getCode());
     }
 
     $result = [];
@@ -303,15 +307,16 @@ class Database
    * @param string $table
    * @param array $data 
    * @return integer|boolean
+   * @throws Exception
    */
   public function insert($table = '', array $data = null)
   {
     if (!is_string($table) || empty($table)) {
-      throw new \Exception("Seed-PHP Database Helper : Insert : Invalid table name");
+      throw new \Exception("SeedPHP\Helper\Database::insert : Insert : Invalid table name");
     }
 
     if (empty($data)) {
-      throw new \Exception("Seed-PHP Database Helper : Insert : Data cannot be empty");
+      throw new \Exception("SeedPHP\Helper\Database::insert : Insert : Data cannot be empty");
     }
 
     $self = $this;
@@ -337,15 +342,16 @@ class Database
    * @param array $data 
    * @param array [$where] Optional. Default to null
    * @return integer|boolean
+   * @throws Exception
    */
   public function update($table = '', array $data = null, array $where = null)
   {
     if (!is_string($table) || empty($table)) {
-      throw new \Exception("Seed-PHP Database Helper : Update : Invalid table name");
+      throw new \Exception("SeedPHP\Helper\Database::update : Invalid table name");
     }
 
     if (empty($data)) {
-      throw new \Exception("Seed-PHP Database Helper : Update : Data cannot be empty");
+      throw new \Exception("SeedPHP\Helper\Database::update : Data cannot be empty");
     }
 
     $self = $this;
@@ -383,11 +389,12 @@ class Database
    * @param string $table 
    * @param array [$where] Optional. Default to null 
    * @return integer|boolean
+   * @throws Exception
    */
   public function delete($table = '', array $where = null)
   {
     if (!is_string($table) || empty($table)) {
-      throw new \Exception("Seed-PHP Database Helper : Update : Invalid table name");
+      throw new \Exception("SeedPHP\Helper\Database::delete : Invalid table name");
     }
 
     $self = $this;
