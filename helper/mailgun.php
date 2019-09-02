@@ -355,27 +355,36 @@ class Mailgun
 
       // Try to parse the Twig file
       if ($parse_type === 'twig') {
-
         if ($template_type === 'file') {
           $twig_path = pathinfo($filepath_or_string, PATHINFO_DIRNAME);
           $twig_file = pathinfo($filepath_or_string, PATHINFO_BASENAME);
         } else {
+          // If the template is not found, writes it down.
+          // For some unknown reason, sometimes when updating SeedPHP 
+          // via composer the "mailgun.twig" file is not created!
+          if ( !file_exists(__DIR__ . '/mailgun.twig') && is_writable(__DIR__ . '/') ) {
+            @file_put_contents(__DIR__ . '/mailgun.twig', '{{ include(template_from_string(seed_php_mailgun_template)) }}');
+          }
+
           $twig_path = pathinfo(__DIR__ . '/mailgun.twig', PATHINFO_DIRNAME);
           $twig_file = pathinfo(__DIR__ . '/mailgun.twig', PATHINFO_BASENAME);
         }
 
-        $twig_loader = new \Twig\Loader\FilesystemLoader( $twig_path );
-        $twig = new \Twig\Environment($twig_loader, []);
-
-        if ($template_type === 'string') {
-          $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
-          $vars['seed_php_mailgun_template'] = $temp;
+        try {
+          $twig_loader = new \Twig\Loader\FilesystemLoader( $twig_path );
+          $twig = new \Twig\Environment($twig_loader, []);
+  
+          if ($template_type === 'string') {
+            $twig->addExtension(new \Twig\Extension\StringLoaderExtension());
+            $vars['seed_php_mailgun_template'] = $temp;
+          }
+  
+          $temp = $twig->render($twig_file, is_array($vars) ? $vars : []);
+        } catch(Exception $TwigException) {
+          error_log("SeedPHP\\Helper\\Mailgun :: String Template File Not Found! Unable to parse.");
+          $temp = "Error: Email parsing has failed.";
         }
-
-        $temp = $twig->render($twig_file, is_array($vars) ? $vars : []);
-
       } // if ($parse_type === 'twig')
-
     } // if (!empty($temp))
 
     // Give the parsed template to the content
