@@ -1,9 +1,9 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
-## Package:
+## Core
 
-Package: `Core` <br >
-Namespace: `SeedPHP\Core`
+>Package: `Core` <br >
+>Namespace: `SeedPHP\Core`
 
 ## Methods
 

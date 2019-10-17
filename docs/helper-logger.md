@@ -1,9 +1,9 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
 ## Logger
 
-Package: `Helper\Logger` <br >
-Namespace: `SeedPHP\Helper\Logger`
+>Package: `Helper\Logger` <br >
+>Namespace: `SeedPHP\Helper\Logger`
 
 ```php
   $config = [

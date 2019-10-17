@@ -1,9 +1,9 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
 ## Curl
 
-Package: `Helper\Curl` <br >
-Namespace: `SeedPHP\Helper\Curl`
+>Package: `Helper\Curl` <br >
+>Namespace: `SeedPHP\Helper\Curl`
 
 ```php
   $app->load('curl');

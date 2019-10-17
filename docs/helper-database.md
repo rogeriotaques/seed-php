@@ -1,9 +1,9 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
 ## Database (aka PDO)
 
-Package: `Helper\Database` <br >
-Namespace: `SeedPHP\Helper\Database`
+>Package: `Helper\Database` <br >
+>Namespace: `SeedPHP\Helper\Database`
 
 ```php
   $config = [

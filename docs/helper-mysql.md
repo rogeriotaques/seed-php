@@ -1,10 +1,11 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
 ## MySQL
 
-`Deprecated`, will be removed from `v1.5.0`. Use `SeedPHP\Helper\Database` instead. <br >
-Package: `Helper\MySQL` <br >
-Namespace: `SeedPHP\Helper\MySQL`
+!>`Deprecated`, will be removed from `v1.5.0`. Use `SeedPHP\Helper\Database` instead.
+
+>Package: `Helper\MySQL` <br >
+>Namespace: `SeedPHP\Helper\MySQL`
 
 ```php
   $config = [

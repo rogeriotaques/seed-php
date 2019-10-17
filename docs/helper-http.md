@@ -1,9 +1,9 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
 ## Http
 
-Package: `Helper\Http` <br >
-Namespace: `SeedPHP\Helper\Http`
+>Package: `Helper\Http` <br >
+>Namespace: `SeedPHP\Helper\Http`
 
 ```php
   $app->load('http');

@@ -1,9 +1,9 @@
-# Seed-PHP Microframework Documentation
+# Seed-PHP Microframework
 
 ## Mailgun (Beta)
 
-Package: `Helper\Mailgun` <br >
-Namespace: `SeedPHP\Helper\Mailgun`
+>Package: `Helper\Mailgun` <br >
+>Namespace: `SeedPHP\Helper\Mailgun`
 
 ```php
   $config = [
