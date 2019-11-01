@@ -7,52 +7,122 @@
 
 ## Methods
 
-#### `static : getInstance() : \SeedPHP\App`
+---
 
-The most basic method, this should be the first called method
-after loading the package resources. The core engine app is a
-singleton. All you need to do is get its instance to be able
-to use it.
+### <span style="color: #42b983;">#</span> static : getInstance()
 
-#### `run() : \SeedPHP\App`
+> Keep in mind that this is a `static` method.
+
+The most basic method, this should be the first called method after loading the package resources. 
+The core engine app is a singleton. All you need to do is get its instance to be able to use it.
+
+##### Return
+
+- `SeedPHP\App`
+
+##### Example
+
+```php
+
+$app = \SeedPHP\App::getInstance();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> run()
 
 This is the last method you are gonna call.
 
-It is reponsible for do the 'magic' and make the engine start.
-After define all routes and settings you need for your tiny app,
-just call this method (it will be done pretty much at the bottom
-of your index file).
+It is reponsible for doing the 'magic' and starting the engine. After define all routes 
+and settings you need for your tiny app, just call this method (it will be done pretty 
+much at the bottom of your index file).
 
-#### `onFail( function : required ) : void`
+##### Return
 
-Hand over the error response. If this handler is not given,
-then Seed-PHP will return an error message in the chosen return format.
+- `SeedPHP\App`
 
-#### `header( string<header> : optional ) : string|boolean`
+##### Example
 
-Retrieve all headers from request.
+```php
 
-If a string is provided as parameter, then only the header
-that key matches the given string will be returned, or false,
+$app = \SeedPHP\App::getInstance();
+$app->run();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> onFail( callback )
+
+Hands over any error responses. If this handler is not given, then Seed-PHP will return 
+an error message in the chosen return format (JSON or XML). When rendering pages in the 
+server-side, then, this can be used for define the `404` or general error pages.
+
+##### Arguments
+
+- `{Function} callback: required`
+
+##### Return
+
+- `void`
+
+--- 
+
+### <span style="color: #42b983;">#</span> header( [header] )
+
+Retrieve all headers from request when argument is not given.
+
+If a string is provided as the argument, then only the header
+that the key matches the given string will be returned, or false 
 when not found.
 
-#### `post( string<key> : optional ) : string|array|boolean`
+##### Arguments
 
-Retrieve all posted data when requests uses a POST method.
+- `{String} header: optional`
 
-If a string is provided as parameter, then only the post data that
-key matches the given string will be returned, or false,
-when not found.
+##### Return
 
-#### `get( string<key> : optional ) : string|array|boolean`
+- `{String | Array | Boolean}`
+
+--- 
+
+### <span style="color: #42b983;">#</span> post( [key] )
+
+Retrieve all posted data when requests uses the `POST` method.
+
+If a string is provided as argument, then only the post data that
+the key matches the given string will be returned, or false when not found.
+
+##### Arguments
+
+- `{String} key: optional`
+
+##### Return
+
+- `{String | Array | Boolean}`
+
+--- 
+
+### <span style="color: #42b983;">#</span> get( [key] )
 
 Retrieve all data passed as query-string in a request.
 
-If a string is provided as parameter, then only the data that
-key matches the given string will be returned, or false,
+If a string is provided as argument, then only the data that
+the key matches the given string will be returned, or false 
 when not found.
 
-#### `file( string<key> : optional ) array|boolean`
+##### Arguments
+
+- `{String} key: optional`
+
+##### Return
+
+- `{String | Array | Boolean}`
+
+--- 
+
+### <span style="color: #42b983;">#</span> file( [key] )
 
 Retrieve all information about uploaded files.
 
@@ -60,11 +130,23 @@ If a string is provided as parameter, then only the file information
 that key matches the given string will be returned, or false,
 when not found.
 
-#### `files( string<key> : optional ) : array|boolean`
+##### Arguments
 
-An alias for `\SeedPHP\App()->file()`.
+- `{String} key: optional`
 
-#### `cookie( string<key> : optional ) : string|boolean`
+##### Return
+
+- `{Array | Boolean}`
+
+--- 
+
+### <span style="color: #42b983;">#</span> files( [key] )
+
+An alias for `\SeedPHP\App()->file([key])`.
+
+--- 
+
+### <span style="color: #42b983;">#</span> cookie( [key] )
 
 Retrieve all cookies from a request.
 
@@ -72,21 +154,50 @@ If a string is provided as parameter, then only the cookie that
 key matches the given string will be returned, or false,
 when not found.
 
-#### `put( string<key> : optional ) : string|array|boolean`
+##### Arguments
 
-Retrieve all data posted when request uses PUT method.
+- `{String} key: optional`
+
+##### Return
+
+- `{String | Boolean}`
+
+--- 
+
+### <span style="color: #42b983;">#</span> put( [key] )
+
+Retrieve all data posted when request uses `PUT` method.
 
 If a string is provided as parameter, then only the data that
 key matches the given string will be returned, or false,
 when not found.
 
-#### `request() : object`
+##### Arguments
+
+- `{String} key: optional`
+
+##### Return
+
+- `{String | Array | Boolean}`
+
+--- 
+
+### <span style="color: #42b983;">#</span> request()
 
 Returns an object which contains relevant information about
-the current request. E.g:
+the current request. 
+
+##### Return
+
+- `{Object}`
+
+##### Example:
+
+Call 
 
 `GET http://dev.seed-php/sample/anything/foo/bar`
 
+Response
 ```json
 {
   "base": "http://dev.seed-php/",
@@ -98,11 +209,28 @@ the current request. E.g:
 }
 ```
 
-#### `load( string<helper> : required, array<options> : optional, string<alias> : optional) : void`
+--- 
 
-Loads a helper and makes it available from the instance of `\SeedPHP\App()`. If an alias is given, the module will be accessed by the access name then.
+### <span style="color: #42b983;">#</span> load( helper, [options, alias])
+
+Loads a helper and makes it available from the instance of `\SeedPHP\App()`. If an alias is given, 
+the module will be accessed by the access name then.
+
+##### Arguments
+
+- `{String} helper: required`
+- `{Array} options: optional`
+- `{String} alias: optional`
+
+##### Return
+
+- `void`
+
+##### Example
 
 ```php
+global $config;
+
 $app->load('pdo', $config);
 
 $app->pdo->connect();
@@ -118,46 +246,84 @@ $app->db->exec('select 1');
 $app->db->disconnect();
 ```
 
-#### `route( string<route> : required, function<callback> : optional ) : void`
+--- 
 
-Creates the routing rules for the API. E.g:
+### <span style="color: #42b983;">#</span> route( route [, callback] )
 
-```php
-$app->route('GET /', function () {});
-```
+Creates the routing rules for the API, app or website.
 
-All following methods can be used by default, otherwise,
-the allowed methods list can be customized (see below):
+##### Arguments
 
-`GET, POST, PUT, DELETE, PATCH, OPTIONS`
+- `{String} route: required`
+- `{Function} callback: optional`
 
-You can define multiples methods at once, such as:
+##### Return
 
-```php
-$app->route('GET|POST /', function () {});
-```
+- `void`
 
-In case you don't provide a method, `GET` will be assumed.
+##### Example
 
 ```php
-// for this route, GET is assumed as default
-$app->route('/', function () {});
+
+# GET is assumed as default
+
+$app->route('/', function () {
+  // do something here ...
+});
+
+# OR
+
+$app->route('GET /', function () {
+  // do something here ...
+});
+
+# OR
+
+$app->route('GET|POST /', function () {
+  // do something here ...
+});
+
 ```
 
-#### `response( integer<code> : optional, array<data> : optional ) : json|xml|html`
+##### Supported HTTP methods
 
-Completes the routing process and returns the result to client's browser. The chosen format (`json` or `xml`) will be respected.
-The output format can be defined thru `::setOutputType`.
+- `GET`
+- `POST`
+- `PUT`
+- `DELETE`
+- `PATCH`
+- `OPTIONS`
+
+--- 
+
+### <span style="color: #42b983;">#</span> response( [code, data] )
+
+Completes the routing process and returns the result to client's browser. The chosen format (`JSON` or `XML`) will be respected. The output format can be defined thru `::setOutputType`.
 
 If code is not given, then `200` is assumed as default.
 
+##### Arguments
+
+- `{Integer} code: optional`
+- `{Array} data: optional`
+
+##### Return
+
+- `{ JSON | XML | HTML }`
+
+##### Example
+
 ```php
 $app->route('/', function () use ($app) {
-  $app->response(200, ['data' => ['foo' => 'bar']]);
+  return $app->response(Http::_OK, ['data' => ['foo' => 'bar']]);
 });
 ```
 
-Some properties from the returning object can be customized by the enduser. In order to customize those properties, use the following meta parameters as a query-string:
+Some properties from the returning object can be customized directly in the request call. 
+This is a particularly useful feature for integrations where the returning property needs 
+to have an specific name, originally not supported by Seed-PHP.
+
+In order to customize those properties, use the following meta parameters as a query-string:
 
 `GET http://dev.seed-php/sample/anything/foo/bar?_router_status=code&_router_message=str&_router_data=obj`
 
@@ -167,10 +333,23 @@ Some properties from the returning object can be customized by the enduser. In o
 | \_router_message | string | Changes the name of property `message`       |
 | \_router_data    | string | Changes the name of property `data` (if any) |
 
-#### `setAllowedMethod( string : required, boolean : optional ) : void`
+--- 
+
+### <span style="color: #42b983;">#</span> setAllowedMethod( method [, flag] )
 
 Allow custom methods to consume the API. When provinding the second
 parameter, the whole method list will be reseted.
+
+##### Arguments
+
+- `{String} string: required`
+- `{Boolean} exclusive: optional`
+
+##### Return
+
+- `void`
+
+##### Example
 
 ```php
 // allow the COPY method alongside the existing list
@@ -180,10 +359,23 @@ $app->setAllowedMethod( 'COPY' );
 $app->setAllowedMethod( 'GET', true );
 ```
 
-#### `setAllowedHeader( string<header> : required, boolean<reset> : optional ) : void`
+--- 
+
+### <span style="color: #42b983;">#</span> setAllowedHeader( header [, reset] )
 
 Allow a custom header to your API. When provinding the second
-parameter, the whole header list will be reseted.
+parameter, the whole header list will be reset.
+
+##### Arguments
+
+- `{String} header: required`
+- `{Boolean} reset: optional`
+
+##### Return
+
+- `void`
+
+##### Example
 
 ```php
 // allow the 'X-My-Custom-Header' header alongside the existing list
@@ -193,19 +385,46 @@ $app->setAllowedHeader( 'X-My-Custom-Header' );
 $app->setAllowedHeader( 'X-My-Custom-Header', true );
 ```
 
-#### `setAllowedOrigin( string : required ) : void`
+--- 
+
+### <span style="color: #42b983;">#</span> setAllowedOrigin( domain )
 
 Define the allowed origin to your API.<br>
 By default, Seed-PHP allows your API receive cross origin calls.
 
+##### Arguments
+
+- `{String} domain: required`
+
+##### Return
+
+- `void`
+
+##### Example
+
 ```php
+
 // allow ONLY domain.tld calls
 $app->setAllowedOrigin( 'domain.tld' );
+
 ```
 
-#### `setCache( boolean<flag> : required, integer<timestamp> : optional ) : void`
+--- 
+
+### <span style="color: #42b983;">#</span> setCache( flag [, timestamp] )
 
 Enables or disables the page caching meta tags. The second parameter refers to the `max-cache-age`. Cache is enabled by default with a max-age of 1 hour (3600 ms).
+
+##### Arguments
+
+- `{Boolean} flag: required`
+- `{Integer} timestamp: optional`
+
+##### Return
+
+- `void`
+
+##### Example
 
 ```php
 // disable cache
@@ -213,44 +432,91 @@ $app->setCache( false );
 
 // enable cache for 1 day (60 * 60 * 24) ms
 $app->setCache( true, 86400 );
+
 ```
 
-#### `setLanguage( string<lang> : required ) : void`
+--- 
 
-Changes the metatag content for page language. Default language is English (en).
+### <span style="color: #42b983;">#</span> setLanguage( lang )
+
+Changes the metatag content for page language. Default language is English (`en`).
+
+##### Arguments
+
+- `{String} lang: required`
+
+##### Return
+
+- `void`
+
+##### Example
 
 ```php
+
 // change language for Japanese.
 $app->setLanguage( 'ja' );
+
 ```
 
-#### `setCharset( string<charset> : required ) : void`
+--- 
 
-Changes the metatag content for page charset encoding. Default language is UTF-8.
+### <span style="color: #42b983;">#</span> setCharset( charset )
+
+Changes the metatag content for page charset encoding. Default language is `UTF-8`.
+
+##### Arguments
+
+- `{String} charset: required`
+
+##### Return
+
+- `void`
+
+##### Example
 
 ```php
+
 // change charset.
 $app->setCharset( 'utf8' );
+
 ```
 
-#### `setOutputType( string<type> : required ) : void`
+--- 
+
+### <span style="color: #42b983;">#</span> setOutputType( type )
 
 Customize the output format from the API. The default format is `JSON`, but you can also choose `XML` instead. Other formats are (yet) not supported.
 
+##### Arguments
+
+- `{String} type: required`
+
+##### Return
+
+- `void`
+
+##### Example
+
 ```php
+
 // set output format as json
 $app->setOutputType( 'json' );
 
 // set output format as xml
 $app->setOutputType( 'xml' );
+
 ```
+
+--- 
 
 ## Available Helpers
 
-| Helper Name | Remark                                                 |
-| ----------- | ------------------------------------------------------ |
-| curl        | A full featured cCurl class.                           |
-| logger      | A simple log class. Log data in a mysql database.      |
-| mysql       | A simple mysql wrapper. (Deprecated since v.1.0.0)     |
-| database    | A simple PDO wrapper.                                  |
-| http        | A http class helper for work with http response codes. |
+Helpers are built-in add-on libraries that supports specific features and/ or third-party services directly from Seed-PHP. Some of the helpers (such as `Mailgun`) requires you to have an account with the vendor.
+
+| Helper Name | Namespace      | Remark
+| ----------- | ----------- | -----------
+| [Curl](./helper-curl.md)          | `\SeedPHP\Helper\Curl` | A full featured cCurl class.                        |
+| [Database](./helper-database.md)  | `\SeedPHP\Helper\Database` | A PDO wrapper.                                      |
+| [Http](./helper-http.md)          | `\SeedPHP\Helper\Http` | A helper for working with http responses codes.     |
+| [Logger](./helper-logger.md)      | `\SeedPHP\Helper\Logger` | A simple log class. Log data into a mysql database. |
+| [Mysql](./helper-mysql.md)        | `\SeedPHP\Helper\Mysql` | A MySQL wrapper. ( `Deprecated since v.1.5.0` )         |

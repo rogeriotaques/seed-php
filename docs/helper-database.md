@@ -5,91 +5,352 @@
 >Package: `Helper\Database` <br >
 >Namespace: `SeedPHP\Helper\Database`
 
+A simple, yet powerful and intuitive wrapper to work with database queries.
+
+#### Example
+
 ```php
   $config = [
     'base' => 'test',
-    'user' => 'your-user',
-    'pass' => 'your-pass'
+    'user' => 'REPLACE-WITH-YOUR-USER',
+    'pass' => 'REPLACE-WITH-YOUR-PASSWORD'
   ];
 
   $app->load('database', $config, 'db');
-  $res = $app->db->connect();
-  $res = $app->db->exec( '...' );
-  $res = $app->db->disconnect();
+
+  $app->db->connect();
+
+  $app->db->transaction('begin');
+  
+  try {
+    $res = $app->db->exec( '...' );
+    // ...
+
+    $app->db->transaction('commit');
+  } catch (Exception $PDOE) {
+    $app->db->transaction('rollback');
+  }
+  
+  $app->db->disconnect();
 ```
 
-Gives you a simple, but powerful, wrapper to work with database queries.
+---
 
-#### `setHost( string<host> : required, string<port> : optional, string<charset> : optional ) : \SeedPHP\Helper\Database`
+### <span style="color: #42b983;">#</span> setHost( host [, port, charset] )
 
 Set the database host address and returns itself. Default is `localhost`.
 
-#### `setPort( string : required ) : \SeedPHP\Helper\Database`
+##### Arguments
+
+- `{String} host: required`
+- `{String} port: optional`
+- `{String} charset: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> setPort( port )
 
 Set the database access port and returns itself. Default is `3306`.
 
-#### `setCredential( string<user> : required, string<pass> : required ) : \SeedPHP\Helper\Database`
+##### Arguments
+
+- `{String} port: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> setCredential( user, password )
 
 Set the database creedentials (user and password) and returns itself.
 
-#### `setDatabase( string<database> : required ) : \SeedPHP\Helper\Database`
+##### Arguments
+
+- `{String} user: required`
+- `{String} password: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> setDatabase( database )
 
 Set the database name and returns itself. Default is `test`.
 
-#### `setCharset( string<charset> : required ) : \SeedPHP\Helper\Database`
+##### Arguments
+
+- `{String} database: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> setCharset( charset )
 
 Set the database charset and returns itself. Default is `utf8`.
 
-#### `connect() : \SeedPHP\Helper\Database`
+##### Arguments
 
-Connects the page with the \SeedPHP\Helper\Database server and returns itself. If a connection already exist, will increase the connections count and do not attempt to connect again.
+- `{String} charset: required`
 
-#### `disconnect() : \SeedPHP\Helper\Database`
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> connect()
+
+Connects the app with the Database server and returns itself. If a connection already exist, will increase the connections count and do not attempt to connect again.
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+##### Throws
+
+- `\PDOException`
+
+---
+
+### <span style="color: #42b983;">#</span> disconnect()
 
 Closes a connection to the database. If multiple connexions have been attempted, then this will decrease the connections counter and only disconnect when the counter reaches zero.
 
-#### `exec( string<query> : required, array<values> : optional ) : \SeedPHP\Helper\Database`
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> exec( query [, values] )
 
 Execute a query statement and returns itself.
 
 When the second argument (`values`) is given, the SQL string should use placeholders (either `?` or named are supported) and the query will be prepared before executed.
 
-#### `insert( string<table> : required, array<data> : required ) : Variant`
+##### Arguments
 
-A shorthand for insert records into any table from connected database. Returns the number os affected records.
+- `{String} query: required`
+- `{Array} values: optional`
 
-#### `update( string<table> : required, array<data> : required, array<where> : optional ) : Variant`
+##### Return
 
-A shorthand for update records into any table from connected database. Returns the number os affected records.
+- `\SeedPHP\Helper\Database`
 
-#### `delete( string<table> : required, array<where> : optional ) : Variant`
+##### Throws
 
-A shorthand for delete records from any table from connected database. Returns the number os affected records.
+- `\ErrorException`
+- `\PDOException`
 
-#### `insertedId() : integer`
+##### Example
+
+```php
+global $config;
+
+$app->load('database', $config, 'db');
+$app->db->connect();
+
+// Using question-mark (?) placeholders
+$res = $app->db->exec("select * from `test` where `id` = ?", [ 10 ]);
+
+// Or using named placeholders
+$res = $app->db->exec("select * from `test` where `id` = :id", [ 'id' => 10 ]);
+
+$app->db->disconnect();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> insert( table_name, data )
+
+A shorthand for inserting records into any table of a connected database. It returns the number of affected records.
+
+##### Arguments
+
+- `{String} table_name: required`
+- `{Array} data: required`
+
+##### Return
+
+- `{ Integer | False }`
+
+##### Throws
+
+- `\ErrorException`
+- `\PDOException`
+
+##### Example
+
+```php
+global $config;
+
+$app->load('database', $config, 'db');
+$app->db->connect();
+$app->db->insert("test", [ "foo" => "bar" ]);
+$app->db->disconnect();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> update( table_name, data [, where] )
+
+A shorthand for updating records from any table of a connected database. It returns the number of affected records.
+
+##### Arguments
+
+- `{String} table_name: required`
+- `{Array} data: required`
+- `{Array} where: optional`
+
+##### Return
+
+- `{ Integer | False }`
+
+##### Throws
+
+- `\ErrorException`
+- `\PDOException`
+
+##### Example
+
+```php
+global $config;
+
+$app->load('database', $config, 'db');
+$app->db->connect();
+$app->db->update("test", [ "foo" => "rocket" ], [ "id" => 10 ]);
+$app->db->disconnect();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> delete( table_name [, where] )
+
+A shorthand for deleting records from any table of a connected database. Returns the number of affected records.
+
+##### Arguments
+
+- `{String} table_name: required`
+- `{Array} where: optional`
+
+##### Return
+
+- `{ Integer | False }`
+
+##### Throws
+
+- `\ErrorException`
+- `\PDOException`
+
+##### Example
+
+```php
+
+$app->db->connect();
+$app->db->delete("test", [ "id" => 10 ]);
+$app->db->disconnect();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> insertedId()
 
 Returns the last inserted ID.
 
-#### `resultCount() : integer`
+##### Return
 
-Returns the last result count. If ran after any statement other than a `select`, it will return zero.
+- `{ Integer }`
 
-#### `getLink() : \PDOConnectionObject`
-
-Returns the existing \PDOConnectionObject or NULL when there's no connection.
-
-#### `transaction( string<status> : required ) : \SeedPHP\Helper\Database`
-
-Manage transactions within the connected databases. The expectes values to be given as `status` are: `begin`, `commit` or `rollback`. Default to begin.
-
-Chained transactions are supported.
-
-Code example:
+##### Example
 
 ```php
-// ...
-// Assuming database helper is loaded to 'db' constant
+global $config;
 
+$app->load('database', $config, 'db');
+$app->db->connect();
+$affected_rows = $app->db->insert("test", [ "foo" => "bar" ]);
+$last_inserted_id = $app->db->insertedId();
+$app->db->disconnect();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> resultCount()
+
+Returns the last result count. 
+
+> If called after any statement other than a `select`, it will return `zero`.
+
+##### Return
+
+- `{ Integer }`
+
+##### Example
+
+```php
+global $config;
+
+$app->load('database', $config, 'db');
+$app->db->connect();
+
+$res = $app->db->exec("insert into `test` (`id`) values ('10')");
+$counter = $app->db->resultCount(); // Returns 0
+
+$res = $app->db->exec("select * from `test` where `id` = ?", [ 10 ]);
+$counter = $app->db->resultCount(); // Returns 1 ...
+
+$app->db->disconnect();
+
+```
+
+---
+
+### <span style="color: #42b983;">#</span> getLink() : \PDOConnectionObject`
+
+Returns the existing `PDOConnectionObject` or `NULL` when there's no stablished connection.
+
+##### Return
+
+- `\PDOConnectionObject`
+
+---
+
+### <span style="color: #42b983;">#</span> transaction( status )
+
+Start, commit and rollback transactions within the connected database. 
+
+> Chained transactions are supported.
+
+##### Arguments
+
+- `{String} status: required` ( either `begin`, `commit` or `rollback`)
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+##### Example:
+
+```php
+global $config;
+
+$app->load('database', $config, 'db');
 $app->db->connect();
 
 $app->db->transaction('begin');

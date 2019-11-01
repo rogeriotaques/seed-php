@@ -2,14 +2,27 @@
 # SeedPHP
 # © 2018, Abtz Labs. By Rogerio Taques.
 
+<FilesMatch "^(\.|\_)">
+    # Deny access to filenames starting 
+    # with dot(.) or underline(_)
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch ".(yml|yaml|log|sh)$">
+    # Deny access to filenames with 
+    # especific extensions
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    #RewriteBase /
-
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
-# Replace "development" for "production" or "sandbox" when it goes online.
+# Replace "development" for "production" when it goes online.
+# or choose to use .env files instead (recommended).
 SetEnv ENV development

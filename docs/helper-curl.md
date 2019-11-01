@@ -1,64 +1,211 @@
 # Seed-PHP Microframework
 
-## Curl
+## cUrl
 
 >Package: `Helper\Curl` <br >
 >Namespace: `SeedPHP\Helper\Curl`
+
+Gives you a simple wrapper to work with curl calls. <br>
+An usefull way to make your API consumes third party APIs on background.
+
+#### Example
 
 ```php
   $app->load('curl');
   $res = $app->curl->get( 'http://...' );
 ```
 
-Gives you a simple wrapper to work with curl calls. <br>
-An usefull way to make your API consumes third party APIs on background.
+---
 
-#### `create( string<url> : required, array<options> : optional, string<returnType> : optional ) : \SeedPHP\Helper\Curl`
+### <span style="color: #42b983;">#</span> create( url [, options, returnType] )
 
 Resets and points the Curl to a new URL.
 
-#### `data( array<options> : required ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} url: required`
+- `{Array} options: optional`
+- `{String} returnType: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> data( options )
 
 Appends a data object to the call.
 
-#### `option( string<code> : required, string<value> : required ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{Array} options: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> option( key, value )
 
 Allows to add new custom options.
 
-#### `proxy( string<url> : required, string<username> : required, string<password> : required ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} key: required`
+- `{String} value: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> proxy( url, username, password)
 
 Whenever your network goes thru proxy, you should provide it here.
 
-#### `cookies( array<params> : required ) : \SeedPHP\Helper\Curl`
+##### Arguments
 
-#### `credential( string<username> : required, string<password> : required ) : \SeedPHP\Helper\Curl`
+- `{String} url: required`
+- `{String} username: required`
+- `{String} password: required`
 
-Set credentials for your endpoint authentication
+##### Return
 
-#### `header( string<header> : required ) : \SeedPHP\Helper\Curl`
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> cookies( params )
+
+Set cookies for the call.
+
+##### Arguments
+
+- `{Array} params: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> credential( username, password )
+
+Set credentials for your endpoint authentication.
+
+##### Arguments
+
+- `{String} username: required`
+- `{String} password: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> header( header )
 
 Allows you to add additional headers to the call.
 
-#### `get( string<url> : optional, array<options> : optional ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} header: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> get( [url, options] )
 
 Performs a GET call
 
-#### `post( string<url> : optional, array<options> : optional ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} url: optional`
+- `{Array} options: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> post( [url, options] )
 
 Performs a POST call.
 
-#### `put( string<url> : optional, array<options> : optional ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} url: optional`
+- `{Array} options: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> put( [url, options] )
 
 Performs a PUT call.
 
-#### `update( string<url> : optional, array<options> : optional ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} url: optional`
+- `{Array} options: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> update( [url, options] )
 
 Performs an UPDATE call.
 
-#### `delete( string<url> : optional, array<options> : optional ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} url: optional`
+- `{Array} options: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> delete( [url, options] )
 
 Performs a DELETE call.
 
-#### `run( string<method> : required, string<url> : required, array<options> : optional ) : \SeedPHP\Helper\Curl`
+##### Arguments
+
+- `{String} url: optional`
+- `{Array} options: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`
+
+---
+
+### <span style="color: #42b983;">#</span> run( method, url [, options] )
 
 Performs a general call.
+
+##### Arguments
+
+- `{String} method: optional`
+- `{String} url: required`
+- `{Array} options: optional`
+
+##### Return
+
+- `\SeedPHP\Helper\Curl`

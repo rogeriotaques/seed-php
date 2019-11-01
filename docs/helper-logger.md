@@ -5,6 +5,8 @@
 >Package: `Helper\Logger` <br >
 >Namespace: `SeedPHP\Helper\Logger`
 
+A simple (yet versatile) solution to write down logs to the database.
+
 ```php
   $config = [
     'base' => 'test',
@@ -16,13 +18,21 @@
   $app->logger->log();
 ```
 
-Gives you a simple solution to write down logs in the database.
+---
 
-#### `Logger()->table( string<table> : required ) : Logger`
+### <span style="color: #42b983;">#</span> table( table_name )
 
-Defines the table name to write the logs. Default table name is `log_usage`.
+Defines the table to write the logs. Default table name is `log_usage`.
 
-Table should have this structure:
+##### Arguments
+
+- `{String} table_name: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+##### Table Structure
 
 ```sql
 CREATE TABLE `log_usage` (
@@ -39,34 +49,110 @@ CREATE TABLE `log_usage` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
 
-#### `Logger()->endpoint( string<path> : required ) : Logger`
+---
+
+### <span style="color: #42b983;">#</span> endpoint( path )
 
 Set values for `endpoint` field.
 
-#### `Logger()->resource( string<value> : required ) : Logger`
+##### Arguments
+
+- `{String} path: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> resource( value )
 
 Set values for `resource` field.
 
-#### `Logger()->requestIP( string<ip> : required ) : Logger`
+##### Arguments
+
+- `{String} value: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> requestIP( ip )
 
 Set values for `requestIP` field.
 
-#### `Logger()->requestHeader( array<header> : required ) : Logger`
+##### Arguments
+
+- `{String} ip: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> requestHeader( header )
 
 Set values for `requestHeader` field.
 
-#### `Logger()->requestData( array<data> : required ) : Logger`
+##### Arguments
+
+- `{Array} header: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> requestData( data )
 
 Set values for `requestData` field.
 
-#### `Logger()->responseData( array<data> : required ) : Logger`
+##### Arguments
+
+- `{Array} data: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> responseData( data )
 
 Set values for `responseData` field.
 
-#### `Logger()->responseCode( string<code> : required ) : Logger`
+##### Arguments
+
+- `{Array} data: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> responseCode( code )
 
 Set values for `responseCode` field.
 
-#### `Logger()->log() : Boolean`
+##### Arguments
+
+- `{String} code: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Logger`
+
+---
+
+### <span style="color: #42b983;">#</span> log()
 
 Writes the log in the database table.
+
+##### Return
+
+- `{ Boolean }`
