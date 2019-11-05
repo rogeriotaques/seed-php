@@ -2,6 +2,8 @@
 
 > The stupidly easy to learn and use PHP microframework!
 
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/AbtzLabs/seed-php?label=Version)
+
 A `microframework` is a term used to refer to minimalistic web
 application frameworks. It lacks most of the functionality which
 is common to expect in a full-fledged web application framework.
