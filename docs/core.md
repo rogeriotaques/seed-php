@@ -342,7 +342,7 @@ parameter, the whole method list will be reseted.
 
 ##### Arguments
 
-- `{String} string: required`
+- `{String|Array<String>} method: required`
 - `{Boolean} exclusive: optional`
 
 ##### Return
@@ -368,7 +368,7 @@ parameter, the whole header list will be reset.
 
 ##### Arguments
 
-- `{String} header: required`
+- `{String|Array<String>} header: required`
 - `{Boolean} reset: optional`
 
 ##### Return
@@ -504,6 +504,127 @@ $app->setOutputType( 'json' );
 
 // set output format as xml
 $app->setOutputType( 'xml' );
+
+```
+
+--- 
+
+### <span style="color: #42b983;">#</span> setCustomPropertyStatus( name )
+
+Defines a custom property name to return the response http code.
+
+##### Arguments
+
+- `{String} name: required`
+
+##### Return
+
+- `void`
+
+##### Example
+
+```php
+
+// change from status to code
+$app->setCustomPropertyStatus( 'code' );
+
+```
+
+--- 
+
+### <span style="color: #42b983;">#</span> setCustomPropertyMessage( name )
+
+Defines a custom property name to return the response message.
+
+##### Arguments
+
+- `{String} name: required`
+
+##### Return
+
+- `void`
+
+##### Example
+
+```php
+
+// change from message to foo
+$app->setCustomPropertyMessage( 'foo' );
+
+```
+
+--- 
+
+### <span style="color: #42b983;">#</span> setCustomPropertyData( name )
+
+Defines a custom property name to return the error status.
+
+##### Arguments
+
+- `{String} name: required`
+
+##### Return
+
+- `void`
+
+##### Example
+
+```php
+
+// change from data to bar
+$app->setCustomPropertyData( 'bar' );
+
+```
+
+--- 
+
+### <span style="color: #42b983;">#</span> setCustomPropertyError( name )
+
+Defines a custom property name to return the error status.
+
+##### Arguments
+
+- `{String} name: required`
+
+##### Return
+
+- `void`
+
+##### Example
+
+```php
+
+// change from error to fail
+$app->setCustomPropertyError( 'fail' );
+
+```
+
+--- 
+
+### <span style="color: #42b983;">#</span> setAdditionalResponseProperty( key [, value, reset] )
+
+Append global additional properties to be returned alongside any response by default. Always the `reset` argument is true, it resets the existing list of additional properties.
+
+##### Arguments
+
+- `{String} key: required`
+- `{String|Integer|Boolean|Function} value: optional`
+- `{Boolean} reset: optional`
+
+##### Return
+
+- `void`
+
+##### Example
+
+```php
+
+$app->setAdditionalResponseProperty( 'version', '1.0.0', true );
+
+// it also supports chained definitions 
+$app
+    ->setAdditionalResponseProperty( 'version', '1.0.0' )
+    ->setAdditionalResponseProperty( 'phase', 'beta' );
 
 ```
 

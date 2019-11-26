@@ -1,6 +1,6 @@
 <?php
 
-/** 
+/**
  * Seed-PHP Microframework.
  * @copyright Abtz Labs
  * @license MIT
@@ -13,143 +13,176 @@ use SeedPHP\Helper\Http;
 
 class Router
 {
-  // request method
-  protected $_method = 'GET';
+    /**
+     * @var string request method
+     * @see $_allowed_methods
+     */
+    protected $_method = 'GET';
 
-  // app routes
-  protected $_routes = [];
+    /** @var array  app routes */
+    protected $_routes = [];
 
-  // app allowed methods
-  protected $_allowed_methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'];
+    /** @var array<string> app allowed methods */
+    protected $_allowed_methods = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'];
 
-  // app allowed headers
-  protected $_allowed_headers = ['Origin', 'Content-Type', 'X-Requested-With'];
+    /** @var array<string> app allowed headers */
+    protected $_allowed_headers = ['Origin', 'Content-Type', 'X-Requested-With'];
 
-  // app allowed headers
-  protected $_allowed_origin = '*';
+    /** @var string app allowed origin */
+    protected $_allowed_origin = '*';
 
-  // app page cache
-  protected $_cache = true;
+    /** @var boolean app page cache */
+    protected $_cache = true;
 
-  // app page cache max age
-  protected $_cache_max_age = 3600; // default is one hour
+    /** @var integer app page cache max age */
+    protected $_cache_max_age = 3600; // default is one hour
 
-  // app page language
-  protected $_language = 'en'; // english
+    /** @var string app page language */
+    protected $_language = 'en'; // english
 
-  // app page charset
-  protected $_charset = 'utf8';
+    /** @var string app page charset */
+    protected $_charset = 'utf8';
 
-  // requested uri
-  protected $_uri = '';
+    /** @var string requested url */
+    protected $_uri = '';
 
-  // define the default output type
-  protected $_output_type = 'json';
+    /** @var string define the default output type */
+    protected $_output_type = 'json';
 
-  // the callback for when an error is held
-  private $_error_handler = false;
+    /** @var false|function the callback for when an error is held */
+    private $_error_handler = false;
 
-  // ~~~ PUBLIC ~~~
+    /** @var string name for the response status property */
+    private $_response_property_status = 'status';
 
-  public function route($route = 'GET /', $callback = false)
-  {
-    $method = ['GET'];
+    /** @var string name for the response message property */
+    private $_response_property_message = 'message';
 
-    if (strpos($route, ' ') !== false) {
-      list($method, $route) = explode(' ', $route);
-      $method = explode('|', $method);
-    }
+    /** @var string name for the response data property */
+    private $_response_property_data = 'data';
 
-    foreach ($method as $m) {
-      // is there a route set for given method?
-      if (!isset($this->_routes[$m])) {
-        $this->_routes[$m] = [];
-      }
+    /** @var string name for the response error property */
+    private $_response_property_error = 'error';
 
-      // NOTE:
-      //  Coz unicorn exists, this url sanitization was placed here!
-      //  Damn, it was breaking the routing system for multiples methods and that's why it is commented now!
-      // sanitize the regular expression
-      // $route = str_replace(['/', '.', '@'], ['\/', '\.', '\@'], $route);
+    /** @var array<key => value> additional properties to be returned alognside default properties in a response */
+    private $_additional_response_properties = [];
 
-      // add new route
-      $this->_routes[$m][] = (object)[
-        'uri' => $route,
-        'callback' => $callback
-      ];
-    }
+    // ~~~ PUBLIC ~~~
 
-    // make it chainable
-    return $this;
-  } // route
+    /**
+     * Set routes for the app.
+     *
+     * @param string $route
+     * @param boolean $callback
+     * @return Router
+     */
+    public function route($route = 'GET /', $callback = false)
+    {
+        $method = ['GET'];
 
-  public function response($code = 200, $response = [], $output = null)
-  {
-    if (is_null($output)) {
-      $output = $this->_output_type;
-    }
+        if (strpos($route, ' ') !== false) {
+            list($method, $route) = explode(' ', $route);
+            $method = explode('|', $method);
+        }
 
-    // identify the  http status code
-    $status = Http::getHTTPStatus($code);
+        foreach ($method as $m) {
+            // is there a route set for given method?
+            if (!isset($this->_routes[$m])) {
+                $this->_routes[$m] = [];
+            }
 
-    $result = [
-      'status' => $status['code'],
-      'message' => $status['message']
-    ];
+            // NOTE:
+            //  Coz unicorn exists, this url sanitization was placed here!
+            //  Damn, it was breaking the routing system for multiples methods and that's why it is commented now!
+            // sanitize the regular expression
+            // $route = str_replace(['/', '.', '@'], ['\/', '\.', '\@'], $route);
 
-    // if it's an error merge with error data
-    if ($code >= Http::_BAD_REQUEST) {
-      $result['error'] = true;
-    }
+            // add new route
+            $this->_routes[$m][] = (object)[
+                'uri' => $route,
+                'callback' => $callback
+            ];
+        }
 
-    // $response should be an array. Whenever it isn't, try to convert it.
-    // If impossible to convert, just ignores it.
-    if (is_object($response)) {
-      $response = (array)$response;
-    } elseif (is_string($response)) {
-      $response = [$response];
-    } elseif (!is_array($response)) {
-      $response = [];
-    }
+        // make it chainable
+        return $this;
+    } // route
 
-    // merge response and result
-    $result = array_merge($result, $response);
+    /**
+     * Complete the flow and send a response to the browser.
+     *
+     * @param integer $code
+     * @param array $response
+     * @param [string] $output either json or xml
+     * @return json|xml strings
+     */
+    public function response($code = 200, $response = [], $output = null)
+    {
+        if (is_null($output)) {
+            $output = $this->_output_type;
+        }
 
-    // allow enduser to customize the return structure for status
-    if (isset($_GET['_router_status']) && !empty($_GET['_router_status'])) {
-      if (isset($result['status'])) {
-        $result[$_GET['_router_status']] = $result['status'];
-        unset($result['status']);
-      }
-    }
+        // identify the  http status code
+        $status = Http::getHTTPStatus($code);
 
-    // allow enduser to customize the return structure for message
-    if (isset($_GET['_router_message']) && !empty($_GET['_router_message'])) {
-      if (isset($result['message'])) {
-        $result[$_GET['_router_message']] = $result['message'];
-        unset($result['message']);
-      }
-    }
+        $result = [
+            "{$this->_response_property_status}"  => $status['code'], // aka code
+            "{$this->_response_property_message}" => $status['message']
+        ];
 
-    // allow enduser to customize the return structure for data
-    if (isset($_GET['_router_data']) && !empty($_GET['_router_data'])) {
-      if (isset($result['data'])) {
-        $result[$_GET['_router_data']] = $result['data'];
-        unset($result['data']);
-      }
-    }
+        // if it's an error merge with error data
+        if ($code >= Http::_BAD_REQUEST) {
+            $result[ $this->_response_property_error ] = true;
+        }
 
-    // is output required?
-    if ($output !== false) {
-      header("{$status['protocol']} {$status['code']} {$status['message']}");
+        // $response should be an array. Whenever it isn't, try to convert it.
+        // If impossible to convert, just ignores it.
+        if (is_object($response)) {
+            $response = (array) $response;
+        } elseif (is_string($response)) {
+            $response = [ $response ];
+        } elseif (!is_array($response)) {
+            $response = [];
+        }
 
-      if ($this->_cache === true) {
-        header('ETag: ' . md5(!is_string($result) ? json_encode($result) : $result)); // this help on caching
-      }
-    }
+        // merge response and result
+        $result = array_merge($result, $this->_additional_response_properties, $response);
 
-    // what kind of output is expected?
-    switch (strtolower($output)) {
+        // allow enduser to customize the return structure for status
+        if (isset($_GET['_router_status']) && !empty($_GET['_router_status'])) {
+            if (isset($result[ $this->_response_property_status ])) {
+                $result[$_GET['_router_status']] = $result[ $this->_response_property_status ];
+                unset($result[ $this->_response_property_status ]);
+            }
+        }
+
+        // allow enduser to customize the return structure for message
+        if (isset($_GET['_router_message']) && !empty($_GET['_router_message'])) {
+            if (isset($result[ $this->_response_property_message ])) {
+                $result[$_GET['_router_message']] = $result[ $this->_response_property_message ];
+                unset($result[ $this->_response_property_message ]);
+            }
+        }
+
+        // allow enduser to customize the return structure for data
+        if (isset($_GET['_router_data']) && !empty($_GET['_router_data'])) {
+            if (isset($result[ $this->_response_property_data ])) {
+                $result[$_GET['_router_data']] = $result[ $this->_response_property_data ];
+                unset($result[ $this->_response_property_data ]);
+            }
+        }
+
+        // is output required?
+        if ($output !== false) {
+            header("{$status['protocol']} {$status['code']} {$status['message']}");
+
+            if ($this->_cache === true) {
+                header('ETag: ' . md5(!is_string($result) ? json_encode($result) : $result)); // this help on caching
+            }
+        }
+
+        // what kind of output is expected?
+        switch (strtolower($output)) {
       case 'xml':
         header("Content-Type: application/xml");
 
@@ -177,189 +210,335 @@ class Router
         // do nothing. do not output, just return it.
     }
 
-    // return as object the response
-    return $result;
-  } // response
+        // return as object the response
+        return $result;
+    } // response
 
-  public function setAllowedMethod($method = '', $merge = true)
-  {
-    if (!empty($method)) {
-      if (!$merge) {
-        $this->_allowed_methods = [];
-      }
+    /**
+     * Set an allowed method.
+     *
+     * @param string|array<string> $method
+     * @param boolean $merge when true, resets the list of allowed methods
+     * @return Router
+     */
+    public function setAllowedMethod($method = '', $merge = true)
+    {
+        if (!empty($method)) {
+            if (!$merge) {
+                $this->_allowed_methods = [];
+            }
 
-      if (is_array($method)) {
-        $this->_allowed_methods = array_merge($this->_allowed_methods, $method);
-      } else {
-        $this->_allowed_methods[] = $method;
-      }
-    }
-
-    return $this;
-  } // setAllowedMethod
-
-  public function setAllowedHeader($header = '', $merge = true)
-  {
-    if (!empty($header)) {
-      if (!$merge) {
-        $this->_allowed_headers = [];
-      }
-
-      if (is_array($header)) {
-        $this->_allowed_headers = array_merge($this->_allowed_headers, $header);
-      } else {
-        $this->_allowed_headers[] = $header;
-      }
-    }
-
-    return $this;
-  } // setAllowedHeader
-
-  public function setAllowedOrigin($origin = '')
-  {
-    if (!empty($origin)) {
-      $this->_allowed_origin = $origin;
-    }
-
-    return $this;
-  } // setAllowedOrigin
-
-  public function setCache($flag = true, $max_age = 3600)
-  {
-    $this->_cache = $flag;
-    $this->_cache_max_age = $max_age;
-    return $this;
-  } // setFlag
-
-  public function setLanguage($lang = 'en')
-  {
-    if (!empty($lang)) {
-      $this->_language = $lang;
-    }
-
-    return $this;
-  } // set Language
-
-  public function setCharset($charset = 'utf8')
-  {
-    if (!empty($charset)) {
-      $this->_charset = $charset;
-    }
-
-    return $this;
-  } // setCharset
-
-  public function setOutputType($type = 'json')
-  {
-    if (!empty($output)) {
-      $this->_output_type = $output;
-    }
-  } //setOutputType
-
-  public function onFail($callback = false)
-  {
-    if ($callback !== false && is_callable($callback)) {
-      $this->_error_handler = $callback;
-    }
-  } // onFail
-
-  // ~~~ PROTECTED ~~~
-
-  protected function dispatch($args = [])
-  {
-    $matches = [];
-    $matched_callback = false;
-
-    // echo "METHOD ", $this->_method, "<br />\n";
-
-    // is there a matching route?
-    if (isset($this->_routes[$this->_method])) {
-      // echo "Found routes for ", $this->_method, "\n";
-
-      foreach ($this->_routes[$this->_method] as $route) {
-        // echo $route->uri, ' ::: ', $this->_uri, "<br />\n";
-        if (@preg_match("@^{$route->uri}$@", $this->_uri, $matches)) {
-          // echo " -> MATCHED";
-          $matched_callback = $route->callback;
-          break;
+            if (is_array($method)) {
+                $this->_allowed_methods = array_merge($this->_allowed_methods, $method);
+            } else {
+                $this->_allowed_methods[] = $method;
+            }
         }
-        // echo "<br />\n";
-      }
-    }
 
-    // echo '<pre>', var_dump($matches), '</pre><br >', "\n";
-    // die;
+        return $this;
+    } // setAllowedMethod
 
-    if (count($matches) === 0) {
-      if ($this->_error_handler === false) {
-        return $this->response(Http::_NOT_IMPLEMENTED);
-      } else {
-        return call_user_func($this->_error_handler, (object)Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
-      }
-    }
+    /**
+     * Set an allowed header.
+     *
+     * @param string|array<string> $header
+     * @param boolean $merge
+     * @return void
+     */
+    public function setAllowedHeader($header = '', $merge = true)
+    {
+        if (!empty($header)) {
+            if (!$merge) {
+                $this->_allowed_headers = [];
+            }
 
-    if ($matched_callback !== false && is_callable($matched_callback)) {
-      return call_user_func($matched_callback, $args);
-    }
+            if (is_array($header)) {
+                $this->_allowed_headers = array_merge($this->_allowed_headers, $header);
+            } else {
+                $this->_allowed_headers[] = $header;
+            }
+        }
 
-    return true;
-  } // dispatch
+        return $this;
+    } // setAllowedHeader
 
-  // ~~~ PRIVATE ~~~
+    /**
+     * Set an allowed origin. Usually a single origin.
+     *
+     * @param string $origin
+     * @return Router
+     */
+    public function setAllowedOrigin($origin = '')
+    {
+        if (!empty($origin)) {
+            $this->_allowed_origin = $origin;
+        }
 
-  private function json2xml(&$xml, $data)
-  {
+        return $this;
+    } // setAllowedOrigin
+
+    /**
+     * Define a custom cache setting.
+     *
+     * @param boolean $flag
+     * @param integer $max_age
+     * @return Router
+     */
+    public function setCache($flag = true, $max_age = 3600)
+    {
+        $this->_cache = $flag;
+        $this->_cache_max_age = $max_age;
+        return $this;
+    } // setFlag
+
+    /**
+     * Set a custom language. Defaults to 'en'.
+     *
+     * @param string $lang
+     * @return Router
+     */
+    public function setLanguage($lang = 'en')
+    {
+        if (!empty($lang)) {
+            $this->_language = $lang;
+        }
+
+        return $this;
+    } // set Language
+
+    /**
+     * Set a custom charset. Defaults to 'utf8'.
+     *
+     * @param string $charset
+     * @return Router
+     */
+    public function setCharset($charset = 'utf8')
+    {
+        if (!empty($charset)) {
+            $this->_charset = $charset;
+        }
+
+        return $this;
+    } // setCharset
+
+    /**
+     * Define what format the response will be given. Defaults to JSON.
+     *
+     * @param string $type
+     * @return Router
+     */
+    public function setOutputType($type = 'json')
+    {
+        if (!empty($type)) {
+            $this->_output_type = $type;
+        }
+
+        return $this;
+    } //setOutputType
+
+    /**
+     * Set a custom error handler.
+     *
+     * @param boolean $callback
+     * @return Router
+     */
+    public function onFail($callback = false)
+    {
+        if ($callback !== false && is_callable($callback)) {
+            $this->_error_handler = $callback;
+        }
+
+        return $this;
+    } // onFail
+
+    /**
+     * Defines a custom property name to return the response http code.
+     *
+     * @param string $name
+     * @return Router
+     */
+    public function setCustomPropertyStatus( $name = 'status' )
+    {
+        if (!empty($name)) {
+            $this->_response_property_status = $name;
+        }
+
+        return $this;
+    } // setCustomPropertyStatus
+
+    /**
+     * Defines a custom property name to return the response message.
+     *
+     * @param string $name
+     * @return Router
+     */
+    public function setCustomPropertyMessage( $name = 'message' )
+    {
+        if (!empty($name)) {
+            $this->_response_property_message = $name;
+        }
+
+        return $this;
+    } // setCustomPropertyMessage
+
+    /**
+     * Defines a custom property name to return the response data.
+     *
+     * @param string $name
+     * @return Router
+     */
+    public function setCustomPropertyData( $name = 'data' )
+    {
+        if (!empty($name)) {
+            $this->_response_property_data = $name;
+        }
+
+        return $this;
+    } // setCustomPropertyData
+
+    /**
+     * Defines a custom property name to return the error status.
+     *
+     * @param string $name
+     * @return Router
+     */
+    public function setCustomPropertyError( $name = 'error' )
+    {
+        if (!empty($name)) {
+            $this->_response_property_error = $name;
+        }
+
+        return $this;
+    } // setCustomPropertyError
+
+    /**
+     * Append global additional properties to be returned alongside any response by default.
+     *
+     * @param string $key
+     * @param string|integer|boolean|function $value
+     * @param boolean $reset when true, resets the list of additional properties
+     * @return Router
+     */
+    public function setAdditionalResponseProperty($key = '', $value = '', $reset = false)
+    {
+        if (!empty($key)) {
+            if ($reset) {
+                $this->_additional_response_properties = [];
+            }
+
+            $this->_additional_response_properties[$key] = $value;
+        }
+
+        return $this;
+    } // setAdditionalResponseProperty
+
+
+    // ~~~ PROTECTED ~~~
+
+    /**
+     * Dispatches the router actions.
+     *
+     * @param array $args
+     * @return boolean
+     */
+    protected function dispatch($args = [])
+    {
+        $matches = [];
+        $matched_callback = false;
+
+        // echo "METHOD ", $this->_method, "<br />\n";
+
+        // is there a matching route?
+        if (isset($this->_routes[$this->_method])) {
+            // echo "Found routes for ", $this->_method, "\n";
+
+            foreach ($this->_routes[$this->_method] as $route) {
+                // echo $route->uri, ' ::: ', $this->_uri, "<br />\n";
+                if (@preg_match("@^{$route->uri}$@", $this->_uri, $matches)) {
+                    // echo " -> MATCHED";
+                    $matched_callback = $route->callback;
+                    break;
+                }
+                // echo "<br />\n";
+            }
+        }
+
+        // echo '<pre>', var_dump($matches), '</pre><br >', "\n";
+        // die;
+
+        if (count($matches) === 0) {
+            if ($this->_error_handler === false) {
+                return $this->response(Http::_NOT_IMPLEMENTED);
+            } else {
+                return call_user_func($this->_error_handler, (object)Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
+            }
+        }
+
+        if ($matched_callback !== false && is_callable($matched_callback)) {
+            return call_user_func($matched_callback, $args);
+        }
+
+        return true;
+    } // dispatch
+
+    // ~~~ PRIVATE ~~~
+
+    /**
+     * Converts a JSON into XML.
+     *
+     * @param object &$xml
+     * @param array $data
+     * @return xml
+     */
+    private function json2xml(&$xml, $data)
+    {
 
     // exit when data is empty.
-    if (is_null($data)) {
-      return $xml;
-    }
+        if (is_null($data)) {
+            return $xml;
+        }
 
-    // runs thru data to build xml
-    foreach ($data as $dk => $dv) {
+        // runs thru data to build xml
+        foreach ($data as $dk => $dv) {
 
       // node data can be an array/ object
-      if (is_array($dv)) {
+            if (is_array($dv)) {
 
         // is the key a string?
-        if (!is_numeric($dk)) {
+                if (!is_numeric($dk)) {
 
           // eventually it's possible that nodes have properties
-          // whenever it has, isolate properties for post use.
-          if (strpos($dk, ' ') !== false) {
-            $props = explode(' ', $dk);
-            $dk = array_shift($props);
-          }
+                    // whenever it has, isolate properties for post use.
+                    if (strpos($dk, ' ') !== false) {
+                        $props = explode(' ', $dk);
+                        $dk = array_shift($props);
+                    }
 
-          // create a new node
-          $node = $xml->addChild($dk);
+                    // create a new node
+                    $node = $xml->addChild($dk);
 
-          // new node should have attributes? appends it ...
-          if (isset($props) && count($props) > 0) {
-            foreach ($props as $prop) {
-              $prop = explode('=', $prop);
-              $prop[1] = strpos($prop[1], '"') === 0 ? substr($prop[1], 1, strlen($prop[1]) - 2) : $prop[1];
-              $node->addAttribute($prop[0], $prop[1]);
+                    // new node should have attributes? appends it ...
+                    if (isset($props) && count($props) > 0) {
+                        foreach ($props as $prop) {
+                            $prop = explode('=', $prop);
+                            $prop[1] = strpos($prop[1], '"') === 0 ? substr($prop[1], 1, strlen($prop[1]) - 2) : $prop[1];
+                            $node->addAttribute($prop[0], $prop[1]);
+                        }
+                    }
+
+                    // recursive call for subnodes
+                    // giving the most recent node created
+                    $this->json2xml($node, $dv);
+                } else {
+                    // recursive call for subnodes
+                    $this->json2xml($xml, $dv);
+                }
+            } else {
+                $xml->addChild($dk, htmlspecialchars($dv));
             }
-          }
-
-          // recursive call for subnodes
-          // giving the most recent node created
-          $this->json2xml($node, $dv);
-        } else {
-          // recursive call for subnodes
-          $this->json2xml($xml, $dv);
         }
-      } else {
 
-        $xml->addChild($dk, htmlspecialchars($dv));
-
-      }
-    }
-
-    // return xml object
-    return $xml;
-
-  } // json2xml
-
+        // return xml object
+        return $xml;
+    } // json2xml
 } // class

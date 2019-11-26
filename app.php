@@ -11,7 +11,5 @@ namespace SeedPHP;
 
 class App extends \SeedPHP\Core
 {
-
-  // this class extends the framework core.
-
+    // A wrapper for the Core.
 } // class
