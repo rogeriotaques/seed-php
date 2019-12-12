@@ -10,6 +10,7 @@
 namespace SeedPHP;
 
 use SeedPHP\Helper\Http;
+use Throwable;
 
 class Router
 {
@@ -123,7 +124,13 @@ class Router
         }
 
         // identify the  http status code
-        $status = Http::getHTTPStatus($code);
+        try {
+            $status = Http::getHTTPStatus($code);
+        } catch (\Throwable $th) {
+            // Fallback to "Internal Server Error" with the original message.
+            $status = Http::getHTTPStatus( Http::_INTERNAL_SERVER_ERROR );
+            $status['message'] = $th->getMessage();
+        }
 
         $result = [
             "{$this->_response_property_status}"  => $status['code'], // aka code
@@ -470,7 +477,7 @@ class Router
             if ($this->_error_handler === false) {
                 return $this->response(Http::_NOT_IMPLEMENTED);
             } else {
-                return call_user_func($this->_error_handler, (object)Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
+                return call_user_func($this->_error_handler, (object) Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
             }
         }
 

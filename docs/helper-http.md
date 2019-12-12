@@ -22,7 +22,7 @@ Returns an array containing the protocol, response code and response text.
 
 ##### Arguments
 
-- `{Integer} code: required`
+- `{ Integer } code: required`
 
 ##### Return
 
@@ -32,7 +32,12 @@ Returns an array containing the protocol, response code and response text.
 
 ```php
   use SeedPHP\Helper\Http;
-  $status = Http::getHTTPStatus(200); // OK
+
+  try {
+      $status = Http::getHTTPStatus(200); // OK
+  } catch(Throwable $th) {
+      // When code does not exist, it throws an ErrorException
+  }
 ```
 
 ---
