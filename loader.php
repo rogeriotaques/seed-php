@@ -17,10 +17,10 @@ if (!function_exists('seed_loader')) {
 
         $file = '';
         $namespace = '';
+        $expected_namespace = 'SeedPHP';
 
         if ($lastNsPos = strripos($class, '\\')) {
             $namespace = substr($class, 0, $lastNsPos);
-            $expected_namespace = 'SeedPHP';
 
             // backward compatbility for previous namespace
             if (strpos($namespace, $expected_namespace) === false && strpos($namespace, 'Seed') === 0) {
