@@ -268,6 +268,43 @@ $app->db->disconnect();
 
 ---
 
+### <span style="color: #42b983;">#</span> fetch( $table_name, [$cols [, $where [, $limit [, $offset [, $order [, $joins]]]]]] )
+
+A shorthand for fetching records from any table of a connected database. 
+
+##### Arguments
+
+- `{String} table_name: required`
+- `{Array} cols: optional`. E.g `['col1', ...]` or `['col1 as A', ...]`
+- `{Array} where: optional`. E.g `['id' => 1, ...]`
+- `{Integer} limit: optional` Default is `1000`, `zero` makes it unlimited.
+- `{Integer} offset: optional`
+- `{Array} order: optional` E.g `['id' => 'DESC']`
+- `{Array} joins: optional` E.g `['tb1', 'tb2 as 2', ...]`
+
+##### Return
+
+- `{ Array }`
+
+##### Throws
+
+- `\ErrorException`
+- `\PDOException`
+
+##### Example
+
+```php
+global $config;
+
+$app->load('database', $config, 'db');
+$app->db->connect();
+$app->db->update("test", [ "foo" => "rocket" ], [ "id" => 10 ]);
+$app->db->disconnect();
+
+```
+
+---
+
 ### <span style="color: #42b983;">#</span> insertedId()
 
 Returns the last inserted ID.

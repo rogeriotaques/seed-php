@@ -18,18 +18,41 @@ use SeedPHP\Helper\Http;
  */
 class Database
 {
+    /** @var string */
     private $_dns = '';
+
+    /** @var string - defaults to 'mysql' */
     private $_driver = 'mysql';
+
+    /** @var string - defaults to 'localhost' */
     private $_host = 'localhost';
+
+    /** @var string - defaults to '3306' */
     private $_port = '3306';
+
+    /** @var string - defaults to 'root' */
     private $_user = 'root';
+
+    /** @var string - defaults to empty */
     private $_pass = '';
+
+    /** @var string - defaults to 'test' */
     private $_base = 'test';
-    private $_charset = 'utf8';
+
+    /** @var string - defaults to 'utf8mb4' */
+    private $_charset = 'utf8mb4';
+
+    /** @var integer - defaults to 0 */
     private $_last_result_count = 0;
-    private static $_resource = null;   // the connection resource
-    private static $_transactions = 0;  // how many transactions in chain
-    public static $_attempts = 0;       // how many connections in chain
+
+    /** @var object - the connection resource. defaults to null */
+    private static $_resource = null; 
+
+    /** @var integer - how many transactions in chain. defaults to 0 */
+    private static $_transactions = 0;
+
+    /** @var integer - how many connections in chain. defaults to 0 */
+    public static $_attempts = 0;
 
     /**
      * Constructs a new PDO helper
@@ -79,10 +102,10 @@ class Database
      * Sets the database host address
      * @param string $host Default to localhost
      * @param string $port Default to 3306
-     * @param string $charset Default to utf8
+     * @param string $charset Default to utf8mb4
      * @return SeedPHP\Helper\Database
      */
-    public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8')
+    public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8mb4')
     {
         if (!empty($host) && !is_null($host)) {
             $this->_host = "{$host}";
@@ -151,7 +174,7 @@ class Database
      * @param string $charset Default to utf8
      * @return SeedPHP\Helper\Database
      */
-    public function setCharset($charset = 'utf8')
+    public function setCharset($charset = 'utf8mb4')
     {
         if (!empty($charset)) {
             $this->_charset = "{$charset}";
@@ -458,6 +481,83 @@ class Database
     } // delete
 
     /**
+     * Fetches a recordset from the given table.
+     *
+     * @param string    $table
+     * @param array     [$cols]     Optional. Default to *
+     * @param array     [$where]    Optional. An array of key-value defining the where condition. Default to NULL.
+     * @param integer   [$limit]    Optional. Default to 1000
+     * @param integer   [$offset]   Optional. Default to 0
+     * @param array     [$order]    Optional. Default to `id` ASC
+     * @param array     [$joins]    Optional. List of joining tables. Default to empty. E.g [ 'table_1 t1', 'table_2 t2', ... , 'table_N tN' ]
+     * @return array<array>
+     */
+    public function fetch(string $table = '', array $cols = ['*'], array $where = null, int $limit = 1000, int $offset = 0, array $order = ['id' => 'ASC'], array $joins = [])
+    {
+        if (!is_string($table) || empty($table)) {
+            throw new \ErrorException(
+                "SeedPHP\Helper\Database::fetch : Invalid table name", 
+                Http::_BAD_REQUEST
+            );
+        }
+
+        if (!is_numeric($limit) || intval($limit) < 0) {
+            throw new \ErrorException(
+                "SeedPHP\Helper\Database::fetch : Invalid limit", 
+                Http::_BAD_REQUEST
+            );
+        }
+
+        if (!is_numeric($offset) || intval($offset) < 0) {
+            throw new \ErrorException(
+                "SeedPHP\Helper\Database::fetch : Invalid limit", 
+                Http::_BAD_REQUEST
+            );
+        }
+
+        // Normalize the columns
+        if (!empty($cols)) {
+            $cols = array_map(array($this, '_escapeColumnName'), $cols);
+            $cols = implode(", ", $cols);
+        }
+
+        // Normalize the table name
+        $table = $this->_escapeTableName($table);
+
+        // Query
+        $sql = "SELECT {$cols} FROM {$table}";
+
+        // Append joined tables
+        if (!empty($joins)) {
+            $joins = array_map(array($this, '_escapeTableName'), $joins);
+            $sql .= ", " . implode(", ", $joins);
+        }
+
+        if (!empty($where)) {
+            $where = $this->_args2string($where);
+            $sql .= " {$where}";
+        }
+
+        if (!empty($order)) {
+            $order = array_map(function ($col, $sort) {
+                return "`{$col}` {$sort}";
+            }, array_keys($order), array_values($order));
+
+            $order = implode(", ", $order);
+            $sql .= " ORDER BY {$order}";
+        }
+
+        if ($limit) {
+            $sql .= " LIMIT " . ($offset ? "{$offset}, " : '') . "{$limit}";
+        }
+
+        // Execute
+        $res = $this->exec($sql, !empty($where) ? array_values($where) : null);
+
+        return $res;
+    } // fetch
+
+    /**
      * Returns the connection resource link.
      * @return MySQLConnectionObject
      */
@@ -483,4 +583,102 @@ class Database
     {
         return $this->_last_result_count;
     } // insertedId
+
+    /**
+     * Stringify given arguments into SQL where statement
+     *
+     * @param array $args
+     * @return string
+     */
+    private function _args2string($args = [])
+    {
+        if (is_null($args) || count($args) === 0) {
+            return false;
+        }
+
+        // Counts the arguments
+        $arg_count = 0;
+
+        // Prepare args to the statement
+        foreach ($args as $k => $val) {
+            if ($val === null) {
+                $args[$k] = $k;
+            } else {
+                if (preg_match('/\s(=|>=|<=|<>|\*=|is|is not|between|in|not in)\s?$/i', $k) === 0) {
+                    $args[$k] = $this->_escapeColumnName($k) . " = ?";
+                } else {
+                    $args[$k] = "{$k} ?";
+                }
+            }
+
+            if ($arg_count > 0 && preg_match('/^(and|or)\s/i', $args[$k]) === 0) {
+                $args[$k] = " AND {$args[$k]}";
+            } else {
+                $args[$k] = ($arg_count > 0 ? " " : "") . "{$args[$k]}";
+            }
+
+            $arg_count += 1;
+        }
+
+        return 'WHERE ' . implode(' ', $args);
+    } // _args2string
+
+    /**
+     * Escape and normalize tables' names.
+     *
+     * @param string $table
+     * @return string
+     */
+    private function _escapeTableName($table = '')
+    {
+        $_table = trim(strtolower($table));
+
+        if (strpos($_table, ' ') !== false) {
+            $_table = strpos($_table, ' as ') ? explode(' as ', $_table) : explode(' ', $_table);
+            $_table = "`" . implode("` AS `", $_table) . "`";
+        } else {
+            $_table = "`{$_table}`";
+        }
+
+        return $_table;
+    } // _escapeTableName
+
+    /**
+     * Escape and normalize columns' names.
+     *
+     * @param string $column
+     * @return string
+     */
+    private function _escapeColumnName($column = '')
+    {
+        // Wildcard?
+        if ($column == '*') {
+            return $column;
+        }
+
+        // Does it contain subqueries?
+        // Subqueries cannot be escaped for now!
+        if (strpos($column, "(") !== false) {
+            return $column;
+        }
+        
+        $_col = trim(strtolower($column));
+        $_talias = "";
+
+        // Is column using table alias?
+        if (strpos($_col, '.') !== false) {
+            // Escape table alias
+            list($_talias, $_col) = explode(".", $_col);
+            $_talias = "`{$_talias}`.";
+        }
+
+        // Is column using an alias?
+        if (strpos($_col, " as ") !== false) {
+            // Escape table alias
+            $_col = explode(" as ", $_col);
+            $_col = "`" . implode("` AS `", $_col) . "`";
+        }
+
+        return "{$_talias}{$_col}";
+    } // _escapeColumnName
 } // Database
