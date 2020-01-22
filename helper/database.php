@@ -470,14 +470,14 @@ class Database
      *
      * @param string    $table
      * @param array     [$cols]     Optional. Default to *
-     * @param array     [$where]    Optional. An array of key-value defining the where condition. Default to NULL.
+     * @param array     [$where]    Optional. An array of key-value defining the where condition.
      * @param integer   [$limit]    Optional. Default to 1000
      * @param integer   [$offset]   Optional. Default to 0
      * @param array     [$order]    Optional. Default to `id` ASC
      * @param array     [$joins]    Optional. List of joining tables. Default to empty. E.g [ 'table_1 t1', 'table_2 t2', ... , 'table_N tN' ]
      * @return array<array>
      */
-    public function fetch(string $table = '', array $cols = ['*'], array $where = null, int $limit = 1000, int $offset = 0, array $order = ['id' => 'ASC'], array $joins = [])
+    public function fetch(string $table = '', array $cols = ['*'], array $where = [], int $limit = 1000, int $offset = 0, array $order = ['id' => 'ASC'], array $joins = [])
     {
         if (!is_string($table) || empty($table)) {
             throw new \ErrorException(
@@ -508,6 +508,7 @@ class Database
 
         // Normalize the table name
         $table = $this->_escapeTableName($table);
+        $where_values = null;
 
         // Query
         $sql = "SELECT {$cols} FROM {$table}";
@@ -519,7 +520,13 @@ class Database
         }
 
         if (!empty($where)) {
+            $where_values = array_values($where);
+            $where_values = array_filter($where_values, function ($val) {
+                return $val !== null;
+            });
+
             $where = $this->_args2string($where);
+            
             $sql .= " {$where}";
         }
 
@@ -537,7 +544,7 @@ class Database
         }
 
         // Execute
-        $res = $this->exec($sql, !empty($where) ? array_values($where) : null);
+        $res = $this->exec($sql, $where_values);
 
         return $res;
     } // fetch
@@ -662,6 +669,8 @@ class Database
             // Escape table alias
             $_col = explode(" as ", $_col);
             $_col = "`" . implode("` AS `", $_col) . "`";
+        } else {
+            $_col = "`{$_col}`";
         }
 
         return "{$_talias}{$_col}";
