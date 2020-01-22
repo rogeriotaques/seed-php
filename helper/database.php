@@ -370,17 +370,15 @@ class Database
             );
         }
 
-        $self = $this;
-        $placeholders = [];
-        $fields = array_keys($data);
-        $values = array_values($data);
+        $columns = array_keys($data);
+        $values  = array_values($data);
+        $placeholders = array_pad([], count($values), '?');
 
-        foreach ($fields as $f) {
-            $placeholders[] = '?';
-        }
+        $table = $this->_escapeTableName($table);
+        $columns = array_map(array($this, '_escapeColumnName'), $columns);
 
         $stdin = "
-        INSERT INTO `{$table}` (`" . implode("`, `", $fields) . "`) 
+        INSERT INTO {$table} (" . implode(", ", $columns) . ") 
         VALUES (" . implode(", ", $placeholders) . ")
         ";
 
@@ -395,7 +393,7 @@ class Database
      * @return integer|boolean
      * @throws ErrorException
      */
-    public function update($table = '', array $data = null, array $where = null)
+    public function update($table = '', array $data = [], array $where = null)
     {
         if (!is_string($table) || empty($table)) {
             throw new \ErrorException(
@@ -411,27 +409,21 @@ class Database
             );
         }
 
-        $self = $this;
+        $self   = $this;
         $fields = array_keys($data);
         $values = array_values($data);
         $where_values = !empty($where) ? array_values($where) : [];
 
-        $data = array_map(function ($k) {
-            return "`{$k}` = ?";
+        $data = array_map(function ($k) use ($self) {
+            return $self->_escapeColumnName($k) . " = ?";
         }, $fields);
 
-        $stdin = "UPDATE `{$table}` SET " . implode(", ", $data);
+        $table = $this->_escapeTableName($table);
+        $stdin = "UPDATE {$table} SET " . implode(", ", $data);
 
         if (!empty($where)) {
-            $where = array_map(function ($k, $i) use ($self) {
-                $key = preg_match('/^(or|and)\s/i', $k) < 1
-                    ? ($i > 0 ? " AND " : " ") . "`{$k}`"
-                    : preg_replace('/^(or|and)(\s)(.*)/i', '$1$2`$3`', $k);
-
-                return "{$key} = ?";
-            }, array_keys($where), array_keys(array_keys($where)));
-
-            $stdin .= " WHERE " . implode('', $where);
+            $where = $this->_args2string($where);
+            $stdin .= " {$where} ";
         }
 
         if (!empty($where_values)) {
@@ -457,20 +449,13 @@ class Database
             );
         }
 
-        $self = $this;
-        $stdin = "DELETE FROM `{$table}` ";
+        $table  = $this->_escapeTableName($table);
+        $stdin  = "DELETE FROM {$table} ";
         $values = !empty($where) ? array_values($where) : null;
 
         if (!empty($where)) {
-            $where = array_map(function ($k, $i) use ($self) {
-                $key = preg_match('/^(or|and)\s/i', $k) < 1
-                    ? ($i > 0 ? " AND " : " ") . "`{$k}`"
-                    : preg_replace('/^(or|and)(\s)(.*)/i', '$1$2`$3`', $k);
-
-                return "{$key} = ?";
-            }, array_keys($where), array_keys(array_keys($where)));
-
-            $stdin .= " WHERE " . implode('', $where);
+            $where = $this->_args2string($where);
+            $stdin .= " {$where} ";
         }
 
         if (!empty($values)) {
