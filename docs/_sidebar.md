@@ -1,9 +1,13 @@
 
+<div style="max-width: 300px" >
+
 <div style="text-align: center; margin: 20px 0;" >
   <span style="display: block; font-size: 1rem; margin-top: -20px; color: #888">
     by <a href="https://twitter.com/rogeriotaques" target="_blank" >@rogeriotaques</a>
   </span>
 </div>
+
+<div style="margin: 0 30px;" >
 
 - Introduction
 
@@ -25,6 +29,8 @@
     - [Mailgun](/helper-mailgun)
     - [MySQL](/helper-mysql)
 
+</div>
+
 <p style="display: block; margin-top: 40px; font-size: 0.9rem; text-align: center;" >
   <span>powered by </span>
   <a href="https://docsify.js.org/" target="_blank" >docsify</a>
@@ -45,4 +51,6 @@
     />
   </span>
 </p>
+
+</div>
 
