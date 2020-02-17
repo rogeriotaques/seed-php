@@ -14,18 +14,18 @@ use SeedPHP\Helper\Http;
 
 class Core extends Router
 {
-    /** @var object */
-    private static $instance;
-
     /** @var object an object containing the request data */
     private $_request;
+
+    /** @var object */
+    private static $instance;
 
     // ~~~ MAGIC METHODS ~~~
 
     /**
      * The constructor.
      */
-    public function __construct()
+    function __construct()
     {
         // Nothing to construct
     }
@@ -49,7 +49,7 @@ class Core extends Router
     /**
      * Starts the working flow.
      *
-     * @return boolean
+     * @return bool
      */
     public function run()
     {
@@ -62,7 +62,28 @@ class Core extends Router
             return $this->response(Http::_OK); // do accept it
         }
 
-        return $this->dispatch($this->_request->args);
+        try {
+            return $this->dispatch($this->_request->args);
+        } catch (\Throwable $th1) {
+            $_status = null;
+
+            // Get the most appropriated HTTP status code.
+            try {
+                $_status = Http::getHTTPStatus($th1->getCode());
+            } catch (\Throwable $th2) {
+                $_status = Http::getHTTPStatus(500);
+            }
+
+            // Always an error handler was set, use it.
+            if ($this->_error_handler !== false) {
+                return call_user_func($this->_error_handler, (object) $_status);
+            }
+
+            return $this->response(
+                $_status['code'],
+                [ "message" => $th1->getMessage() ]
+            );
+        }
     } // run
 
     /**
@@ -188,7 +209,7 @@ class Core extends Router
     public function put($key = null)
     {
         $php_input = file_get_contents("php://input");
-    
+
         // Try parsing it from JSON
         $_PUT = json_decode($php_input, true);
 
@@ -196,7 +217,7 @@ class Core extends Router
             // Fallback to parsing it from URL encoded string
             parse_str($php_input, $_PUT);
         }
-    
+
         if ($key === null) {
             return $_PUT;
         }
@@ -258,14 +279,14 @@ class Core extends Router
         $worldCounter = 0;
 
         return implode(
-            '',
-            array_map(
-              function ($el) use (&$worldCounter, $first_lower) {
-                  return $first_lower === true && $worldCounter++ === 0
+          '',
+          array_map(
+            function ($el) use (&$worldCounter, $first_lower) {
+                return $first_lower === true && $worldCounter++ === 0
                 ? $el
                 : ucfirst($el);
-              },
-              explode('-', $str)
+            },
+            explode('-', $str)
           )
         );
     } // camelfy
@@ -309,80 +330,82 @@ class Core extends Router
      */
     private function buildRequest()
     {
-        // define base path
+        // Define base path
         $patt = str_replace(array('\\', ' '), array('/', '%20'), dirname($_SERVER['SCRIPT_NAME']));
 
-        // retrieve requested uri
+        // Retrieve requested uri
         $this->_uri = isset($_SERVER['REQUEST_URI'])
           ? $_SERVER['REQUEST_URI']
           : '/';
 
-        // remove query-string (if any)
+        // Remove query-string (if any)
         if (strpos($this->_uri, '?') !== false) {
             $this->_uri = substr($this->_uri, 0, strpos($this->_uri, '?'));
         }
 
-        // remove base path from uri
+        // Remove base path from uri
         $this->_uri = preg_replace('@^' . $patt . '@', '', $this->_uri);
 
         // Identify the request method
         $this->_method = (isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
 
-        // remove trailing slashes to easily match paths.
-        // it must be done before adding a "root" slash, otherwise it breaks the router for (hidden) index pages.
+        // Remove trailing slashes to easily match paths.
+        // It must be done before adding a "root" slash, otherwise it breaks the router for (hidden) index pages.
         $this->_uri = preg_replace('/\/$/', '', $this->_uri);
 
-        // add a initial (root) slash case it's not present
+        // Add a initial (root) slash case it's not present
         if (!preg_match('/^\//', $this->_uri)) {
             $this->_uri = "/{$this->_uri}";
         }
 
-        // explode arguments
+        // Explode arguments
         $args = explode('/', $this->_uri);
 
-        // filter empty arguments
-        // if there's empty argument, it means the uri has finished in a slash
+        // Filter empty arguments
+        // If there's empty argument, it means the uri has finished in a slash
         $args = array_filter($args, function ($el) {
             return !empty($el) && !is_null($el);
         });
 
-        // has args only one element and is it empty?
-        // means it's the start end point (root)
+        // Has args only one element and is it empty?
+        // Means it's the start point (root)
         if (count($args) === 1 && empty($args[0])) {
             $args[0] = '/';
         }
 
-        // extract uri parts
+        // Extracts uri parts
         $endpoint = array_shift($args);
-        $verb = array_shift($args);
-        $id = null;
+        $verb     = array_shift($args);
+        $id       = count($args) ? array_shift($args) : null;
 
-        // is verb and ID?
+        // Is verb an ID?
         if (is_numeric($verb)) {
-            $id = $verb;
-            $verb = null;
+            $_verb = $id;
+            $id    = $verb;
+            $verb  = $_verb;
         }
 
-        // does arguments can be set in pairs?
+        // Do arguments can be set in pairs?
         if (count($args) % 2 === 0) {
-            // fetches keys from args
+            // Fetches keys from args
             $args_keys = array_filter($args, function ($k) use (&$args) {
                 $k = key($args);
                 next($args);
                 return !($k & 1);
             });
 
-            // fetches values from args
+            // Fetches values from args
             $args_values = array_filter($args, function ($k) use (&$args) {
                 $k = key($args);
                 next($args);
                 return $k & 1;
             });
 
-            // makes it an assossiative array
+            // Makes it an assossiative array
             $args = array_merge($args, @array_combine($args_keys, $args_values));
         }
 
+        // Finally returns
         $this->_request = (object)[
             'base' => Http::getBaseUrl(),
             'method' => $this->_method,

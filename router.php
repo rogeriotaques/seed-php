@@ -8,6 +8,7 @@
  */
 
 namespace SeedPHP;
+
 use SeedPHP\Helper\Http;
 
 class Router
@@ -49,7 +50,7 @@ class Router
     protected $_output_type = 'json';
 
     /** @var false|function the callback for when an error is held */
-    private $_error_handler = false;
+    protected $_error_handler = false;
 
     /** @var string name for the response status property */
     private $_response_property_status = 'status';
@@ -126,7 +127,7 @@ class Router
             $status = Http::getHTTPStatus($code);
         } catch (\Throwable $th) {
             // Fallback to "Internal Server Error" with the original message.
-            $status = Http::getHTTPStatus(Http::_INTERNAL_SERVER_ERROR);
+            $status = Http::getHTTPStatus( Http::_INTERNAL_SERVER_ERROR );
             $status['message'] = $th->getMessage();
         }
 
@@ -188,32 +189,32 @@ class Router
 
         // what kind of output is expected?
         switch (strtolower($output)) {
-            case 'xml':
-                header("Content-Type: application/xml");
+      case 'xml':
+        header("Content-Type: application/xml");
 
-                // translate json into xml object
-                $xml = new \SimpleXMLElement('<response />');
-                $xml = $this->json2xml($xml, $result);
+        // translate json into xml object
+        $xml = new \SimpleXMLElement('<response />');
+        $xml = $this->json2xml($xml, $result);
 
-                // finally convert it to string for proper replacements
-                echo $xml->asXML();
-                break;
+        // finally convert it to string for proper replacements
+        echo $xml->asXML();
+        break;
 
-            case 'json':
-                // set proper headers
-                header("{$status['protocol']} {$status['code']} {$status['message']}");
-                header("Content-Type: application/json");
+      case 'json':
+        // set proper headers
+        header("{$status['protocol']} {$status['code']} {$status['message']}");
+        header("Content-Type: application/json");
 
-                // convert result into string
-                $result = json_encode($result);
+        // convert result into string
+        $result = json_encode($result);
 
-                echo $result;
-                break;
+        echo $result;
+        break;
 
-            default:
-                // anything else, including "false"
-                // do nothing. do not output, just return it.
-        }
+      default:
+        // anything else, including "false"
+        // do nothing. do not output, just return it.
+    }
 
         // return as object the response
         return $result;
@@ -362,7 +363,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyStatus($name = 'status')
+    public function setCustomPropertyStatus( $name = 'status' )
     {
         if (!empty($name)) {
             $this->_response_property_status = $name;
@@ -377,7 +378,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyMessage($name = 'message')
+    public function setCustomPropertyMessage( $name = 'message' )
     {
         if (!empty($name)) {
             $this->_response_property_message = $name;
@@ -392,7 +393,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyData($name = 'data')
+    public function setCustomPropertyData( $name = 'data' )
     {
         if (!empty($name)) {
             $this->_response_property_data = $name;
@@ -407,7 +408,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyError($name = 'error')
+    public function setCustomPropertyError( $name = 'error' )
     {
         if (!empty($name)) {
             $this->_response_property_error = $name;
@@ -472,11 +473,11 @@ class Router
         // die;
 
         if (count($matches) === 0) {
-            if ($this->_error_handler === false) {
-                return $this->response(Http::_NOT_IMPLEMENTED);
-            } else {
+            if ($this->_error_handler !== false) {
                 return call_user_func($this->_error_handler, (object) Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
             }
+
+            return $this->response(Http::_NOT_IMPLEMENTED);
         }
 
         if ($matched_callback !== false && is_callable($matched_callback)) {
@@ -506,13 +507,13 @@ class Router
         // runs thru data to build xml
         foreach ($data as $dk => $dv) {
 
-            // node data can be an array/ object
+      // node data can be an array/ object
             if (is_array($dv)) {
 
-                // is the key a string?
+        // is the key a string?
                 if (!is_numeric($dk)) {
 
-                    // eventually it's possible that nodes have properties
+          // eventually it's possible that nodes have properties
                     // whenever it has, isolate properties for post use.
                     if (strpos($dk, ' ') !== false) {
                         $props = explode(' ', $dk);
