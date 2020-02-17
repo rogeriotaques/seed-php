@@ -2,12 +2,20 @@
 <div style="max-width: 300px" >
 
 <div style="text-align: center; margin: 20px 0;" >
-  <span style="display: block; font-size: 1rem; margin-top: -20px; color: #888">
-    by <a href="https://twitter.com/rogeriotaques" target="_blank" >@rogeriotaques</a>
-  </span>
+
+<span style="display: block; font-size: 1rem; margin-top: -20px; color: #888">
+by <a href="https://twitter.com/rogeriotaques" target="_blank" >@rogeriotaques</a>
+</span>
+
+<br >
+
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/AbtzLabs/seed-php?label=Version)
+
 </div>
 
 <div style="margin: 0 30px;" >
+
+
 
 - Introduction
 
