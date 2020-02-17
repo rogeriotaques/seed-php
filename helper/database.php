@@ -2,9 +2,9 @@
 
 /**
  * Seed-PHP Microframework
- * @copyright Abtz Labs
+ * @copyright Rogerio Taques
  * @license MIT
- * @see http://github.com/abtzco/seed-php
+ * @see http://github.com/rogeriotaques/seed-php
  */
 
 namespace SeedPHP\Helper;
