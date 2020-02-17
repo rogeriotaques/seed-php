@@ -1,6 +1,6 @@
 <?php
 
-/** 
+/**
  * Seed-PHP Microframework
  * @copyright Abtz Labs
  * @license MIT
@@ -46,13 +46,13 @@ class Database
     private $_last_result_count = 0;
 
     /** @var object - the connection resource. defaults to null */
-    private static $_resource = null; 
+    private $_resource = null;
 
     /** @var integer - how many transactions in chain. defaults to 0 */
-    private static $_transactions = 0;
+    private $_transactions = 0;
 
     /** @var integer - how many connections in chain. defaults to 0 */
-    public static $_attempts = 0;
+    private $_attempts = 0;
 
     /**
      * Constructs a new PDO helper
@@ -80,6 +80,11 @@ class Database
                 $this->setCredential($config['user'], $config['pass']);
             }
         }
+
+        // Fix: Resets the static valirables always a new instance is created.
+        $this->_attempts = 0;
+        $this->_transactions = 0;
+        $this->_resource = null;
     } // __construct
 
     /**
@@ -180,8 +185,8 @@ class Database
             $this->_charset = "{$charset}";
         }
 
-        if (!is_null(self::$_resource) && $this->_driver === 'mysql') {
-            self::$_resource->exec("set names {$this->_charset}");
+        if (!is_null($this->_resource) && $this->_driver === 'mysql') {
+            $this->_resource->exec("set names {$this->_charset}");
         }
 
         return $this;
@@ -195,25 +200,25 @@ class Database
     public function connect()
     {
         // Allows chained calls.
-        if (is_object(self::$_resource)) {
-            self::$_attempts += 1;
+        if (is_object($this->_resource)) {
+            $this->_attempts += 1;
             return $this;
         }
 
         try {
             $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
-            self::$_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+            $this->_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
-            if (!is_null(self::$_resource) && $this->_driver === 'mysql') {
-                self::$_resource->exec("set names {$this->_charset}");
+            if (!is_null($this->_resource) && $this->_driver === 'mysql') {
+                $this->_resource->exec("set names {$this->_charset}");
             }
 
-            self::$_attempts += 1;
+            $this->_attempts += 1;
         } catch (\PDOException $PDOEx) {
             $error_code = $PDOEx->getCode();
 
             throw new PDOException(
-                "SeedPHP\Helper\Database::connect : " . $PDOEx->getMessage(), 
+                "SeedPHP\Helper\Database::connect : " . $PDOEx->getMessage(),
                 is_numeric($error_code) ? $error_code : Http::_INTERNAL_SERVER_ERROR
             );
         }
@@ -227,18 +232,18 @@ class Database
      */
     public function disconnect()
     {
-        // If there was chained connections, 
+        // If there was chained connections,
         // just decreases the connection attempts count.
-        if (self::$_attempts > 1) {
-            self::$_attempts -= 1;
+        if ($this->_attempts >= 1) {
+            $this->_attempts -= 1;
             return $this;
         }
 
-        if (!is_object(self::$_resource)) {
+        if (!is_object($this->_resource)) {
             return $this;
         }
 
-        self::$_resource = null;
+        $this->_resource = null;
 
         return $this;
     } // disconnect
@@ -252,13 +257,13 @@ class Database
      */
     public function exec($query = '', array $values = null)
     {
-        if (!is_object(self::$_resource)) {
+        if (!is_object($this->_resource)) {
             throw new \ErrorException(
                 'SeedPHP\Helper\Database::exec : Cannot run this query, resource is missing!',
                 Http::_BAD_REQUEST
             );
         }
-    
+
         if (!is_string($query) || empty($query)) {
             throw new \ErrorException(
                 'SeedPHP\Helper\Database::exec : Query cannot be empty and must be a string!',
@@ -273,16 +278,16 @@ class Database
 
         try {
             if (empty($values)) {
-                $stmt = self::$_resource->query($query);
+                $stmt = $this->_resource->query($query);
             } else {
-                $stmt = self::$_resource->prepare($query);
+                $stmt = $this->_resource->prepare($query);
                 $stmt->execute($values);
             }
         } catch (\PDOException $PDOEx) {
             $error_code = $PDOEx->getCode();
 
             throw new \PDOException(
-                "SeedPHP\Helper\Database::exec : " . $PDOEx->getMessage(), 
+                "SeedPHP\Helper\Database::exec : " . $PDOEx->getMessage(),
                 is_numeric($error_code) ? $error_code : Http::_INTERNAL_SERVER_ERROR
             );
         }
@@ -318,29 +323,29 @@ class Database
     {
         switch ($status) {
             case 'commit':
-                if (self::$_transactions > 0) {
-                    self::$_transactions -= 1;
-                    self::$_resource->commit();
-                    self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+                if ($this->_transactions > 0) {
+                    $this->_transactions -= 1;
+                    $this->_resource->commit();
+                    $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
                 }
                 break;
 
             case 'rollback':
-                if (self::$_transactions > 1) {
-                    self::$_resource->execute('rollback to trans' . (self::$_transactions + 1));
+                if ($this->_transactions > 1) {
+                    $this->_resource->execute('rollback to trans' . (self::$_transactions + 1));
                 } else {
-                    self::$_resource->rollback();
-                    self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+                    $this->_resource->rollback();
+                    $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
                 }
 
+                $this->_transactions -= 1;
                 break;
 
             // Any status other than commit and rollback will be understood as 'begin'
             default:
-                self::$_transactions += 1;
-                self::$_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
-                self::$_resource->beginTransaction();
-
+                $this->_transactions += 1;
+                $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
+                $this->_resource->beginTransaction();
                 break;
         }
 
@@ -350,7 +355,7 @@ class Database
     /**
      * Insert new records into given table.
      * @param string $table
-     * @param array $data 
+     * @param array $data
      * @return integer|boolean
      * @throws ErrorException
      */
@@ -378,7 +383,7 @@ class Database
         $columns = array_map(array($this, '_escapeColumnName'), $columns);
 
         $stdin = "
-        INSERT INTO {$table} (" . implode(", ", $columns) . ") 
+        INSERT INTO {$table} (" . implode(", ", $columns) . ")
         VALUES (" . implode(", ", $placeholders) . ")
         ";
 
@@ -387,8 +392,8 @@ class Database
 
     /**
      * Updates records from given table.
-     * @param string $table 
-     * @param array $data 
+     * @param string $table
+     * @param array $data
      * @param array [$where] Optional. Default to null
      * @return integer|boolean
      * @throws ErrorException
@@ -397,14 +402,14 @@ class Database
     {
         if (!is_string($table) || empty($table)) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::update : Invalid table name", 
+                "SeedPHP\Helper\Database::update : Invalid table name",
                 Http::_BAD_REQUEST
             );
         }
 
         if (empty($data)) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::update : Data cannot be empty", 
+                "SeedPHP\Helper\Database::update : Data cannot be empty",
                 Http::_BAD_REQUEST
             );
         }
@@ -435,8 +440,8 @@ class Database
 
     /**
      * Deletes records from given table.
-     * @param string $table 
-     * @param array [$where] Optional. Default to null 
+     * @param string $table
+     * @param array [$where] Optional. Default to null
      * @return integer|boolean
      * @throws ErrorException
      */
@@ -481,21 +486,21 @@ class Database
     {
         if (!is_string($table) || empty($table)) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::fetch : Invalid table name", 
+                "SeedPHP\Helper\Database::fetch : Invalid table name",
                 Http::_BAD_REQUEST
             );
         }
 
         if (!is_numeric($limit) || intval($limit) < 0) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::fetch : Invalid limit", 
+                "SeedPHP\Helper\Database::fetch : Invalid limit",
                 Http::_BAD_REQUEST
             );
         }
 
         if (!is_numeric($offset) || intval($offset) < 0) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::fetch : Invalid limit", 
+                "SeedPHP\Helper\Database::fetch : Invalid limit",
                 Http::_BAD_REQUEST
             );
         }
@@ -526,7 +531,7 @@ class Database
             });
 
             $where = $this->_args2string($where);
-            
+
             $sql .= " {$where}";
         }
 
@@ -555,7 +560,7 @@ class Database
      */
     public function getLink()
     {
-        return self::$_resource;
+        return $this->_resource;
     } // getLink
 
     /**
@@ -564,7 +569,7 @@ class Database
      */
     public function insertedId()
     {
-        return self::$_resource->lastInsertId();
+        return $this->_resource->lastInsertId();
     } // insertedId
 
     /**
@@ -653,7 +658,7 @@ class Database
         if (strpos($column, "(") !== false) {
             return $column;
         }
-        
+
         $_col = trim(strtolower($column));
         $_talias = "";
 
