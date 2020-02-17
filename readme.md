@@ -11,7 +11,7 @@ is common to expect in a full-fledged web application framework.
 Seed-PHP is a microframework that offers you a really simple way
 to implement powerfull `RESTfull APIs` or even simple websites that could support pretty much all needed methods and responses in `JSON` or `XML` formats.
 
-Check the complete [documentation](https://github.com/AbtzCo/seed-php/tree/master/docs).
+Check the complete [documentation](https://github.com/rogeriotaques/seed-php/tree/master/docs).
 
 > **NOTE OF BREAKING CHANGES:**
 > The _namespace_ was modified, so if you're updating from previous versions (prior to 1.0.0), you'll be required to update your code, replacing namespace from `Seed\` to `SeedPHP\`. E.g:
@@ -35,13 +35,13 @@ Using `composer` it's really simple get started!
 If you have a project on going with composer, use:
 
 ```sh
-$ php composer require abtzco/seed-php
+$ php composer require rogeriotaques/seed-php
 ```
 
 or, to start a project from scratch, use:
 
 ```sh
-$ php composer create-project abtzco/seed-php
+$ php composer create-project rogeriotaques/seed-php
 ```
 
 Your application should have a `index.php` which may looks like the
@@ -85,7 +85,7 @@ Example:
 ```sh
  # --------------------------------------------------------
  # Seed-PHP Microframework.
- # @see http://github.com/abtzco/seed-php
+ # @see http://github.com/rogeriotaques/seed-php
  # --------------------------------------------------------
 
 <IfModule mod_rewrite.c>
@@ -105,7 +105,7 @@ contribute to improve it and make it better. To do your contributions, fork this
 
 ## Get support
 
-Found an issue or would like to suggest something? Just go to [this page](https://github.com/AbtzCo/seed-php/issues) and open a ticket. Learn more [about us](https://abtz.co).
+Found an issue or would like to suggest something? Just go to [this page](https://github.com/rogeriotaques/seed-php/issues) and open a ticket. Learn more [about us](https://abtz.co).
 
 ## Be a sponsor
 

@@ -2,14 +2,15 @@
 
 /** 
  * Seed-PHP Microframework.
- * @copyright Abtz Labs
+ * @copyright Rogerio Taques
  * @license MIT
- * @see http://github.com/abtzco/seed-php
+ * @see http://github.com/rogeriotaques/seed-php
  */
 
 namespace SeedPHP;
+use SeedPHP\Core;
 
-class App extends \SeedPHP\Core
+class App extends Core
 {
     // A wrapper for the Core.
 } // class

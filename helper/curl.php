@@ -2,277 +2,291 @@
 
 /** 
  * Seed-PHP Microframework
- * @copyright Abtz Labs
+ * @copyright Rogerio Taques
  * @license MIT
- * @see http://github.com/abtzco/seed-php
+ * @see http://github.com/rogeriotaques/seed-php
  */
 
 namespace SeedPHP\Helper;
 
 class Curl
 {
+    private $_ch;
+    private $_timeout = 30;
+    private $_headers = [];
+    private $_options = [];
+    private $_data = [];
+    private $_url = '';
+    private $_return_content_type = 'json';
 
-  private $_ch;
-  private $_timeout = 30;
-  private $_headers = [];
-  private $_options = [];
-  private $_data = [];
-  private $_url = '';
-  private $_return_content_type = 'json';
+    public $info = [];
+    public $error;
 
-  public $info = [];
-  public $error;
+    function __construct($url = '', $options = [], $returnType = '')
+    {
+        if (!function_exists('curl_init')) {
+            trigger_error('SeedPHP\Helper\Curl::construct : PHP was not built with --with-curl, rebuild PHP to use RCurl.');
+        }
 
-  function __construct($url = '', $options = [], $returnType = '')
-  {
-    if (!function_exists('curl_init')) {
-      trigger_error('SeedPHP\Helper\Curl::construct : PHP was not built with --with-curl, rebuild PHP to use RCurl.');
+        // define a public error object
+        $this->error = (object)['code' => 0, 'message' => '', 'headers' => ''];
+
+        if (!empty($returnType)) {
+            $this->_return_content_type = $returnType;
+        }
+
+        if (!empty($url)) {
+            $this->create($url, $options);
+        }
+
+        if (count($options) > 0) {
+            $this->_setOptions($options);
+        }
     }
 
-    // define a public error object
-    $this->error = (object)['code' => 0, 'message' => '', 'headers' => ''];
+    private function _reset()
+    {
+        $this->_options = [];
+        $this->_data = [];
+        $this->_headers = [];
+        $this->info = [];
+        $this->error->code = 0;
+        $this->error->message = '';
+        $this->error->headers = '';
+    } // _reset
 
-    if (!empty($returnType)) {
-      $this->_return_content_type = $returnType;
-    }
+    private function _method($method = 'GET')
+    {
+        // set right method for the call
+        $this->option(CURLOPT_CUSTOMREQUEST, $method);
+    } // _method
 
-    if (!empty($url)) {
-      $this->create($url, $options);
-    }
+    private function _setOptions($options = [])
+    {
+        foreach ($options as $code => $value) {
+            $this->option($code, $value);
+        }
 
-    if (count($options) > 0) {
-      $this->_setOptions($options);
-    }
-  }
+        return $this;
+    } // _setOptions
 
-  private function _reset()
-  {
-    $this->_options = [];
-    $this->_data = [];
-    $this->_headers = [];
-    $this->info = [];
-    $this->error->code = 0;
-    $this->error->message = '';
-    $this->error->headers = '';
-  } // _reset
+    public function create($url = '', $options = [], $returnType = '')
+    {
+        $this->_reset(); // reset
 
-  private function _method($method = 'GET')
-  {
-    // set right method for the call
-    $this->option(CURLOPT_CUSTOMREQUEST, $method);
-  } // _method
+        if (!empty($returnType)) {
+            $this->_return_content_type = $returnType;
+        }
 
-  private function _setOptions($options = [])
-  {
-    foreach ($options as $code => $value) {
-      $this->option($code, $value);
-    }
+        if (count($options) > 0) {
+            $this->_options = $options;
+        }
 
-    return $this;
-  } // _setOptions
+        if (!empty($url)) {
+            // mat_ches a protocol, if any.
+            if (!preg_match('!^\w+://! i', $url)) {
+                $url = 'http://' . $url;
+            }
 
-  public function create($url = '', $options = [], $returnType = '')
-  {
-    $this->_reset(); // reset
+            $this->_url = $url;
+            $this->_ch = curl_init();
+        }
 
-    if (!empty($returnType)) {
-      $this->_return_content_type = $returnType;
-    }
+        return $this;
+    } // create
 
-    if (count($options) > 0) {
-      $this->_options = $options;
-    }
+    public function data($data = [])
+    {
+        if (is_string($data) && empty($data)) {
+            return $this;
+        }
 
-    if (!empty($url)) {
-      // mat_ches a protocol, if any.
-      if (!preg_match('!^\w+://! i', $url)) {
-        $url = 'http://' . $url;
-      }
+        if (is_array($data) && count($data) > 0 && is_array($this->_data)) {
+            $this->_data = array_merge($this->_data, $data);
+        } else {
+            $this->_data = $data;
+        }
 
-      $this->_url = $url;
-      $this->_ch = curl_init();
-    }
+        return $this;
+    } // data
 
-    return $this;
-  } // create
+    public function option($code = false, $value = '')
+    {
+        if ($code !== false) {
+            $this->_options[$code] = $value;
+        }
 
-  public function data($data = [])
-  {
-    if (is_string($data) && empty($data)) {
-      return $this;
-    }
+        return $this;
+    } // option
 
-    if (is_array($data) && count($data) > 0 && is_array($this->_data)) {
-      $this->_data = array_merge($this->_data, $data);
-    } else {
-      $this->_data = $data;
-    }
+    public function proxy($url = '', $username = '', $password = '')
+    {
+        $this->option(CURLOPT_HTTPPROXYTUNNEL . true);
+        $this->option(CURLOPT_PROXY, $url);
+        $this->option(CURLOPT_PROXYUSERPWD, $username . ':' . $password);
+        return $this;
+    } // proxy
 
-    return $this;
-  } // data
+    public function cookies($params = [])
+    {
+        if (is_array($params)) {
+            $params = http_build_query($params);
+        }
 
-  public function option($code = false, $value = '')
-  {
-    if ($code !== false) {
-      $this->_options[$code] = $value;
-    }
+        $this->option(CURLOPT_COOKIE, $params);
+        return $this;
+    } // cookies
 
-    return $this;
-  } // option
+    public function credential($username = '', $password = '')
+    {
+        $this->option(CURLOPT_USERPWD, $username . ':' . $password);
+        return $this;
+    }  // credential
 
-  public function proxy($url = '', $username = '', $password = '')
-  {
-    $this->option(CURLOPT_HTTPPROXYTUNNEL . true);
-    $this->option(CURLOPT_PROXY, $url);
-    $this->option(CURLOPT_PROXYUSERPWD, $username . ':' . $password);
-    return $this;
-  } // proxy
+    public function header($header = '')
+    {
+        if (is_array($header)) {
+            $this->_headers = array_merge($this->_headers, $header);
+        }
 
-  public function cookies($params = [])
-  {
-    if (is_array($params)) {
-      $params = http_build_query($params);
-    }
+        if (is_string($header) && !empty($header)) {
+            $this->_headers[] = $header;
+        }
 
-    $this->option(CURLOPT_COOKIE, $params);
-    return $this;
-  } // cookies
+        return $this;
+    } // header
 
-  public function credential($username = '', $password = '')
-  {
-    $this->option(CURLOPT_USERPWD, $username . ':' . $password);
-    return $this;
-  }  // credential
+    public function get($url = '', $options = [])
+    {
+        return $this->run('GET', $url, $options);
+    } // get
 
-  public function header($header = '')
-  {
-    if (is_array($header)) {
-      $this->_headers = array_merge($this->_headers, $header);
-    }
+    public function post($url = '', $options = [])
+    {
+        return $this->run('POST', $url, $options);
+    } // post
 
-    if (is_string($header) && !empty($header)) {
-      $this->_headers[] = $header;
-    }
+    public function put($url = '', $options = [])
+    {
+        return $this->run('PUT', $url, $options);
+    } // put
 
-    return $this;
-  } // header
+    public function update($url = '', $options = [])
+    {
+        return $this->run('UPDATE', $url, $options);
+    } // update
 
-  public function get($url = '', $options = [])
-  {
-    return $this->run('GET', $url, $options);
-  } // get
+    public function delete($url = '', $options = [])
+    {
+        return $this->run('DELETE', $url, $options);
+    } // update
 
-  public function post($url = '', $options = [])
-  {
-    return $this->run('POST', $url, $options);
-  } // post
+    /**
+     * @method string [$method] - Can be any http method, such as POST, PUT, GET, DELETE, etc.
+     */
+    public function run($method = 'GET', $url = '', $options = [])
+    {
+        // if an url is given here, creates a new session ...
+        if (!empty($url)) {
+            $this->create($url);
+        }
 
-  public function put($url = '', $options = [])
-  {
-    return $this->run('PUT', $url, $options);
-  } // put
+        // additional options
+        if (strtolower(trim($method)) === 'post') {
+            $this->option(CURLOPT_POST, true);
+        }
 
-  public function update($url = '', $options = [])
-  {
-    return $this->run('UPDATE', $url, $options);
-  } // update
+        $this->_setOptions($options);
+        $this->_method(strtoupper(trim($method)));
 
-  public function delete($url = '', $options = [])
-  {
-    return $this->run('DELETE', $url, $options);
-  } // update
+        return $this->execute();
+    } // run
 
-  /**
-   * @method string [$method] - Can be any http method, such as POST, PUT, GET, DELETE, etc.
-   */
-  public function run($method = 'GET', $url = '', $options = [])
-  {
-    // if an url is given here, creates a new session ...
-    if (!empty($url)) {
-      $this->create($url);
-    }
+    public function execute()
+    {
+        // set default options, if not there
+        if (!isset($this->_options[CURLOPT_TIMEOUT])) {
+            $this->option(CURLOPT_TIMEOUT, $this->_timeout);
+        }
+        if (!isset($this->_options[CURLOPT_RETURNTRANSFER])) {
+            $this->option(CURLOPT_RETURNTRANSFER, true);
+        }
+        if (!isset($this->_options[CURLOPT_FOLLOWLOCATION])) {
+            $this->option(CURLOPT_FOLLOWLOCATION, true);
+        }
+        if (!isset($this->_options[CURLOPT_FAILONERROR])) {
+            $this->option(CURLOPT_FAILONERROR, true);
+        }
+        if (!isset($this->_options[CURLOPT_SSL_VERIFYPEER])) {
+            $this->option(CURLOPT_SSL_VERIFYPEER, false);
+        }
+        if (!isset($this->_options[CURLOPT_FRESH_CONNECT])) {
+            $this->option(CURLOPT_FRESH_CONNECT, true);
+        }
+        if (!isset($this->_options[CURLOPT_VERBOSE])) {
+            $this->option(CURLOPT_VERBOSE, true);
+        }
+        if (!isset($this->_options[CURLINFO_HEADER_OUT])) {
+            $this->option(CURLINFO_HEADER_OUT, true);
+        }
 
-    // additional options
-    if (strtolower(trim($method)) === 'post') {
-      $this->option(CURLOPT_POST, true);
-    }
+        // set url, if any
+        if (!empty($this->_url)) {
+            $this->option(CURLOPT_URL, $this->_url);
+        }
 
-    $this->_setOptions($options);
-    $this->_method(strtoupper(trim($method)));
+        // set headers, if any
+        if (count($this->_headers) > 0) {
+            $this->option(CURLOPT_HTTPHEADER, $this->_headers);
+        }
 
-    return $this->execute();
-  } // run
+        // set data, if any
+        if ((is_array($this->_data) && count($this->_data) > 0) || (is_string($this->_data) && !empty($this->_data))) {
+            $this->option(CURLOPT_POSTFIELDS, $this->_data);
+        }
 
-  public function execute()
-  {
-    // set default options, if not there
-    if (!isset($this->_options[CURLOPT_TIMEOUT])) $this->option(CURLOPT_TIMEOUT, $this->_timeout);
-    if (!isset($this->_options[CURLOPT_RETURNTRANSFER])) $this->option(CURLOPT_RETURNTRANSFER, true);
-    if (!isset($this->_options[CURLOPT_FOLLOWLOCATION])) $this->option(CURLOPT_FOLLOWLOCATION, true);
-    if (!isset($this->_options[CURLOPT_FAILONERROR])) $this->option(CURLOPT_FAILONERROR, true);
-    if (!isset($this->_options[CURLOPT_SSL_VERIFYPEER])) $this->option(CURLOPT_SSL_VERIFYPEER, false);
-    if (!isset($this->_options[CURLOPT_FRESH_CONNECT])) $this->option(CURLOPT_FRESH_CONNECT, true);
-    if (!isset($this->_options[CURLOPT_VERBOSE])) $this->option(CURLOPT_VERBOSE, true);
-    if (!isset($this->_options[CURLINFO_HEADER_OUT])) $this->option(CURLINFO_HEADER_OUT, true);
+        // var_dump($this->_options);
 
-    // set url, if any
-    if (!empty($this->_url)) {
-      $this->option(CURLOPT_URL, $this->_url);
-    }
+        // set all options to the curl session,
+        // which includes the chosen method.
+        curl_setopt_array($this->_ch, $this->_options);
 
-    // set headers, if any
-    if (count($this->_headers) > 0) {
-      $this->option(CURLOPT_HTTPHEADER, $this->_headers);
-    }
+        // run ...
+        $result = curl_exec($this->_ch);
 
-    // set data, if any
-    if ((is_array($this->_data) && count($this->_data) > 0) || (is_string($this->_data) && !empty($this->_data))) {
-      $this->option(CURLOPT_POSTFIELDS, $this->_data);
-    }
+        // grab execution info
+        $this->info = curl_getinfo($this->_ch);
 
-    // var_dump($this->_options);
-
-    // set all options to the curl session,
-    // which includes the chosen method.
-    curl_setopt_array($this->_ch, $this->_options);
-
-    // run ...
-    $result = curl_exec($this->_ch);
-
-    // grab execution info
-    $this->info = curl_getinfo($this->_ch);
-
-    // whenever it fails, grab error info
-    if ($result === false) {
-      $this->error->code = (isset($this->info['http_code']) ? $this->info['http_code'] : curl_errno($this->_ch));
-      $this->error->message = curl_error($this->_ch);
-      $this->error->headers = isset($this->info['request_header']) ? $this->info['request_header'] : [];
-    } else {
-      // check what kind result is expected.
-      // whenever it's json (default), encodes it
-      switch ($this->_return_content_type) {
+        // whenever it fails, grab error info
+        if ($result === false) {
+            $this->error->code = (isset($this->info['http_code']) ? $this->info['http_code'] : curl_errno($this->_ch));
+            $this->error->message = curl_error($this->_ch);
+            $this->error->headers = isset($this->info['request_header']) ? $this->info['request_header'] : [];
+        } else {
+            // check what kind result is expected.
+            // whenever it's json (default), encodes it
+            switch ($this->_return_content_type) {
 
         case 'json':
           if (is_string($result) && !empty($result)) {
-            $orig = $result;
-            $result = json_decode($result);
+              $orig = $result;
+              $result = json_decode($result);
 
-            // after trying decode a json content and for some reason
-            // it doesn't work, then, falls back to the original result.
-            if (is_null($result)) {
-              $result = $orig;
-            }
+              // after trying decode a json content and for some reason
+              // it doesn't work, then, falls back to the original result.
+              if (is_null($result)) {
+                  $result = $orig;
+              }
           }
 
           break;
       }
-    }
+        }
 
-    // close connection
-    curl_close($this->_ch);
-    $this->_ch = null;
+        // close connection
+        curl_close($this->_ch);
+        $this->_ch = null;
 
-    return $result;
-  } // execute
-
+        return $result;
+    } // execute
 } // class

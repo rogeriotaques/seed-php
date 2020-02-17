@@ -1,6 +1,6 @@
 
 # SeedPHP
-# © 2018, Abtz Labs. By Rogerio Taques.
+# © 2018, Rogerio Taques.
 
 <FilesMatch "^(\.|\_)">
     # Deny access to filenames starting 

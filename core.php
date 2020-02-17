@@ -1,17 +1,18 @@
 <?php
 
-/** 
+/**
  * Seed-PHP Microframework.
- * @copyright Abtz Labs
+ * @copyright Rogerio Taques
  * @license MIT
- * @see http://github.com/abtzco/seed-php
+ * @see http://github.com/rogeriotaques/seed-php
  */
 
 namespace SeedPHP;
 
+use SeedPHP\Router;
 use SeedPHP\Helper\Http;
 
-class Core extends \SeedPHP\Router
+class Core extends Router
 {
     /** @var object */
     private static $instance;
@@ -24,7 +25,7 @@ class Core extends \SeedPHP\Router
     /**
      * The constructor.
      */
-    function __construct()
+    public function __construct()
     {
         // Nothing to construct
     }
@@ -65,7 +66,7 @@ class Core extends \SeedPHP\Router
     } // run
 
     /**
-     * Retrieve the request headers. 
+     * Retrieve the request headers.
      * When $key is given, returns a string or false when the key is not found.
      *
      * @param [string] $key
@@ -82,7 +83,7 @@ class Core extends \SeedPHP\Router
         // Tries the header case-sensitive
         if (isset($headers[$key]) !== false) {
             return $headers[$key];
-        } 
+        }
 
         // Tries the header case-insensitive
         // @see https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
@@ -95,7 +96,7 @@ class Core extends \SeedPHP\Router
     } // header
 
     /**
-     * Retrieve posted data. 
+     * Retrieve posted data.
      * When $key is given, returns a string or false when the key is not found.
      *
      * @param [string] $key
@@ -127,7 +128,7 @@ class Core extends \SeedPHP\Router
     } // post
 
     /**
-     * Retrieve data passed as query-string. 
+     * Retrieve data passed as query-string.
      * When $key is given, returns a string or false when the key is not found.
      *
      * @param [string] $key
@@ -143,7 +144,7 @@ class Core extends \SeedPHP\Router
     } // get
 
     /**
-     * Retrieve submited files. 
+     * Retrieve submited files.
      * When $key is given, returns a string or false when the key is not found.
      *
      * @param [string] $key
@@ -178,7 +179,7 @@ class Core extends \SeedPHP\Router
     } // cookie
 
     /**
-     * Retrieve data passed in the put method. 
+     * Retrieve data passed in the put method.
      * When $key is given, returns a string or false when the key is not found.
      *
      * @param [string] $key
@@ -257,14 +258,14 @@ class Core extends \SeedPHP\Router
         $worldCounter = 0;
 
         return implode(
-          '',
-          array_map(
-            function ($el) use (&$worldCounter, $first_lower) {
-                return $first_lower === true && $worldCounter++ === 0
+            '',
+            array_map(
+              function ($el) use (&$worldCounter, $first_lower) {
+                  return $first_lower === true && $worldCounter++ === 0
                 ? $el
                 : ucfirst($el);
-            },
-            explode('-', $str)
+              },
+              explode('-', $str)
           )
         );
     } // camelfy

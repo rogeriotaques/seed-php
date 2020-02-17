@@ -1,5 +1,5 @@
 {
-    "name": "abtzco/seed-php",
+    "name": "rogeriotaques/seed-php",
     "description": "The stupidly easy to learn and use PHP microframework. ;)",
     "version": "1.5.3",
     "type": "package",
@@ -16,7 +16,7 @@
         "logger",
         "easy"
     ],
-    "homepage": "https://github.com/AbtzCo/seed-php",
+    "homepage": "https://github.com/rogeriotaques/seed-php",
     "license": "MIT",
     "minimum-stability": "stable",
     "authors": [

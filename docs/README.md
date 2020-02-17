@@ -35,13 +35,13 @@ Using `composer` it's really simple to get started!
 #### with an ongoing project (with composer), use:
 
 ```sh
-$ php composer require abtzco/seed-php
+$ php composer require rogeriotaques/seed-php
 ```
 
 #### or, with a fresh project, use:
 
 ```sh
-$ php composer create-project abtzco/seed-php
+$ php composer create-project rogeriotaques/seed-php
 ```
 
 To make it work, your app will need a `index.php` file which will handle pretty much all 
@@ -88,7 +88,7 @@ Example:
 
 # SeedPHP
 # © 2018, Abtz Labs. By Rogerio Taques.
-# @see http://github.com/abtzco/seed-php
+# @see http://github.com/rogeriotaques/seed-php
 
 <FilesMatch "^(\.|\_)">
     # Deny access to filenames starting 
@@ -124,7 +124,7 @@ create a [pull request](https://github.com/abtzlabs/seed-php/pulls).
 ## Get support
 
 Found an issue or would like to suggest something? Just go to 
-[this page](https://github.com/AbtzCo/seed-php/issues) and open a ticket. 
+[this page](https://github.com/rogeriotaques/seed-php/issues) and open a ticket. 
 
 ## Be a sponsor
 

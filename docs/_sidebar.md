@@ -1,13 +1,8 @@
 
 <div style="text-align: center; margin: 20px 0;" >
-  <span style="margin: 0; display: block;" >
-    <img 
-      src="https://abtz.co/assets/images/logo.svg" 
-      alt="Abtz Labs"
-      style="max-width: 80px;"
-    />
+  <span style="display: block; font-size: 1rem; margin-top: -20px; color: #888">
+    by <a href="https://twitter.com/rogeriotaques" target="_blank" >@rogeriotaques</a>
   </span>
-  <span style="display: block; font-size: 0.7rem; margin-top: -20px; color: #888">by @rogeriotaques</span>
 </div>
 
 - Introduction
@@ -33,5 +28,21 @@
 <p style="display: block; margin-top: 40px; font-size: 0.9rem; text-align: center;" >
   <span>powered by </span>
   <a href="https://docsify.js.org/" target="_blank" >docsify</a>
+</p>
+
+<br />
+
+<p style="text-align: center; margin: 20px 0;" >
+  <span style="display: block; font-size: 0.7rem; margin-top: -20px; color: #888">
+    Sponsored by:
+  </span>
+
+  <span style="margin: 0; display: block;" >
+    <img 
+      src="https://abtz.co/assets/images/logo.svg" 
+      alt="Abtz Labs"
+      style="max-width: 80px;"
+    />
+  </span>
 </p>
 
