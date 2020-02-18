@@ -401,8 +401,23 @@ class Core extends Router
                 return $k & 1;
             });
 
+            // Avoid matching in pairs when ID is fetched in the args.
+            // This prevents unexpected behaviors and values in the args array
+            // and also keeps the backward compatibility with previous implementations.
+            foreach ($args_keys as $k => $v) {
+                if (is_numeric($v)) {
+                    unset($args_keys[$k], $args_values[$k]);
+                }
+            }
+
+            $args_combined = [];
+
+            if (count($args_keys) === count($args_values)) {
+                $args_combined = @array_combine($args_keys, $args_values);
+            }
+
             // Makes it an assossiative array
-            $args = array_merge($args, @array_combine($args_keys, $args_values));
+            $args = array_merge($args, $args_combined);
         }
 
         // Finally returns
