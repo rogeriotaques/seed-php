@@ -1,7 +1,6 @@
 {
     "name": "rogeriotaques/seed-php",
     "description": "The stupidly easy to learn and use PHP microframework. ;)",
-    "version": "1.6.1",
     "type": "package",
     "keywords": [
         "php",
