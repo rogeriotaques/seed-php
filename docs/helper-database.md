@@ -5,7 +5,7 @@
 >Package: `Helper\Database` <br >
 >Namespace: `SeedPHP\Helper\Database`
 
-A simple, yet powerful and intuitive wrapper to work with database queries.
+A simple, yet powerful and intuitive wrapper to work with database queries, with built in methods for `fetch`, `insert`, `update` and `delete`, also with support to chained `transactions`.
 
 #### Example
 
@@ -268,7 +268,7 @@ $app->db->disconnect();
 
 ---
 
-### <span style="color: #42b983;">#</span> fetch( $table_name, [$cols [, $where [, $limit [, $offset [, $order [, $joins]]]]]] )
+### <span style="color: #42b983;">#</span> fetch( table_name [, cols [, ...] ] )
 
 A shorthand for fetching records from any table of a connected database. 
 
@@ -276,11 +276,11 @@ A shorthand for fetching records from any table of a connected database.
 
 - `{String} table_name: required`
 - `{Array} cols: optional`. E.g `['col1', ...]` or `['col1 as A', ...]`
-- `{Array} where: optional`. E.g `['id' => 1, ...]`
-- `{Integer} limit: optional` Default is `1000`, `zero` makes it unlimited.
+- `{Array} where: optional`. E.g `['id' => 1, ...]` or `['id > 35' => null, ...]`
+- `{Integer} limit: optional` Default is `1000`, `0` (zero) makes it unlimited.
 - `{Integer} offset: optional`
 - `{Array} order: optional` E.g `['id' => 'DESC']`
-- `{Array} joins: optional` E.g `['tb1', 'tb2 as 2', ...]`
+- `{Array} joins: optional` E.g `['tb1', ...]` or `['tb1 as A', ...]`
 
 ##### Return
 
@@ -298,7 +298,14 @@ global $config;
 
 $app->load('database', $config, 'db');
 $app->db->connect();
-$app->db->update("test", [ "foo" => "rocket" ], [ "id" => 10 ]);
+
+$cols  = [ "id", "name", "timestamp AS date" ];
+$where = [ "id" => 10 ];
+$app->db->fetch("test", $cols , $where);
+
+// Or a complete call, with join
+// $app->db->fetch("test", $cols, [ "test.id = test2.id" => null, "id" => 10 ], 1, 0, ["name" => "ASC"], ["test2"]);
+
 $app->db->disconnect();
 
 ```
