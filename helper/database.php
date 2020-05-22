@@ -363,14 +363,14 @@ class Database
     {
         if (!is_string($table) || empty($table)) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::insert : Insert : Invalid table name",
+                "SeedPHP\Helper\Database::insert : Invalid table name",
                 Http::_BAD_REQUEST
             );
         }
 
         if (empty($data)) {
             throw new \ErrorException(
-                "SeedPHP\Helper\Database::insert : Insert : Data cannot be empty",
+                "SeedPHP\Helper\Database::insert : Data cannot be empty",
                 Http::_BAD_REQUEST
             );
         }
@@ -378,6 +378,13 @@ class Database
         $columns = array_keys($data);
         $values  = array_values($data);
         $placeholders = array_pad([], count($values), '?');
+
+        if (count($columns) !== count($values) || count($values) !== count($placeholders)) {
+            throw new \ErrorException(
+                "SeedPHP\Helper\Database::insert : Data with wrong number of given arguments.",
+                Http::_BAD_REQUEST
+            );
+        }
 
         $table = $this->_escapeTableName($table);
         $columns = array_map(array($this, '_escapeColumnName'), $columns);
@@ -418,6 +425,13 @@ class Database
         $fields = array_keys($data);
         $values = array_values($data);
         $where_values = !empty($where) ? array_values($where) : [];
+
+        if (count($fields) !== count($values)) {
+            throw new \ErrorException(
+                "SeedPHP\Helper\Database::update : Data argument with wrong number of keys and values.",
+                Http::_BAD_REQUEST
+            );
+        }
 
         $data = array_map(function ($k) use ($self) {
             return $self->_escapeColumnName($k) . " = ?";
@@ -525,19 +539,24 @@ class Database
         }
 
         if (!empty($where)) {
-            $where_values = array_values($where);
-            $where_values = array_filter($where_values, function ($val) {
+            $where_values = array_filter(array_values($where), function ($val) {
                 return $val !== null;
             });
 
-            $where = $this->_args2string($where);
+            // Reset the index of values
+            // Fix bug of "Invalid parameter number" when the first expression has a valid key but null value.
+            $where_values = array_values($where_values);
 
+            $where = $this->_args2string($where);
             $sql .= " {$where}";
         }
 
         if (!empty($order)) {
-            $order = array_map(function ($col, $sort) {
-                return "`{$col}` {$sort}";
+            $self  = $this;
+
+            $order = array_map(function ($col, $sort) use ($self) {
+                // Normalize the columns names given to sort
+                return $self->_escapeColumnName($col) . " {$sort}";
             }, array_keys($order), array_values($order));
 
             $order = implode(", ", $order);
