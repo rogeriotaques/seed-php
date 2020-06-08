@@ -10,6 +10,9 @@
 
 namespace SeedPHP\Helper;
 
+use SeedPHP\Helper\Http;
+
+/** @deprecated  */
 class MySQL
 {
     private $_host = 'localhost';
@@ -23,8 +26,14 @@ class MySQL
 
     public static $connections_attempts = 0; // how many times the ::connect() was called (since v1.0.0)
 
+    /**
+     * @deprecated
+     */
     public function __construct($config = null)
     {
+        throw new \ErrorException("SeedPHP MySQL Helper has been deprecated. Please use Database instead.", Http::_BAD_REQUEST);
+        
+
         if (!is_null($config)) {
             if (isset($config['host'])) {
                 $this->setHost($config['host']);
@@ -66,8 +75,9 @@ class MySQL
                     : (
                         is_string($str)
                             ? "'" . self::$_resource->real_escape_string($str) . "'"
-                            : $str)
+                            : $str
                     )
+            )
             );
     } // _escape
 
