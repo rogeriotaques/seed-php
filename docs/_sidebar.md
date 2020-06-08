@@ -9,7 +9,7 @@ by <a href="https://twitter.com/rogeriotaques" target="_blank" >@rogeriotaques</
 
 <br >
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/AbtzLabs/seed-php?label=Version)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/rogeriotaques/seed-php?label=Version)
 
 </div>
 

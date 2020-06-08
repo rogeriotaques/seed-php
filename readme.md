@@ -1,6 +1,6 @@
 # Seed-PHP Microframework
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/AbtzLabs/seed-php?label=Version)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/rogeriotaques/seed-php?label=Version)
 
 > The stupidly easy to learn and use PHP microframework!
 
@@ -83,10 +83,24 @@ Now, as a final step, we must create the `.htaccess` file (in the same folder of
 Example:
 
 ```sh
- # --------------------------------------------------------
- # Seed-PHP Microframework.
- # @see http://github.com/rogeriotaques/seed-php
- # --------------------------------------------------------
+ 
+# SeedPHP
+# © 2018, Abtz Labs. By Rogerio Taques.
+# @see http://github.com/rogeriotaques/seed-php
+
+<FilesMatch "^(\.|\_)">
+    # Deny access to filenames starting 
+    # with dot(.) or underline(_)
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch ".(yml|yaml|log|sh)$">
+    # Deny access to filenames with 
+    # especific extensions
+    Order allow,deny
+    Deny from all
+</FilesMatch>
 
 <IfModule mod_rewrite.c>
     RewriteEngine On

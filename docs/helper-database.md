@@ -36,6 +36,34 @@ A simple, yet powerful and intuitive wrapper to work with database queries, with
 
 ---
 
+### <span style="color: #42b983;">#</span> setDNS( dns )
+
+Set the connection string (a.k.a. DNS) and returns itself. Default is `empty`. This is very useful for cases when a connection needs to be done with a driver that this helper does not support (yet).
+
+##### Arguments
+
+- `{String} dns: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
+### <span style="color: #42b983;">#</span> setDriver( driverName )
+
+Set the driver that PDO will use for connecting to the database. Defaults to `mysql`.
+
+##### Arguments
+
+- `{String} driverName: required`
+
+##### Return
+
+- `\SeedPHP\Helper\Database`
+
+---
+
 ### <span style="color: #42b983;">#</span> setHost( host [, port, charset] )
 
 Set the database host address and returns itself. Default is `localhost`.

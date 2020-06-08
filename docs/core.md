@@ -231,15 +231,15 @@ the module will be accessed by the access name then.
 ```php
 global $config;
 
-$app->load('pdo', $config);
+$app->load('database', $config);
 
-$app->pdo->connect();
-$app->pdo->exec('select 1');
-$app->pdo->disconnect();
+$app->database->connect();
+$app->database->exec('select 1');
+$app->database->disconnect();
 
-# OR
+# OR WITH AN ALIAS
 
-$app->load('pdo', $config, 'db');
+$app->load('database', $config, 'db');
 
 $app->db->connect();
 $app->db->exec('select 1');
@@ -251,6 +251,11 @@ $app->db->disconnect();
 ### <span style="color: #42b983;">#</span> route( route [, callback] )
 
 Creates the routing rules for the API, app or website.
+
+Routes can be writen in specific `php` files, hosted on a directory of your preference 
+within the app root folder and loaded all at once with:
+
+`$app->load('router', [ 'path' => __DIR__ . '/path/to/router/files' ])`
 
 ##### Arguments
 
