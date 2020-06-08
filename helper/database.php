@@ -30,8 +30,8 @@ class Database
     /** @var string - defaults to '3306' */
     private $_port = '3306';
 
-    /** @var string - defaults to 'root' */
-    private $_user = 'root';
+    /** @var string - defaults to empty */
+    private $_user = '';
 
     /** @var string - defaults to empty */
     private $_pass = '';
@@ -57,9 +57,13 @@ class Database
     /**
      * Constructs a new PDO helper
      */
-    function __construct(array $config = null)
+    public function __construct(array $config = null)
     {
         if (!empty($config)) {
+            if (isset($config['driver'])) {
+                $this->_driver = $config['driver'];
+            }
+
             if (isset($config['host'])) {
                 $this->_host = $config['host'];
             }
@@ -90,18 +94,42 @@ class Database
     /**
      * Prevents sets not using the proper set... methods
      */
-    public function __set($name, $value)
+    public function __set($name, $value): void
     {
         // Prevents unexpected sets
-    }
+    } // __set
 
     /**
      * Prevents gets not using the proper get... methods
      */
-    public function __get($name)
+    public function __get($name): void
     {
         // Prevents unexpected gets
-    }
+    } // __get
+
+    public function setDNS(string $dns = '') : Database
+    {
+        if (!empty($dns)) {
+            $this->_dns = $dns;
+        }
+
+        return $this;
+    } // setDNS
+
+    /**
+     * Sets the driver name.
+     *
+     * @param string $driver
+     * @return SeedPHP\Helper\Database
+     */
+    public function setDriver(string $driver = 'mysql'): Database
+    {
+        if (!empty($driver)) {
+            $this->_driver = $driver;
+        }
+
+        return $this;
+    } // setDriver
 
     /**
      * Sets the database host address
@@ -110,7 +138,7 @@ class Database
      * @param string $charset Default to utf8mb4
      * @return SeedPHP\Helper\Database
      */
-    public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8mb4')
+    public function setHost($host = 'localhost', $port = '3306', $charset = 'utf8mb4'): Database
     {
         if (!empty($host) && !is_null($host)) {
             $this->_host = "{$host}";
@@ -132,7 +160,7 @@ class Database
      * @param string $port Default to 3306
      * @return SeedPHP\Helper\Database
      */
-    public function setPort($port = '3306')
+    public function setPort($port = '3306'): Database
     {
         if (!empty($port) && !is_null($port)) {
             $this->_port = "{$port}";
@@ -147,7 +175,7 @@ class Database
      * @param string $password Default to empty
      * @return SeedPHP\Helper\Database
      */
-    public function setCredential($user = 'root', $pass = '')
+    public function setCredential($user = 'root', $pass = ''): Database
     {
         if (!empty($user) && !is_null($user)) {
             $this->_user = "{$user}";
@@ -165,7 +193,7 @@ class Database
      * @param string $name Default to empty
      * @return SeedPHP\Helper\Database
      */
-    public function setDatabase($name = '')
+    public function setDatabase($name = ''): Database
     {
         if (!empty($name) && !is_null($name)) {
             $this->_base = "{$name}";
@@ -179,7 +207,7 @@ class Database
      * @param string $charset Default to utf8
      * @return SeedPHP\Helper\Database
      */
-    public function setCharset($charset = 'utf8mb4')
+    public function setCharset($charset = 'utf8mb4'): Database
     {
         if (!empty($charset)) {
             $this->_charset = "{$charset}";
@@ -197,7 +225,7 @@ class Database
      * @return SeedPHP\Helper\Database
      * @throws PDOExpception
      */
-    public function connect()
+    public function connect(): Database
     {
         // Allows chained calls.
         if (is_object($this->_resource)) {
@@ -206,7 +234,19 @@ class Database
         }
 
         try {
-            $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
+            // Prevent overwriting any given DNS
+            if (empty($this->_dns)) {
+                switch ($this->_driver) {
+                    case 'sqlite':
+                        $this->_dns = "{$this->_driver}://$this->_base";
+                        break;
+                    
+                    default: // assume mysql
+                        $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
+                        break;
+                }
+            }
+            
             $this->_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
             if (!is_null($this->_resource) && $this->_driver === 'mysql') {
@@ -230,7 +270,7 @@ class Database
      * Attempts to disconnect from an already connected database.
      * @return SeedPHP\Helper\Database
      */
-    public function disconnect()
+    public function disconnect(): Database
     {
         // If there was chained connections,
         // just decreases the connection attempts count.
@@ -319,7 +359,7 @@ class Database
      * @param string $status Possible values: begin, commit or rollback
      * @return SeedPHP\Helper\Database
      */
-    public function transaction($status = 'begin')
+    public function transaction($status = 'begin'): Database
     {
         switch ($status) {
             case 'commit':
@@ -496,7 +536,7 @@ class Database
      * @param array     [$joins]    Optional. List of joining tables. Default to empty. E.g [ 'table_1 t1', 'table_2 t2', ... , 'table_N tN' ]
      * @return array<array>
      */
-    public function fetch(string $table = '', array $cols = ['*'], array $where = [], int $limit = 1000, int $offset = 0, array $order = ['id' => 'ASC'], array $joins = [])
+    public function fetch(string $table = '', array $cols = ['*'], array $where = [], int $limit = 1000, int $offset = 0, array $order = ['id' => 'ASC'], array $joins = []): array
     {
         if (!is_string($table) || empty($table)) {
             throw new \ErrorException(
@@ -575,9 +615,9 @@ class Database
 
     /**
      * Returns the connection resource link.
-     * @return MySQLConnectionObject
+     * @return PDO
      */
-    public function getLink()
+    public function getLink(): PDO
     {
         return $this->_resource;
     } // getLink
@@ -586,7 +626,7 @@ class Database
      * Returns the latest inserted ID
      * @return integer
      */
-    public function insertedId()
+    public function insertedId(): int
     {
         return $this->_resource->lastInsertId();
     } // insertedId
@@ -595,7 +635,7 @@ class Database
      * Returns the result count after a query.
      * @return integer
      */
-    public function resultCount()
+    public function resultCount(): int
     {
         return $this->_last_result_count;
     } // insertedId
@@ -606,7 +646,7 @@ class Database
      * @param array $args
      * @return string
      */
-    private function _args2string($args = [])
+    private function _args2string($args = []): string
     {
         if (is_null($args) || count($args) === 0) {
             return false;
@@ -645,7 +685,7 @@ class Database
      * @param string $table
      * @return string
      */
-    private function _escapeTableName($table = '')
+    private function _escapeTableName($table = ''): string
     {
         $_table = trim(strtolower($table));
 
@@ -665,7 +705,7 @@ class Database
      * @param string $column
      * @return string
      */
-    private function _escapeColumnName($column = '')
+    private function _escapeColumnName($column = ''): string
     {
         // Wildcard?
         if ($column == '*') {
