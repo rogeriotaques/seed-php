@@ -25,7 +25,7 @@ class Core extends Router
     /**
      * The constructor.
      */
-    function __construct()
+    public function __construct()
     {
         // Nothing to construct
     }
@@ -239,14 +239,19 @@ class Core extends Router
      * Load helpers and make them available through the App instance.
      *
      * @param string $component
-     * @param array $config
+     * @param array  $config
      * @param string $alias
      * @return Core
      */
-    public function load($component = '', $config = [], $alias = '')
+    public function load($component = '', $config = [], $alias = ''): Core
     {
         if (empty($component)) {
             return false;
+        }
+
+        if (strtolower($component) === 'router') {
+            parent::readRoutesFrom($config[ 'path' ] ?? '');
+            return $this;
         }
 
         $class = "\\SeedPHP\\Helper\\" . $this->camelfy($component);
@@ -279,15 +284,15 @@ class Core extends Router
         $worldCounter = 0;
 
         return implode(
-          '',
-          array_map(
-            function ($el) use (&$worldCounter, $first_lower) {
-                return $first_lower === true && $worldCounter++ === 0
+            '',
+            array_map(
+                function ($el) use (&$worldCounter, $first_lower) {
+                    return $first_lower === true && $worldCounter++ === 0
                 ? $el
                 : ucfirst($el);
-            },
-            explode('-', $str)
-          )
+                },
+                explode('-', $str)
+            )
         );
     } // camelfy
 

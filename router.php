@@ -9,6 +9,7 @@
 
 namespace SeedPHP;
 
+use ErrorException;
 use SeedPHP\Helper\Http;
 
 class Router
@@ -127,7 +128,7 @@ class Router
             $status = Http::getHTTPStatus($code);
         } catch (\Throwable $th) {
             // Fallback to "Internal Server Error" with the original message.
-            $status = Http::getHTTPStatus( Http::_INTERNAL_SERVER_ERROR );
+            $status = Http::getHTTPStatus(Http::_INTERNAL_SERVER_ERROR);
             $status['message'] = $th->getMessage();
         }
 
@@ -363,7 +364,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyStatus( $name = 'status' )
+    public function setCustomPropertyStatus($name = 'status')
     {
         if (!empty($name)) {
             $this->_response_property_status = $name;
@@ -378,7 +379,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyMessage( $name = 'message' )
+    public function setCustomPropertyMessage($name = 'message')
     {
         if (!empty($name)) {
             $this->_response_property_message = $name;
@@ -393,7 +394,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyData( $name = 'data' )
+    public function setCustomPropertyData($name = 'data')
     {
         if (!empty($name)) {
             $this->_response_property_data = $name;
@@ -408,7 +409,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyError( $name = 'error' )
+    public function setCustomPropertyError($name = 'error')
     {
         if (!empty($name)) {
             $this->_response_property_error = $name;
@@ -440,6 +441,28 @@ class Router
 
 
     // ~~~ PROTECTED ~~~
+
+    /**
+     * Require all route files from a given path.
+     *
+     * @param string $path
+     * @return void
+     */
+    protected function readRoutesFrom(string $path = ''): void
+    {
+        if (empty($path)) {
+            throw new ErrorException("SeedPHP :: Router : Path must be given.", Http::_BAD_REQUEST);
+        }
+
+        $path = preg_replace('/\/$/', '', $path) . '/*.php';
+
+        // Include all files from the given path.
+        // This removes the need to include them one bye one.
+        // @since 1.7.0
+        foreach (glob($path) as $file) {
+            require_once $file;
+        }
+    } // readRoutesFrom
 
     /**
      * Dispatches the router actions.
