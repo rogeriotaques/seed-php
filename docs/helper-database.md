@@ -3,7 +3,7 @@
 ## Database (aka PDO)
 
 >Package: `Helper\Database` <br >
->Namespace: `SeedPHP\Helper\Database`
+>Namespace: `SeedPHP\Helper`
 
 A simple, yet powerful and intuitive wrapper to work with database queries, with built in methods for `fetch`, `insert`, `update` and `delete`, also with support to chained `transactions`.
 

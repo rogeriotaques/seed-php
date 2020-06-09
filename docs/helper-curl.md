@@ -3,7 +3,7 @@
 ## cUrl
 
 >Package: `Helper\Curl` <br >
->Namespace: `SeedPHP\Helper\Curl`
+>Namespace: `SeedPHP\Helper`
 
 Gives you a simple wrapper to work with curl calls. <br>
 An usefull way to make your API consumes third party APIs on background.

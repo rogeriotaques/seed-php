@@ -3,7 +3,7 @@
 ## Http
 
 >Package: `Helper\Http` <br >
->Namespace: `SeedPHP\Helper\Http`
+>Namespace: `SeedPHP\Helper`
 
 Gives you some useful methods to standardise the manipulation of HTTP methods.
 

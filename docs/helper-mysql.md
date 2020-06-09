@@ -2,7 +2,7 @@
 
 ## MySQL
 
-!>`Deprecated`, will be removed from `v1.5.0`. <br >Use `SeedPHP\Helper\Database` instead.
+!>`Deprecated`, will be removed from `v2.0.0`. <br >Use `SeedPHP\Helper\Database` instead.
 
 >Package: `Helper\MySQL` <br >
 >Namespace: `SeedPHP\Helper\MySQL`

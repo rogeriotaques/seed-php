@@ -3,7 +3,7 @@
 ## Mailgun `Beta`
 
 >Package: `Helper\Mailgun` <br >
->Namespace: `SeedPHP\Helper\Mailgun`
+>Namespace: `SeedPHP\Helper`
 
 !> You must have an account on Mailgun to use this helper. <br >
 If you don't have an account yet, [get started for FREE](https://signup.mailgun.com/new/signup).

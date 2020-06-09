@@ -3,7 +3,7 @@
 ## Logger
 
 >Package: `Helper\Logger` <br >
->Namespace: `SeedPHP\Helper\Logger`
+>Namespace: `SeedPHP\Helper`
 
 A simple (yet versatile) solution to write down logs to the database.
 
