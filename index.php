@@ -17,6 +17,8 @@ if (!require_once('loader.php')) {
     require_once __DIR__ . '/loader.php';
 }
 
+use SeedPHP\Helper\Http;
+
 function run_test_query($times = 0, $isPDO = false)
 {
     global $app;
@@ -41,6 +43,9 @@ function run_test_query($times = 0, $isPDO = false)
 
 $app = SeedPHP\App::getInstance();
 
+$rateLimitSettings = [ 'limit_per_hour' => 20, 'seconds_delay' => 2, 'seconds_banned' => 2 ];
+$app->load('ratelimit', $rateLimitSettings);
+
 // force app to not do page caching (optional)
 $app->setCache(false);
 
@@ -54,6 +59,23 @@ $app->onFail(function ($error) {
     'This is what we give to your error handler:', "\n\n",
     var_dump($error),
     '</pre>';
+});
+
+$app->route('GET /ratelimit', function () use ($app, $rateLimitSettings) {
+    $app->ratelimit->test();
+
+    echo "You may try refreshing this page repeated times to see the limits increasing and eventually the call getting denied. <br ><br >";
+    
+    echo "Current options in use are:";
+    echo "<pre >", print_r($rateLimitSettings, true), "</pre>", "<br >";
+    
+    echo "After calling 16 times within an hour (be careful to not call more than twice per second), you will see the throttling taking place and your request will be delayed by 2 seconds.<br >";
+    echo "Aways you get banned, the ban time (retry-after) will double its current value until get reset.";
+
+    echo "<br ><br >";
+    
+    echo "Your current status is:";
+    echo "<pre >", print_r($_SESSION['rate-limit'][Http::getClientIP()], true), "</pre>", "<br >";
 });
 
 // @use /database
