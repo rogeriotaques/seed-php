@@ -101,7 +101,22 @@ class RateLimit
               $_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['hour'] > $this->_limit_per_hour
             ) {
                 $_banCount   = (int) $_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['ban-count'] + 1;
-                $_retryAfter = $this->_seconds_banned * $_banCount;
+
+                // Bans till the second count gets reset.
+                $_retryAfter = $this->_seconds_banned;
+
+                // When exceeding the limit per minutes, ban until minutes count gets reset.
+                if ($_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['min'] > $this->_limit_per_minute) {
+                    $_retryAfter = 60 + $this->_seconds_banned;
+                } 
+                
+                // When exceeding the limit per hour, ban until hours count gets reset.
+                if ($_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['hour'] > $this->_limit_per_hour) {
+                    $_retryAfter = 3600 + $this->_seconds_banned;
+                } 
+
+                // Increase the penaulty always a new attempt happens
+                $_retryAfter = $_retryAfter * $_banCount;
 
                 // Increase the punishment time, depending on how many times the rate was exceeded.
                 $_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['ban-count']  = $_banCount;
