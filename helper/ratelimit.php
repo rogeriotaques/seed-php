@@ -116,8 +116,6 @@ class RateLimit
             $_hoursCap  = $_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['hour'] / $this->_limit_per_hour;
             $_SESSION[RateLimit::SESSION_NAME][ $clientIP ]['not-before'] = null;
 
-            echo "CAP: ", $_hoursCap, "<br >";
-
             // Throttle the response if client has been banned for several times already or
             // if client reaches 80% (or more) of the hourly rate limit.
             if (
