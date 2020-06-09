@@ -441,7 +441,7 @@ class Mailgun
 
         if (sizeof($this->_attachments) > 0) {
             foreach ($this->_attachments as $key => $att) {
-                $data['attachment[' . ($key + 1) . ']'] = curl_file_create(
+                $data[$att['disposition'] . '[' . ($key + 1) . ']'] = curl_file_create(
                     $att['path'],
                     $att['type'],
                     $att['name']
@@ -493,9 +493,11 @@ class Mailgun
      * @since 1.2.0
      * @param string $filePath
      * @param string $fileName
+     * @param string $fileContentType Defaults to 'application/pdf'
+     * @param bool   $isInline Defaults to false
      * @return integer|false
      */
-    public function addAttachment($filePath = '', $fileName = '', $fileContentType = 'application/pdf')
+    public function addAttachment($filePath = '', $fileName = '', $fileContentType = 'application/pdf', $isInline = false)
     {
         if (!empty($fileName) && !empty($filePath)) {
             $id = sizeof($this->_attachments);
@@ -507,7 +509,8 @@ class Mailgun
             $this->_attachments[$id] = [
                 'name' => $fileName,
                 'path' => $filePath,
-                'type' => $fileContentType
+                'type' => $fileContentType,
+                'disposition' => $isInline ? 'inline' : 'attachment',
             ];
 
             return $id;

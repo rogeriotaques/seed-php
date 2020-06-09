@@ -259,15 +259,16 @@ Get the attachments list.
 
 ---
 
-### <span style="color: #42b983;">#</span> addAttachment( filePath, fileName [, fileContentType] )
+### <span style="color: #42b983;">#</span> addAttachment( filePath, fileName [, fileContentType [, isInline]] )
 
-Adds an attachments.
+Adds an attachments. When `isInline` is set to `TRUE`, the file (for instance an image) will be embed to the message body as an inline image.
 
 ##### Arguments
 
 - `{String} filePath: required`
 - `{String} fileName: required`
-- `{String} fileContentType: optional`
+- `{String} fileContentType: optional` - Default to application/pdf
+- `{Boolean} isInline: optional` - Default to FALSE
 
 ##### Return
 
