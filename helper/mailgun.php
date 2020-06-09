@@ -2,7 +2,7 @@
 
 /**
  * Seed-PHP Microframework
- * @copyright Rogerio Taques
+ * @author Rogerio Taques
  * @license MIT
  * @see http://github.com/rogeriotaques/seed-php
  *

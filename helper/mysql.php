@@ -2,7 +2,7 @@
 
 /**
  * Seed-PHP Microframework
- * @copyright Rogerio Taques
+ * @author Rogerio Taques
  * @license MIT
  * @see http://github.com/rogeriotaques/seed-php
  * @deprecated Since 1.0.0. Will be removed from 1.5.0, use SeedPHP\Helper\Database instead.
