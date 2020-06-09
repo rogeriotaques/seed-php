@@ -44,6 +44,7 @@ class Http
     const _REQUEST_ENTITY_TOO_LARGE = 413;
     const _REQUEST_URI_TOO_LARGE = 414;
     const _UNSUPPORTED_MEDIA_TYPE = 415;
+    const _TOO_MANY_REQUESTS = 429;
     const _INTERNAL_SERVER_ERROR = 500;
     const _NOT_IMPLEMENTED = 501;
     const _BAD_GATEWAY = 502;
@@ -155,6 +156,9 @@ class Http
             case 415:
                 $text = 'Unsupported Media Type';
                 break;
+            case 429:
+                $text = 'Too Many Requests';
+                break;
             case 500:
                 $text = 'Internal Server Error';
                 break;
@@ -213,34 +217,23 @@ class Http
      */
     public static function getClientIP()
     {
-        $ipaddress = '';
+        $_http_x_forwarded_for = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
 
-        if (isset($_SERVER['HTTP_CLIENT_I'])) {
-            $ipaddress = $_SERVER['HTTP_CLIENT_I'];
-        } else {
-            if (isset($_SERVER['HTTP_X_FORWARDED_FO'])) {
-                $ipaddress = $_SERVER['HTTP_X_FORWARDED_FO'];
-            } else {
-                if (isset($_SERVER['HTTP_X_FORWARDED'])) {
-                    $ipaddress = $_SERVER['HTTP_X_FORWARDED'];
-                } else {
-                    if (isset($_SERVER['HTTP_FORWARDED_FO'])) {
-                        $ipaddress = $_SERVER['HTTP_FORWARDED_FO'];
-                    } else {
-                        if (isset($_SERVER['HTTP_FORWARDED'])) {
-                            $ipaddress = $_SERVER['HTTP_FORWARDED'];
-                        } else {
-                            if (isset($_SERVER['REMOTE_ADDR'])) {
-                                $ipaddress = $_SERVER['REMOTE_ADDR'];
-                            } else {
-                                $ipaddress = 'UNKNOWN';
-                            }
-                        }
-                    }
-                }
-            }
+        // Sometimes the HTTP_X_FORWARDED_FOR variable returns internal or local IP 
+        // addresses, and another times, it also return more than one IP address in a 
+        // comma separated list if it was forwarded from multiple IP addresses.
+        if (strpos($_http_x_forwarded_for, ",") !== false) {
+            list($_http_x_forwarded_for) = explode(',', $_http_x_forwarded_for);
         }
 
-        return $ipaddress;
+        return $_SERVER['HTTP_CLIENT_IP'] 
+            ?? $_SERVER["HTTP_CF_CONNECTING_IP"] # when behind cloudflare
+            ?? $_SERVER['HTTP_X_FORWARDED'] 
+            ?? $_http_x_forwarded_for 
+            ?? $_SERVER['HTTP_FORWARDED'] 
+            ?? $_SERVER['HTTP_FORWARDED_FOR'] 
+            ?? $_SERVER['REMOTE_ADDR'] 
+            ?? '0.0.0.0'
+        ;
     } // getClientIP
 } // class
