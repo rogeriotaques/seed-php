@@ -74,6 +74,9 @@ class Core extends Router
                 $_status = Http::getHTTPStatus(500);
             }
 
+            // Add the real error message to the error object.
+            $_status['_message'] = $th1->getMessage();
+
             // Always an error handler was set, use it.
             if ($this->_error_handler !== false) {
                 return call_user_func($this->_error_handler, (object) $_status);

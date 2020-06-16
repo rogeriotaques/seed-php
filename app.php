@@ -8,6 +8,7 @@
  */
 
 namespace SeedPHP;
+
 use SeedPHP\Core;
 
 class App extends Core
