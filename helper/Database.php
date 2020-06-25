@@ -240,13 +240,13 @@ class Database
                     case 'sqlite':
                         $this->_dns = "{$this->_driver}://$this->_base";
                         break;
-                    
+
                     default: // assume mysql
                         $this->_dns = "{$this->_driver}:host={$this->_host};port={$this->_port};dbname={$this->_base};charset={$this->_charset}";
                         break;
                 }
             }
-            
+
             $this->_resource = new PDO($this->_dns, $this->_user, $this->_pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
             if (!is_null($this->_resource) && $this->_driver === 'mysql') {
@@ -365,17 +365,33 @@ class Database
             case 'commit':
                 if ($this->_transactions > 0) {
                     $this->_transactions -= 1;
+
+                    // It seems that SQLite does not support chainned transactions.
+                    // So, when a pseudo chainned transaction is closed, we'll decrease the counter and ignore it.
+                    if ($this->_driver === 'sqlite' && $this->_transactions > 0) {
+                        break;
+                    }
+
                     $this->_resource->commit();
-                    $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+
+                    if ($this->_driver === 'mysql') {
+                        $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+                    }
                 }
                 break;
 
             case 'rollback':
-                if ($this->_transactions > 1) {
+                // It seems that SQLite does not support chainned transactions.
+                // So, when a pseudo chainned transaction is rolled back, we'll decrease the counter and ignore it.
+
+                if ($this->_driver !== 'sqlite' && $this->_transactions > 1) {
                     $this->_resource->execute('rollback to trans' . (self::$_transactions + 1));
-                } else {
+                } elseif ($this->_transactions === 1) {
                     $this->_resource->rollback();
-                    $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+
+                    if ($this->_driver === 'mysql') {
+                        $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 1);
+                    }
                 }
 
                 $this->_transactions -= 1;
@@ -384,7 +400,17 @@ class Database
             // Any status other than commit and rollback will be understood as 'begin'
             default:
                 $this->_transactions += 1;
-                $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
+
+                // It seems that SQLite does not support chainned transactions.
+                // So, if any subsequent transaction is started, we'll increase the counter but ignore it.
+                if ($this->_driver === 'sqlite' && $this->_transactions > 1) {
+                    break;
+                }
+
+                if ($this->_driver === 'mysql') {
+                    $this->_resource->setAttribute(PDO::ATTR_AUTOCOMMIT, 0);
+                }
+
                 $this->_resource->beginTransaction();
                 break;
         }
