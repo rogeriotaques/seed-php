@@ -74,10 +74,12 @@ class Router
      * Set routes for the app.
      *
      * @param string $route
-     * @param boolean $callback
+     * @param callable $callback - Optional
+     * @param callable $before   - Optional. A hook to be executed before the callback.
+     * @param callable $after    - Optional. A hook to be executed after the callback.
      * @return Router
      */
-    public function route($route = 'GET /', $callback = false)
+    public function route(string $route = 'GET /', ?callable $callback = null, ?callable $before = null, callable $after = null) : self
     {
         $method = ['GET'];
 
@@ -101,7 +103,9 @@ class Router
             // add new route
             $this->_routes[$m][] = (object)[
                 'uri' => $route,
-                'callback' => $callback
+                'callback' => $callback,
+                'before' => $before,
+                'after' => $after
             ];
         }
 
@@ -112,12 +116,12 @@ class Router
     /**
      * Complete the flow and send a response to the browser.
      *
-     * @param integer $code
-     * @param array $response
-     * @param [string] $output either json or xml
-     * @return json|xml strings
+     * @param integer   $code
+     * @param array     $response
+     * @param string    $output either json or xml
+     * @return mixed    json|xml strings
      */
-    public function response($code = 200, $response = [], $output = null)
+    public function response(int $code = 200, array $response = [], ?string $output = null)
     {
         if (is_null($output)) {
             $output = $this->_output_type;
@@ -225,10 +229,10 @@ class Router
      * Set an allowed method.
      *
      * @param string|array<string> $method
-     * @param boolean $merge when true, resets the list of allowed methods
+     * @param bool $merge when true, resets the list of allowed methods
      * @return Router
      */
-    public function setAllowedMethod($method = '', $merge = true)
+    public function setAllowedMethod($method = '', bool $merge = true) : self
     {
         if (!empty($method)) {
             if (!$merge) {
@@ -249,10 +253,10 @@ class Router
      * Set an allowed header.
      *
      * @param string|array<string> $header
-     * @param boolean $merge
-     * @return void
+     * @param bool $merge
+     * @return Router
      */
-    public function setAllowedHeader($header = '', $merge = true)
+    public function setAllowedHeader($header = '', bool $merge = true) : self
     {
         if (!empty($header)) {
             if (!$merge) {
@@ -275,7 +279,7 @@ class Router
      * @param string $origin
      * @return Router
      */
-    public function setAllowedOrigin($origin = '')
+    public function setAllowedOrigin(string $origin = '') : self
     {
         if (!empty($origin)) {
             $this->_allowed_origin = $origin;
@@ -291,7 +295,7 @@ class Router
      * @param integer $max_age
      * @return Router
      */
-    public function setCache($flag = true, $max_age = 3600)
+    public function setCache(bool $flag = true, int $max_age = 3600) : self
     {
         $this->_cache = $flag;
         $this->_cache_max_age = $max_age;
@@ -304,7 +308,7 @@ class Router
      * @param string $lang
      * @return Router
      */
-    public function setLanguage($lang = 'en')
+    public function setLanguage(string $lang = 'en') : self
     {
         if (!empty($lang)) {
             $this->_language = $lang;
@@ -319,7 +323,7 @@ class Router
      * @param string $charset
      * @return Router
      */
-    public function setCharset($charset = 'utf8')
+    public function setCharset(string $charset = 'utf8'): self
     {
         if (!empty($charset)) {
             $this->_charset = $charset;
@@ -334,7 +338,7 @@ class Router
      * @param string $type
      * @return Router
      */
-    public function setOutputType($type = 'json')
+    public function setOutputType(string $type = 'json'): self
     {
         if (!empty($type)) {
             $this->_output_type = $type;
@@ -346,12 +350,12 @@ class Router
     /**
      * Set a custom error handler.
      *
-     * @param boolean $callback
+     * @param mixed $callback Accepts function|false|null
      * @return Router
      */
-    public function onFail($callback = false)
+    public function onFail(?callable $callback = null): self
     {
-        if ($callback !== false && is_callable($callback)) {
+        if (!empty($callback) && is_callable($callback)) {
             $this->_error_handler = $callback;
         }
 
@@ -364,7 +368,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyStatus($name = 'status')
+    public function setCustomPropertyStatus(string $name = 'status'): self
     {
         if (!empty($name)) {
             $this->_response_property_status = $name;
@@ -379,7 +383,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyMessage($name = 'message')
+    public function setCustomPropertyMessage(string $name = 'message'): self
     {
         if (!empty($name)) {
             $this->_response_property_message = $name;
@@ -394,7 +398,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyData($name = 'data')
+    public function setCustomPropertyData(string $name = 'data'): self
     {
         if (!empty($name)) {
             $this->_response_property_data = $name;
@@ -409,7 +413,7 @@ class Router
      * @param string $name
      * @return Router
      */
-    public function setCustomPropertyError($name = 'error')
+    public function setCustomPropertyError(string $name = 'error'): self
     {
         if (!empty($name)) {
             $this->_response_property_error = $name;
@@ -422,11 +426,11 @@ class Router
      * Append global additional properties to be returned alongside any response by default.
      *
      * @param string $key
-     * @param string|integer|boolean|function $value
-     * @param boolean $reset when true, resets the list of additional properties
+     * @param mixed  $value Accepts string|integer|boolean|function
+     * @param bool   $reset when true, resets the list of additional properties
      * @return Router
      */
-    public function setAdditionalResponseProperty($key = '', $value = '', $reset = false)
+    public function setAdditionalResponseProperty(string $key = '', $value = '', bool $reset = false): self
     {
         if (!empty($key)) {
             if ($reset) {
@@ -468,12 +472,14 @@ class Router
      * Dispatches the router actions.
      *
      * @param array $args
-     * @return boolean
+     * @return mixed bool|null|string
      */
-    protected function dispatch($args = [])
+    protected function dispatch(array $args = [])
     {
-        $matches = [];
-        $matched_callback = false;
+        $matches             = [];
+        $matched_callback    = null;
+        $matched_hook_before = null;
+        $matched_hook_after  = null;
 
         // echo "METHOD ", $this->_method, "<br />\n";
 
@@ -483,11 +489,15 @@ class Router
 
             foreach ($this->_routes[$this->_method] as $route) {
                 // echo $route->uri, ' ::: ', $this->_uri, "<br />\n";
+
                 if (@preg_match("@^{$route->uri}$@", $this->_uri, $matches)) {
                     // echo " -> MATCHED";
-                    $matched_callback = $route->callback;
+                    $matched_callback    = $route->callback;
+                    $matched_hook_before = $route->before;
+                    $matched_hook_after  = $route->after;
                     break;
                 }
+                
                 // echo "<br />\n";
             }
         }
@@ -499,14 +509,27 @@ class Router
             if ($this->_error_handler !== false) {
                 return call_user_func($this->_error_handler, (object) Http::getHTTPStatus(Http::_NOT_IMPLEMENTED));
             }
-
+            
             return $this->response(Http::_NOT_IMPLEMENTED);
         }
+        
+        if (!empty($matched_callback) && is_callable($matched_callback)) {
+            // Run the before hook
+            !empty($matched_hook_before) && is_callable($matched_hook_before) && @call_user_func($matched_hook_before, $args);
 
-        if ($matched_callback !== false && is_callable($matched_callback)) {
-            return call_user_func($matched_callback, $args);
+            // Run the call
+            $called = call_user_func($matched_callback, $args);
+            
+            // Run the after hook
+            !empty($matched_hook_after) && is_callable($matched_hook_after) && @call_user_func($matched_hook_after, $args + [ $called ]);
+
+            if (is_null($called)) {
+                return true;
+            }
+            
+            return $called;
         }
-
+        
         return true;
     } // dispatch
 
