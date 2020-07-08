@@ -86,6 +86,21 @@ $app->onFail(function ($error) {
 });
 
 /**
+ * Pre and post hooks execution example.
+ * @use /hooks
+ */
+$app->route('GET /hooks', function () {
+    echo "This is the main handler 🤘<br >";
+    return;
+}, function () {
+    echo "This is the before-hook handler 🥇<br >";
+    return;
+}, function () {
+    echo "This is the after-hook handler ⏰<br >";
+    return;
+});
+
+/**
  * Print the execution of a ratelimit.
  * @use /ratelimit
  */
