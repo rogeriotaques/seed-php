@@ -248,19 +248,19 @@ $app->db->disconnect();
 
 --- 
 
-### <span style="color: #42b983;">#</span> route( route [, callback] )
+### <span style="color: #42b983;">#</span> route( route [[[, callback], beforeHook], afterHook] ) <span style="font-size: 10px; background-color: #42b983; padding: 0.5rem; border-radius: 1rem; color: #fff" >UPDATED</span>
 
 Creates the routing rules for the API, app or website.
 
-Routes can be writen in specific `php` files, hosted on a directory of your preference 
-within the app root folder and loaded all at once with:
-
-`$app->load('router', [ 'path' => __DIR__ . '/path/to/router/files' ])`
+> Routes can be writen in specific `php` files, hosted on a directory of your preference within the app root folder and loaded all at once with: <br >
+> `$app->load('router', [ 'path' => __DIR__ . '/path/to/router/files' ])`
 
 ##### Arguments
 
 - `{String} route: required`
 - `{Function} callback: optional`
+- `{Function} beforeHook: optional` - `1.9+` Runs immediately `before` the main callback
+- `{Function} afterHook: optional` - `1.9+` Runs immediately `after` the main callback 
 
 ##### Return
 
