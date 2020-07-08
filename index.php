@@ -7,12 +7,19 @@
  * @see http://github.com/rogeriotaques/seed-php
  */
  
-// define the api timezone
+/**
+ * Forces the API tomezone.
+ */
 date_default_timezone_set('Asia/Tokyo');
 
+/**
+ * Requires composer auto-loader
+ */
 require_once __DIR__ . '/vendor/autoload.php';
 
-// import loader ...
+/**
+ * Imports the SeedPHP stand-alone loader.
+ */
 if (!require_once('loader.php')) {
     require_once __DIR__ . '/loader.php';
 }
@@ -41,26 +48,47 @@ function run_test_query($times = 0, $isPDO = false)
     $app->mysql->disconnect();
 }
 
+/**
+ * Gets the SeedPHP instance.
+ */
 $app = SeedPHP\App::getInstance();
 
+/** @var array - Settings for the RateLimit Helper */
 $rateLimitSettings = [ 'limit_per_hour' => 20, 'seconds_delay' => 2, 'seconds_banned' => 2 ];
+
+/**
+ * Load the RateLimit helper attaching it to the App instance.
+ * This is optional.
+ */
 $app->load('ratelimit', $rateLimitSettings);
 
-// force app to not do page caching (optional)
+/**
+ * Forces the page to turn off caching.
+ * This is optional.
+ */
 $app->setCache(false);
 
-// set an error handler (optional)
+/**
+ * Sets the error handler. 
+ * This is optional.
+ */
 $app->onFail(function ($error) {
     echo '<h1>Oops! An error has happened! </h1>';
     echo "<p >The error sais: {$error->code} - {$error->message}</p>";
 
     echo
-    '<pre >',
-    'This is what we give to your error handler:', "\n\n",
-    var_dump($error),
-    '</pre>';
+        '<pre >',
+        'This is what we give to your error handler:', "\n\n",
+        var_dump($error),
+        '</pre>';
+
+    return;
 });
 
+/**
+ * Print the execution of a ratelimit.
+ * @use /ratelimit
+ */
 $app->route('GET /ratelimit', function () use ($app, $rateLimitSettings) {
     $app->ratelimit->test();
 
@@ -76,24 +104,29 @@ $app->route('GET /ratelimit', function () use ($app, $rateLimitSettings) {
     
     echo "Your current status is:";
     echo "<pre >", print_r($_SESSION['rate-limit'][Http::getClientIP()], true), "</pre>", "<br >";
+
+    return;
 });
 
-// @use /database
+/**
+ * Print the execution of a database.
+ * @use /database
+ */
 $app->route('GET /database', function () use ($app) {
-    $app->load(
-        'mysql',
-        [
-            'host' => 'localhost',
-            'port' => '3306',
-            'user' => 'root',
-            'pass' => '',
-            'base' => 'issuer'
-        ]
-    );
-
-    run_test_query();
-
-    echo '<br >';
+    // NOTICE:
+    // THIS HELPER HAS BEEN DEPRECATED
+    // $app->load(
+    //     'mysql',
+    //     [
+    //         'host' => 'localhost',
+    //         'port' => '3306',
+    //         'user' => 'root',
+    //         'pass' => '',
+    //         'base' => 'issuer'
+    //     ]
+    // );
+    // run_test_query();
+    // echo '<br >';
 
     $app->load(
         'database',
@@ -108,39 +141,69 @@ $app->route('GET /database', function () use ($app) {
     );
 
     run_test_query(0, true);
+
+    return;
 });
 
-// @use /sample/foo or /sample/foo/bar or /sample/foo/bar/zoo
-$app->route('GET /sample/(\w+)(/\w+)?(/\w+)?', function ($args) use ($app) {
-    echo
-    '<pre >',
-    'Arguments can be retrieved like this:', "\n\n",
-    var_dump($app->request()), "\n\n",
-    'Arguments can be retrieved like this:', "\n\n",
-    var_dump($args),
-    '</pre>';
-});
-
-// // @use /sample or /sample/100
+/**
+ * Print received arguments based on the called path.
+ * Note that the order mathers and longer patters from the same URL should be given last.
+ * @use /sample/some-verb OR
+ * @use /sample/some-verb/123 
+ */
 $app->route('GET /sample(/\d+)?', function () use ($app) {
     echo
-    '<pre >',
-    'Arguments can be retrieved like this:', "\n\n",
-    print_r($app->request()),
-    '</pre>';
+        '<pre >',
+        'Arguments can be retrieved like this:', "\n\n",
+        print_r($app->request(), true),
+        '</pre>';
+
+    return;
 });
 
-// @use /welcome
+/**
+ * Print received arguments based on the called path.
+ * Note that the order mathers and longer patters from the same URL should be given last.
+ * @use /sample/some-verb OR
+ * @use /sample/some-verb/some-id OR 
+ * @use /sample/some-verb/123 OR
+ * @use /sample/some-verb/123/arg1 OR
+ * @use /sample/some-verb/123/arg1/foo OR
+ * @use /sample/some-verb/123/arg2/bar ...
+ */
+$app->route('GET /sample(/[a-z0-9\-]+)?(/[a-z0-9\-]+)?(/[a-z0-9\-]+){0,}', function ($args) use ($app) {
+    echo
+        '<pre >',
+        'Arguments can be retrieved like this:', "\n\n",
+        print_r($app->request(), true), "\n\n",
+        'Arguments can be retrieved like this:', "\n\n",
+        print_r($args, true),
+        '</pre>';
+
+    return;
+});
+
+
+/**
+ * Returns a XML document
+ * @use /xml
+ */
 $app->route('GET /xml', function () use ($app) {
-    $app->response(200, ['message' => 'You are very welcome!', 'output' => 'xml'], 'xml');
+    return $app->response(200, ['message' => 'You are very welcome!', 'output' => 'xml'], 'xml');
 });
 
-// @use /welcome
+/**
+ * Render the welcome page
+ * @use /welcome
+ */
 $app->route('GET /welcome', function () use ($app) {
-    $app->response(200, ['message' => 'You are very welcome!', 'data' => ['foo' => 'bar']]);
+    return $app->response(200, ['message' => 'You are very welcome!', 'data' => ['foo' => 'bar']]);
 });
 
-// @use /mailgun-twig
+/**
+ * Parse and print (twig) template given email body .
+ * @use /mailgun-twig
+ */
 $app->route('GET /mailgun-twig', function () use ($app) {
     $app->load('mailgun', ['apiKey' => 'abc', 'domain' => 'def']);
 
@@ -154,9 +217,14 @@ $app->route('GET /mailgun-twig', function () use ($app) {
         ],
         'twig'
     );
+
+    return;
 });
 
-// @use /mailgun-twig-str
+/**
+ * Parse and print string given email body .
+ * @use /mailgun-twig-str
+ */
 $app->route('GET /mailgun-twig-string', function () use ($app) {
     $app->load('mailgun', ['apiKey' => 'abc', 'domain' => 'def']);
 
@@ -169,11 +237,17 @@ $app->route('GET /mailgun-twig-string', function () use ($app) {
         'twig',
         'string'
     );
+
+    return;
 });
 
-// @use /
+/**
+ * Redirects to another page.
+ * @use /
+ */
 $app->route('GET /', function () use ($app) {
     header("location: {$app->request()->base}/welcome", 302);
+    return;
 });
 
 $app->run();
