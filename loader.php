@@ -12,6 +12,8 @@ if (!function_exists('seed_loader')) {
     {
         $base_dir = dirname(__DIR__) . DIRECTORY_SEPARATOR;
 
+        // Support classes grouped in directories and named such as "Controller_Myclass",
+        // where "Controller" will be a directory and "Myclass" the class file name.
         $class = str_replace(["_"], "\\", $class);
         $class = ltrim($class, '\\');
 
@@ -21,38 +23,41 @@ if (!function_exists('seed_loader')) {
 
         if ($lastNsPos = strripos($class, '\\')) {
             $namespace = substr($class, 0, $lastNsPos);
-
-            // backward compatbility for previous namespace
-            if (strpos($namespace, $expected_namespace) === false && strpos($namespace, 'Seed') === 0) {
-                $namespace = $expected_namespace . str_replace('Seed', '', $namespace);
+            
+            // Do not try to load the classes from SeedPHP when using a different namespace
+            // @since 1.1.6
+            if (strpos($namespace, $expected_namespace) === false) {
+                return;
             }
-
+            
             $class = substr($class, $lastNsPos + 1);
-            $file = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
         }
+        
+        // Converts NameSpace like into name-space 
+        // @since 1.9.1
+        $namespace = strtolower( preg_replace('/(\w)([ABCDEFGHIJKLMNOPQRSTUVWXYZ]{1})(.*)$/', '$1-$2$3', $namespace) );
 
-        // do not try to load the classes from SeedPHP when using a different namespace
-        // @since 1.1.6
-        if (strpos($namespace, $expected_namespace) === false) {
-            return;
-        }
+        // Prepare the file name
+        $file = str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR . str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
 
-        $file .= str_replace('_', DIRECTORY_SEPARATOR, $class) . '.php';
-
-        // does the file exist?
+        // Does the file exist?
         if (!file_exists($base_dir . $file)) {
-            // converts CamelCase files names into camel-case.
+            // Try to find a Camel-Case like file.
             $file = preg_replace('/(\w)([ABCDEFGHIJKLMNOPQRSTUVWXYZ]{1})(.*)$/', '$1-$2$3', $file);
-            $file = strtolower($file);
 
-            // even after consider the dashed named files
-            // file is not found, throw an eception ...
             if (!file_exists($base_dir . $file)) {
-                throw new Exception("SeedPHP Autoloader: Impossible to find the class file '{$class}'");
-            }
-        }
+                // Not lucky! Last trial, now all lowercase ... 
+                $file = strtolower($file);
 
-        // does the file exist? can we include it?
+                // But, if even after considering a dashed named file,
+                // the file is not found, throw an eception ...
+                if (!file_exists($base_dir . $file)) {
+                    throw new Exception("SeedPHP Autoloader: Impossible to find the class file '{$class}'");
+                } // not lower-case file
+            } // not Snake-Case file
+        } // not CamelCase file
+
+        // Does the file exist? Can we include it?
         if (file_exists($base_dir . $file) && !@include_once($base_dir . $file)) {
             throw new Exception("SeedPHP Autoloader: Impossible to load class '{$class}'");
         }
