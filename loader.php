@@ -23,14 +23,13 @@ if (!function_exists('seed_loader')) {
 
         if ($lastNsPos = strripos($class, '\\')) {
             $namespace = substr($class, 0, $lastNsPos);
-            
-            // Do not try to load the classes from SeedPHP when using a different namespace
-            // @since 1.1.6
-            if (strpos($namespace, $expected_namespace) === false) {
-                return;
-            }
-            
             $class = substr($class, $lastNsPos + 1);
+        }
+        
+        // Do not try to load the classes from SeedPHP when using a different namespace
+        // @since 1.1.6
+        if (strpos($namespace, $expected_namespace) === false) {
+            return;
         }
         
         // Converts NameSpace like into name-space 
