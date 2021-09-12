@@ -155,7 +155,7 @@ class Mailgun
     }
 
     /**
-     * Retrives the meta-information from the cURL call.
+     * Retrieves the meta-information from the cURL call.
      * @return object
      */
     public function getInfo()
@@ -184,11 +184,12 @@ class Mailgun
      * @param string $email
      * @param string $name
      * @return Mailgun
+     * @throws \Exception
      */
     public function setFrom($email = '', $name = '')
     {
-        if (empty($email) || empty($name)) {
-            throw new \Exception('SeedPHP\Helper\Mailgun::setFrom : Missing sender address or name.');
+        if (empty($email)) {
+            throw new \Exception('SeedPHP\Helper\Mailgun::setFrom : Missing sender address.');
         }
 
         $email = preg_replace($this->_emailPattern, '', $email);
@@ -208,11 +209,12 @@ class Mailgun
      * @param string $name
      * @param boolean $reset
      * @return Mailgun
+     * @throws \Exception
      */
     public function setTo($email = '', $name = null, $reset = false)
     {
         if (empty($email)) {
-            return $this;
+            throw new \Exception('SeedPHP\Helper\Mailgun::setTo : Missing recipient address.');
         }
 
         $email = preg_replace($this->_emailPattern, '', $email);
