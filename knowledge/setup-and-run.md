@@ -7,5 +7,5 @@
   (nullable types, `\Throwable`, scalar type hints). Do not write 5.6-compatible code.
 - `index.php` is a demo/sample app. It has hardcoded DB credentials and test routes.
   Do not treat it as a production entrypoint.
-- There is no test suite, no CI, and no lint/format script.
-  Do not invent `composer test` or a similar command.
+- Run the test suite with `just test` or `php tests.php`. See `knowledge/testing.md`.
+- There is no CI and no lint/format script. Do not invent `composer test`.
