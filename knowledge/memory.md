@@ -15,10 +15,36 @@ Checkpoint memory for this repository. Read it at session start. Update it at se
 - Topic knowledge lives in `knowledge/`. `AGENTS.md` is the index.
 - Plans live in `knowledge/plans/`, named `yyyy-mm-dd_<topic>.md`.
 - PHP 8 migration is not done. Plan: `knowledge/plans/2026-09-26_php8-compatibility.md`.
-- `composer install` fails on PHP 8 (locked twig 2.12.5).
+- `composer install` works on PHP 8.1+ (`twig/twig ^3.0`, locked 3.30.0). `vendor/` is
+  installed. Twig 3 is required because all Twig 2.x releases have security advisories.
 - `helper/Mysql.php` was removed (deprecated since 1.0.0, constructor threw).
 
 ## Sessions
+
+### 2026-09-26 - Twig installed, Mailgun tests un-skipped
+
+- `composer update` moved `twig/twig` to `^3.0` (locked 3.30.0) and `erusev/parsedown` to
+  1.8.0. Twig 2.x is blocked by security advisories. `vendor/` now exists.
+- `tests.php` loads `vendor/autoload.php` when present. Mailgun `parse()` (Twig + Markdown)
+  and `Mailgun::send()` (loopback via reflection on `_apiBase`) now run.
+- Suite: 78 pass, 0 fail, 0 skip. No skips left.
+- This starts the PHP 8 plan Workstream 1 (twig part); `php >=5.6` and the platform pin
+  remain pending.
+
+### 2026-09-26 - Curl tested against loopback
+
+- Removed the `Curl::execute()` skip. Added a live-server group that runs `Curl::execute()`,
+  `Curl::get()`, and `Curl::post()` against the existing `php -S` test server.
+- No stub and no external network. Only `Mailgun::send()` and Mailgun `parse()` (no Twig)
+  remain skipped.
+- Suite: 74 pass, 0 fail, 2 skip (76 cases).
+
+### 2026-09-26 - Logger test now runs (sqlite)
+
+- Un-skipped `Logger::log()`. The test creates a temporary SQLite file, creates the
+  `log_usage` table, inserts an entry through `Logger`, verifies it, and deletes the file.
+- Teardown is guaranteed via `register_shutdown_function` plus an explicit unlink.
+- Suite: 70 pass, 0 fail, 3 skip (73 cases).
 
 ### 2026-09-26 - Removed Mysql helper (TDD)
 

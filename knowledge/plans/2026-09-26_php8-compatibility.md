@@ -22,7 +22,7 @@ code paths emit PHP 8 deprecations or fatal errors. Local PHP is 8.5.6.
   `"config": { "platform": { "php": "8.0.0" } }` so the lock stays 8.0-resolvable (Twig 3
   latest requires >=8.1). If PHP 8.0 is not required, use `"php": "^8.1"` and drop the
   platform pin.
-- Twig: `"twig/twig": "^3.0"`. Migration risk is low (see Workstream 1).
+- Twig: `"twig/twig": "^3.0"` (done 2026-09-26; locked 3.30.0). Migration risk is low.
 
 ## Verification model
 

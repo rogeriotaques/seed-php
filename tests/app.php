@@ -46,6 +46,10 @@ $app->route('GET /sample(/\d+)?', function ($args) use ($app) {
     return $app->response(200, ['id' => $app->request()->id, 'args' => $args]);
 });
 
+$app->route('POST /messages', function () use ($app) {
+    return $app->response(200, ['id' => 'stubbed-message', 'message' => 'Queued']);
+});
+
 $app->route('GET /ratelimit', function () use ($app) {
     $app->ratelimit->test();
     return $app->response(200, ['ok' => true]);

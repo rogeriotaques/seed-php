@@ -10,6 +10,11 @@
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING);
 ini_set('display_errors', '1');
 
+$composerAutoload = __DIR__ . '/vendor/autoload.php';
+if (file_exists($composerAutoload)) {
+    require_once $composerAutoload;
+}
+
 require_once __DIR__ . '/loader.php';
 
 $TEST_PORT = 8090;
@@ -319,13 +324,41 @@ $curl = new SeedPHP\Helper\Curl();
 assert_true($curl->create('http://localhost') === $curl, 'create() is chainable');
 assert_true($curl->option(CURLOPT_TIMEOUT, 5) === $curl, 'option() is chainable');
 assert_true($curl->data(['a' => 1]) === $curl, 'data() is chainable');
-skip('Curl::execute() performs a network request');
 
 group('Logger helper');
 
-$logger = new SeedPHP\Helper\Logger(['driver' => 'sqlite', 'base' => ':memory:']);
+$loggerDb = tempnam(sys_get_temp_dir(), 'seedphp_logger_');
+register_shutdown_function(function () use ($loggerDb) {
+    @unlink($loggerDb);
+});
+
+$loggerSetup = new SeedPHP\Helper\Database(['driver' => 'sqlite', 'base' => $loggerDb]);
+$loggerSetup->connect();
+$loggerSetup->exec('create table log_usage (id integer primary key autoincrement, endpoint text, resource text, request_ip text, request_header text, request_data text, response_data text, response_code integer)');
+$loggerSetup->disconnect();
+
+$logger = new SeedPHP\Helper\Logger(['driver' => 'sqlite', 'base' => $loggerDb]);
 assert_true($logger instanceof SeedPHP\Helper\Logger, 'instantiates with config');
-skip('Logger::log() needs a live database connection');
+
+$logger
+    ->endpoint('/logger-test')
+    ->resource('items')
+    ->requestIP('203.0.113.9')
+    ->requestHeader(['X-Test' => 'yes'])
+    ->requestData(['a' => 1])
+    ->responseData(['ok' => true])
+    ->responseCode(200);
+
+assert_eq(1, $logger->log(), 'log() inserts a row');
+
+$loggerCheck = new SeedPHP\Helper\Database(['driver' => 'sqlite', 'base' => $loggerDb]);
+$loggerCheck->connect();
+$rows = $loggerCheck->fetch('log_usage', ['*'], ['id' => 1]);
+assert_eq(1, count($rows), 'log() persists the entry');
+assert_eq('/logger-test', $rows[0]['endpoint'], 'log() stores the endpoint');
+$loggerCheck->disconnect();
+
+@unlink($loggerDb);
 
 group('Mysql helper (removed)');
 
@@ -337,12 +370,20 @@ group('Mailgun helper');
 
 $mailgun = new SeedPHP\Helper\Mailgun(['apiKey' => 'key', 'domain' => 'example.test']);
 assert_true($mailgun instanceof SeedPHP\Helper\Mailgun, 'instantiates with config');
+
 if (class_exists('Twig\\Environment')) {
-    skip('Mailgun::parse() template rendering');
+    $rendered = $mailgun->parse('Hello {{ name }}', ['name' => 'World'], 'twig', 'string');
+    assert_eq('Hello World', trim($rendered), 'parse() renders a Twig string template');
 } else {
     skip('Mailgun::parse() needs Twig (vendor not installed)');
 }
-skip('Mailgun::send() performs a network request');
+
+if (class_exists('Parsedown')) {
+    $rendered = $mailgun->parse('# Title', [], 'markdown', 'string');
+    assert_contains('<h1>Title</h1>', $rendered, 'parse() renders Markdown');
+} else {
+    skip('Mailgun::parse() needs Parsedown (vendor not installed)');
+}
 
 group('HTTP routing (live server)');
 
@@ -403,6 +444,43 @@ if ($portBusy) {
 
         $r = http_request('GET', '/nope');
         assert_eq(501, $r['status'], 'unknown route returns 501');
+
+        group('Curl helper (live server)');
+
+        $curl = new SeedPHP\Helper\Curl();
+        $curl->create($BASE . '/json', [CURLOPT_VERBOSE => false]);
+        $result = $curl->execute();
+        assert_true(is_object($result), 'Curl::execute() decodes the JSON response');
+        assert_eq('bar', $result->data->foo, 'Curl::execute() returns the payload');
+
+        $curl = new SeedPHP\Helper\Curl();
+        $result = $curl->get($BASE . '/json', [CURLOPT_VERBOSE => false]);
+        assert_eq(200, $result->status, 'Curl::get() returns the response status');
+
+        $curl = new SeedPHP\Helper\Curl();
+        $result = $curl->post($BASE . '/methods', [CURLOPT_VERBOSE => false]);
+        assert_eq('POST', $result->method, 'Curl::post() uses the POST method');
+
+        group('Mailgun helper (live server)');
+
+        $mailgun = new SeedPHP\Helper\Mailgun(['apiKey' => 'key', 'domain' => 'example.test']);
+        $reflection = new ReflectionClass(SeedPHP\Helper\Mailgun::class);
+        $apiBase = $reflection->getProperty('_apiBase');
+        $apiBase->setAccessible(true);
+        $apiBase->setValue($mailgun, $BASE);
+        $domain = $reflection->getProperty('_domain');
+        $domain->setAccessible(true);
+        $domain->setValue($mailgun, '');
+
+        $mailgun
+            ->setFrom('from@example.test', 'From')
+            ->setTo('to@example.test', 'To')
+            ->setSubject('Hello')
+            ->setMessage('<b>Body</b>');
+
+        $result = $mailgun->send();
+        assert_eq('stubbed-message', $result['id'], 'send() posts to the API and returns the JSON');
+        assert_eq('Queued', $result['message'], 'send() reads the API message');
 
         $cookie = tempnam(sys_get_temp_dir(), 'seedphp_cookie_');
         $r = http_request('GET', '/ratelimit', null, $cookie);

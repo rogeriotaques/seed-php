@@ -30,7 +30,7 @@
     "require": {
         "php": ">=5.6.0",
         "erusev/parsedown": "^1.7",
-        "twig/twig": "^2.0"
+        "twig/twig": "^3.0"
     },
     "autoload": {
         "files": [

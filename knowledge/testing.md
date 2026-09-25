@@ -3,8 +3,9 @@
 ## Run
 
 - `just test`, or `php tests.php`.
-- Requires PHP with `curl`, `pdo_sqlite`, and `session`. No Composer, no vendor, no
-  external test framework.
+- Requires PHP with `curl`, `pdo_sqlite`, and `session`. No external test framework.
+- Composer is optional. Unit and HTTP tests run without it. `composer install` enables the
+  Twig and Parsedown cases (Mailgun `parse()`).
 - Exit code is `1` when any test fails, `0` otherwise.
 
 ## Files
@@ -34,7 +35,12 @@ the suite green. Do not change behavior without a test that covers it.
 
 - The suite sets `error_reporting(E_ALL & ~E_DEPRECATED & ~E_WARNING)`. Deprecations are
   tracked by the PHP 8 plan, not by this suite.
-- Network calls are skipped (`Curl::execute()`, `Mailgun::send()`). Mailgun `parse()` tests
-  are skipped when Twig is not installed.
+- `Curl` and `Mailgun::send()` are exercised against the loopback test server. No external
+  network is used. `Mailgun::send()` points its private API base at the server via
+  reflection; the fixture answers `POST /messages`.
+- Mailgun `parse()` renders Twig and Markdown. Those cases are skipped only when
+  `vendor/autoload.php` is missing.
 - The server port is 8090. The suite fails the HTTP group if the port is busy.
+- Database and Logger tests use SQLite. Logger uses a temporary file so the entry can be
+  verified from a second connection; the file is deleted during teardown.
 - Test artifacts live in the system temp dir. The suite leaves no files in the repo.
