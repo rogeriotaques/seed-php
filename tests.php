@@ -193,7 +193,6 @@ assert_true(class_exists('SeedPHP\\Helper\\Database'), 'loads SeedPHP\\Helper\\D
 assert_true(class_exists('SeedPHP\\Helper\\Curl'), 'loads SeedPHP\\Helper\\Curl');
 assert_true(class_exists('SeedPHP\\Helper\\RateLimit'), 'loads SeedPHP\\Helper\\RateLimit');
 assert_true(class_exists('SeedPHP\\Helper\\Logger'), 'loads SeedPHP\\Helper\\Logger');
-assert_true(class_exists('SeedPHP\\Helper\\Mysql'), 'loads SeedPHP\\Helper\\Mysql');
 
 assert_throws(Exception::class, function () {
     class_exists('SeedPHP\\ThisDoesNotExist');
@@ -328,11 +327,11 @@ $logger = new SeedPHP\Helper\Logger(['driver' => 'sqlite', 'base' => ':memory:']
 assert_true($logger instanceof SeedPHP\Helper\Logger, 'instantiates with config');
 skip('Logger::log() needs a live database connection');
 
-group('Mysql helper');
+group('Mysql helper (removed)');
 
-assert_throws(ErrorException::class, function () {
-    new SeedPHP\Helper\Mysql();
-}, 'deprecated constructor throws');
+assert_throws(Exception::class, function () {
+    class_exists('SeedPHP\\Helper\\Mysql');
+}, 'Mysql helper class is no longer available');
 
 group('Mailgun helper');
 

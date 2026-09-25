@@ -645,4 +645,3 @@ Helpers are built-in add-on libraries that supports specific features and/ or th
 | [Database](./helper-database.md)  | `\SeedPHP\Helper\Database` | A PDO wrapper.                                      |
 | [Http](./helper-http.md)          | `\SeedPHP\Helper\Http` | A helper for working with http responses codes.     |
 | [Logger](./helper-logger.md)      | `\SeedPHP\Helper\Logger` | A simple log class. Log data into a mysql database. |
-| [Mysql](./helper-mysql.md)        | `\SeedPHP\Helper\Mysql` | A MySQL wrapper. ( `Deprecated since v.1.5.0` )         |

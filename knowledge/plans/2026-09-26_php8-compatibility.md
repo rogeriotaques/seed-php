@@ -16,8 +16,8 @@ code paths emit PHP 8 deprecations or fatal errors. Local PHP is 8.5.6.
 - Dynamic helper properties: add `#[\AllowDynamicProperties]` to `Core`. It is inherited by
   `App`, ignored on PHP 8.0/8.1, and preserves the documented `$app-><helper>` API. This is
   the sanctioned PHP 9 migration path, not a stopgap.
-- `helper/Mysql.php`: keep as-is. Its constructor throws (`Mysql.php:34`), so it is
-  unreachable and its PHP 8.1 `mysqli` behavior is not a blocker. No docs change needed.
+- `helper/Mysql.php`: removed on 2026-09-26 (deprecated since 1.0.0, constructor threw).
+  Its PHP 8.1 `mysqli` behavior is no longer relevant.
 - PHP floor: support PHP 8.0. Declare `"php": ">=8.0"` and add
   `"config": { "platform": { "php": "8.0.0" } }` so the lock stays 8.0-resolvable (Twig 3
   latest requires >=8.1). If PHP 8.0 is not required, use `"php": "^8.1"` and drop the
@@ -139,12 +139,10 @@ Note: `CURLOPT_FOLLOWLOCATION` (`Curl.php:215`) still behaves as before. Passing
 maps to `CURLFOLLOW_ALL`; the new `CURLFOLLOW_*` modes (PHP 8.5) only change behavior if
 explicitly passed. No change needed.
 
-## Workstream 6 - Mysql helper (deprecated, effectively dead)
+## Workstream 6 - Mysql helper (removed)
 
-`helper/Mysql.php:34` throws `ErrorException` in the constructor, so the class cannot be
-instantiated. Its PHP 8.1 `mysqli` exception changes are unreachable. Keep as-is; do not
-spend effort on its internals. `helper/Database.php` (PDO, `ERRMODE_EXCEPTION` at `:250`)
-is unaffected.
+`helper/Mysql.php` was removed on 2026-09-26. Its PHP 8.1 `mysqli` exception changes are no
+longer relevant. `helper/Database.php` (PDO, `ERRMODE_EXCEPTION` at `:250`) is unaffected.
 
 ## Known external deprecation (vendor)
 

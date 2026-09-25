@@ -34,5 +34,5 @@
 
 ## Helpers status
 
-- `Mysql` helper is deprecated since 1.5.0. Prefer `Database` (PDO wrapper).
+- `Mysql` helper was removed (deprecated since 1.0.0). Use `Database` (PDO wrapper).
 - `Mailgun` needs Twig.

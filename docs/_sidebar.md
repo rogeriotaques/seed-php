@@ -35,7 +35,6 @@ by <a href="https://twitter.com/rogeriotaques" target="_blank" >@rogeriotaques</
     - [Http](/helper-http)
     - [Logger](/helper-logger)
     - [Mailgun](/helper-mailgun)
-    - [MySQL](/helper-mysql)
     - [RateLimit](/helper-ratelimit)
 
 </div>

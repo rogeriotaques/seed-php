@@ -128,21 +128,6 @@ $app->route('GET /ratelimit', function () use ($app, $rateLimitSettings) {
  * @use /database
  */
 $app->route('GET /database', function () use ($app) {
-    // NOTICE:
-    // THIS HELPER HAS BEEN DEPRECATED
-    // $app->load(
-    //     'mysql',
-    //     [
-    //         'host' => 'localhost',
-    //         'port' => '3306',
-    //         'user' => 'root',
-    //         'pass' => '',
-    //         'base' => 'issuer'
-    //     ]
-    // );
-    // run_test_query();
-    // echo '<br >';
-
     $app->load(
         'database',
         [
